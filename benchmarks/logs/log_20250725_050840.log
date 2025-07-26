@@ -1,0 +1,164 @@
+Verifying Docker images...
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+✅ All required Docker images are available
+
+📊 Starting benchmark run: 20250725_050840
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+main: error: failed to load model '/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf'
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:08:53Z", "avg_ns": 1696277825, "stddev_ns": 3383556, "avg_ts": 150.919155, "stddev_ts": 0.301762, "samples_ns": [ 1690286247, 1698109677, 1696997753, 1698211196, 1697784256 ],"samples_ts": [ 151.454, 150.756, 150.855, 150.747, 150.785 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:09:02Z", "avg_ns": 4467897132, "stddev_ns": 33004885, "avg_ts": 143.250328, "stddev_ts": 1.050257, "samples_ns": [ 4523957649, 4443100252, 4444652375, 4460203656, 4467571729 ],"samples_ts": [ 141.469, 144.044, 143.993, 143.491, 143.255 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:09:25Z", "avg_ns": 4360972688, "stddev_ns": 7326539, "avg_ts": 146.756582, "stddev_ts": 0.246489, "samples_ns": [ 4351883826, 4357041987, 4359818748, 4365333479, 4370785402 ],"samples_ts": [ 147.063, 146.889, 146.795, 146.61, 146.427 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:09:50Z", "avg_ns": 7288598729, "stddev_ns": 44114735, "avg_ts": 140.497485, "stddev_ts": 0.844027, "samples_ns": [ 7270191283, 7366301545, 7280810743, 7259629742, 7266060335 ],"samples_ts": [ 140.849, 139.011, 140.644, 141.054, 140.929 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 2, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:10:30Z", "avg_ns": 1391189866, "stddev_ns": 3363394, "avg_ts": 184.016002, "stddev_ts": 0.445213, "samples_ns": [ 1386539713, 1389028631, 1392120434, 1394758169, 1393502386 ],"samples_ts": [ 184.632, 184.301, 183.892, 183.544, 183.71 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 2, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:10:38Z", "avg_ns": 4208864848, "stddev_ns": 12429069, "avg_ts": 152.061061, "stddev_ts": 0.447971, "samples_ns": [ 4198022580, 4208642279, 4199475674, 4209017558, 4229166149 ],"samples_ts": [ 152.453, 152.068, 152.4, 152.054, 151.33 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 2, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:10:59Z", "avg_ns": 2960847296, "stddev_ns": 3467475, "avg_ts": 216.154579, "stddev_ts": 0.253057, "samples_ns": [ 2960251693, 2965863497, 2959295993, 2956579490, 2962245807 ],"samples_ts": [ 216.198, 215.789, 216.268, 216.466, 216.052 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 2, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:11:16Z", "avg_ns": 5826524909, "stddev_ns": 17962699, "avg_ts": 175.749318, "stddev_ts": 0.541331, "samples_ns": [ 5850356496, 5839826391, 5806658509, 5816898840, 5818884313 ],"samples_ts": [ 175.032, 175.348, 176.349, 176.039, 175.979 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 4, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:11:47Z", "avg_ns": 1245697879, "stddev_ns": 2239840, "avg_ts": 205.507825, "stddev_ts": 0.369304, "samples_ns": [ 1243206368, 1246515635, 1243840291, 1246141548, 1248785557 ],"samples_ts": [ 205.919, 205.372, 205.814, 205.434, 204.999 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 4, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:11:54Z", "avg_ns": 4096928874, "stddev_ns": 30962139, "avg_ts": 156.221710, "stddev_ts": 1.180237, "samples_ns": [ 4056289622, 4112709817, 4083057322, 4094027236, 4138560374 ],"samples_ts": [ 157.78, 155.615, 156.745, 156.325, 154.643 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 4, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:12:15Z", "avg_ns": 2310394260, "stddev_ns": 2926812, "avg_ts": 277.009354, "stddev_ts": 0.350817, "samples_ns": [ 2307844230, 2309703085, 2307497375, 2313305344, 2313621267 ],"samples_ts": [ 277.315, 277.092, 277.357, 276.66, 276.623 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 4, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T04:12:28Z", "avg_ns": 5192416631, "stddev_ns": 25925814, "avg_ts": 197.214598, "stddev_ts": 0.981539, "samples_ns": [ 5206234773, 5231609177, 5174791022, 5178248983, 5171199203 ],"samples_ts": [ 196.687, 195.733, 197.882, 197.75, 198.02 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "NVIDIA GeForce RTX 3060 Laptop GPU", "backends": "CUDA", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 8, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 99, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": false, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T04:12:55Z", "avg_ns": 1165324830, "stddev_ns": 520739, "avg_ts": 219.681272, "stddev_ts": 0.098166, "samples_ns": [ 1165301049, 1164627556, 1165551833, 1166032479, 1165111233 ],"samples_ts": [ 219.686, 219.813, 219.638, 219.548, 219.722 ]}
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-14B-F16.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-14B-F16.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-14B-F16.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-14B-F16.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-14B-F16.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-7B-F16.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-7B-F16.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-7B-F16.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-7B-F16.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-7B-F16.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf - cuda
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf
+  🔍 Running cuda variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cuda
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf -o jsonl -b 1,2,4,8,16,32,128,512,1024,2048,5012 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 99 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no
+ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no
+ggml_cuda_init: found 1 CUDA devices:
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cuda
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cuda
+
+🎉 Benchmark run completed!
+📊 Total results: 9

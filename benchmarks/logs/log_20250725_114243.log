@@ -1,0 +1,53 @@
+Verifying Docker images...
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+✅ All required Docker images are available
+
+📊 Starting benchmark run: 20250725_114243
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T10:42:46Z", "avg_ns": 8559823940, "stddev_ns": 24911998, "avg_ts": 29.907360, "stddev_ts": 0.087218, "samples_ns": [ 8575532754, 8520406960, 8583980546, 8552589403, 8566610039 ],"samples_ts": [ 29.8524, 30.0455, 29.823, 29.9325, 29.8835 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T10:43:33Z", "avg_ns": 21823660837, "stddev_ns": 21827406, "avg_ts": 29.325992, "stddev_ts": 0.029349, "samples_ns": [ 21790049421, 21836530259, 21814840210, 21845356466, 21831527829 ],"samples_ts": [ 29.3712, 29.3087, 29.3378, 29.2968, 29.3154 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T10:45:26Z", "avg_ns": 21827440592, "stddev_ns": 12381941, "avg_ts": 29.320898, "stddev_ts": 0.016627, "samples_ns": [ 21825862740, 21846735680, 21821553434, 21813346854, 21829704253 ],"samples_ts": [ 29.323, 29.295, 29.3288, 29.3398, 29.3179 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T10:47:33Z", "avg_ns": 35577226290, "stddev_ns": 36551048, "avg_ts": 28.782482, "stddev_ts": 0.029538, "samples_ns": [ 35572638414, 35550029905, 35551295888, 35572579423, 35639587824 ],"samples_ts": [ 28.7862, 28.8045, 28.8035, 28.7862, 28.7321 ]}
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf", "model_type": "qwen2 1.5B BF16", "model_size": 3554465792, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T10:50:52Z", "avg_ns": 24690129470, "stddev_ns": 56280216, "avg_ts": 10.368559, "stddev_ts": 0.023619, "samples_ns": [ 24759125278, 24741345251, 24634274385, 24651039092, 24664863347 ],"samples_ts": [ 10.3396, 10.3471, 10.392, 10.385, 10.3791 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf", "model_type": "qwen2 1.5B BF16", "model_size": 3554465792, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T10:53:10Z", "avg_ns": 62180678954, "stddev_ns": 3725530325, "avg_ts": 10.292681, "stddev_ts": 0.034835, "samples_ns": [ 62270016502, 62041387609, 62020008849, 62512588262, 62059393552 ],"samples_ts": [ 10.2778, 10.3157, 10.3193, 10.2379, 10.3127 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf", "model_type": "qwen2 1.5B BF16", "model_size": 3554465792, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-25T10:58:33Z", "avg_ns": 61996239326, "stddev_ns": 41592993, "avg_ts": 10.323211, "stddev_ts": 0.006925, "samples_ns": [ 61974597669, 62055765938, 62000987056, 61943484029, 62006361938 ],"samples_ts": [ 10.3268, 10.3133, 10.3224, 10.332, 10.3215 ]}
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf", "model_type": "qwen2 1.5B BF16", "model_size": 3554465792, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 16, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": true, "embeddings": false, "no_op_offload": 1, "n_prompt": 512, "n_gen": 512, "n_depth": 0, "test_time": "2025-07-25T11:04:33Z", "avg_ns": 99868334847, "stddev_ns": 257654239, "avg_ts": 10.253555, "stddev_ts": 0.026418, "samples_ns": [ 99728882088, 100234840437, 99649223487, 99685859929, 100042868297 ],"samples_ts": [ 10.2678, 10.216, 10.276, 10.2723, 10.2356 ]}
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+
+🎉 Benchmark run completed!
+📊 Total results: 3

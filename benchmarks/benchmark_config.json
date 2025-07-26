@@ -1,0 +1,40 @@
+{
+  "gpu_percentages": [
+    10,
+    25,
+    50,
+    75,
+    100
+  ],
+  "cpu_configs": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "llama_bench_params": [
+    "-o",
+    "jsonl",
+    "-fa",
+    "1",
+    "-b",
+    "2048",
+    "-n",
+    "0",
+    "-p",
+    "0",
+    "-pg",
+    "128,128",
+    "-pg",
+    "128,512",
+    "-pg",
+    "512,128",
+    "-pg",
+    "512,512",
+    "-nopo",
+    "1"
+  ],
+  "default_threads": 16,
+  "gpu_layers_mapping": "percentage"
+}

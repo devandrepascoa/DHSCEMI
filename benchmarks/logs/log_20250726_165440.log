@@ -1,0 +1,65 @@
+Verifying Docker images...
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+✅ All required Docker images are available
+
+📊 Starting benchmark run: 20250726_165440
+
+📊 Benchmarking model: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+
+SCENARIO 2: CPU scenarios with increasing CPU core count
+--------------------------------------------------
+Running benchmark: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 1 cores - GPU 0%
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 1 -ngl 0
+📊 Docker command:
+==================================================
+docker run --rm -v /home/andrepascoa/projects/llmtests/benchmarks/models:/models:ro ghcr.io/ggml-org/llama.cpp:full --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 1 -ngl 0
+==================================================
+📊 Container output:
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 1 cores - GPU 0%
+Exit code: 137
+  ✅ Completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - CPU - 1 cores
+Running benchmark: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 2 cores - GPU 0%
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 2 -ngl 0
+📊 Docker command:
+==================================================
+docker run --rm -v /home/andrepascoa/projects/llmtests/benchmarks/models:/models:ro ghcr.io/ggml-org/llama.cpp:full --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 2 -ngl 0
+==================================================
+📊 Container output:
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 2 cores - GPU 0%
+Exit code: 137
+  ✅ Completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - CPU - 2 cores
+Running benchmark: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 4 cores - GPU 0%
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 4 -ngl 0
+📊 Docker command:
+==================================================
+docker run --rm -v /home/andrepascoa/projects/llmtests/benchmarks/models:/models:ro ghcr.io/ggml-org/llama.cpp:full --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 4 -ngl 0
+==================================================
+📊 Container output:
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 4 cores - GPU 0%
+Exit code: 137
+  ✅ Completed: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - CPU - 4 cores
+Running benchmark: 1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu - CPU 8 cores - GPU 0%
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 8 -ngl 0
+📊 Docker command:
+==================================================
+docker run --rm -v /home/andrepascoa/projects/llmtests/benchmarks/models:/models:ro ghcr.io/ggml-org/llama.cpp:full --bench -m /models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -b 1,2,4,8,16,32 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -mmp 0 -nopo 1 -t 8 -ngl 0
+==================================================
+📊 Container output:
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+{"build_commit": "a12363bb", "build_number": 5974, "cpu_info": "Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz", "gpu_info": "", "backends": "CPU", "model_filename": "/models/1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "model_type": "qwen2 1.5B Q4_K - Medium", "model_size": 1111370240, "model_n_params": 1777088000, "n_batch": 1, "n_ubatch": 512, "n_threads": 8, "cpu_mask": "0x0", "cpu_strict": false, "poll": 50, "type_k": "f16", "type_v": "f16", "n_gpu_layers": 0, "split_mode": "layer", "main_gpu": 0, "no_kv_offload": false, "flash_attn": true, "tensor_split": "0.00", "tensor_buft_overrides": "none", "defrag_thold": -1.000000, "use_mmap": false, "embeddings": false, "no_op_offload": 1, "n_prompt": 128, "n_gen": 128, "n_depth": 0, "test_time": "2025-07-26T15:56:03Z", "avg_ns": 8709941196, "stddev_ns": 91761473, "avg_ts": 29.394296, "stddev_ts": 0.307750, "samples_ns": [ 8692200761, 8619265981, 8851693674, 8740677770, 8645867797 ],"samples_ts": [ 29.4517, 29.7009, 28.921, 29.2883, 29.6095 ]}

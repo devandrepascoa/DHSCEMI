@@ -1,0 +1,45 @@
+Verifying Docker images...
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+✅ Found prebuilt image: ghcr.io/ggml-org/llama.cpp:full-cuda
+✅ All required Docker images are available
+
+📊 Starting benchmark run: 20250725_152217
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-BF16.gguf - cpu
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf - cpu
+
+📊 Benchmarking model: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf
+  🔍 Running cpu variant...
+Running benchmark: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+🐳 Using prebuilt image: ghcr.io/ggml-org/llama.cpp:full
+📂 Models directory (absolute): /home/andrepascoa/projects/llmtests/benchmarks/models
+🐳 Starting container with command: --bench -m /models/DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf -o jsonl -fa 1 -t 16 -b 1 -n 0 -p 0 -pg 128,128 -pg 128,512 -pg 512,128 -pg 512,512 -ngl 0 -nopo 1
+📊 Container output (streaming to file):
+==================================================
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+✅ Benchmark completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+  ✅ Completed: DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf - cpu
+
+🎉 Benchmark run completed!
+📊 Total results: 3
