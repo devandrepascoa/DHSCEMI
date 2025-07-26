@@ -24,6 +24,9 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import uvicorn
 from contextlib import asynccontextmanager
+import pandas as pd
+import statistics
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +35,9 @@ logger = logging.getLogger(__name__)
 # Global container registry
 container_pools: Dict[str, List['ContainerInstance']] = {}
 model_configs: Dict[str, Dict[str, Any]] = {}
+
+# Initialize FastAPI app at the top level
+app = FastAPI(title="llama.cpp OpenAI Proxy", version="1.0.0")
 
 @dataclass
 class ContainerConfig:
@@ -48,6 +54,12 @@ class ContainerConfig:
                 raise ValueError("cpu_cores cannot be set when gpu_percentage is specified")
             if self.memory is not None:
                 raise ValueError("memory cannot be set when gpu_percentage is specified")
+    
+    def __str__(self):
+        cpu_str = f"cpu{self.cpu_cores}" if self.cpu_cores else "cpu"
+        memory_str = f"mem{self.memory}" if self.memory else "mem"
+        gpu_str = f"gpu{self.gpu_percentage}" if self.gpu_percentage else "nogpu"
+        return f"{cpu_str}_{memory_str}_{gpu_str}"
     
     @property
     def container_type(self) -> str:
@@ -282,7 +294,7 @@ class DecisionLayer:
         containers = container_pools[model_name]
         ready_containers = [
             c for c in containers 
-            if c.is_ready and c.config.container_type == config.container_type
+            if c.is_ready and str(c.config) == str(config)
         ]
         
         # Spawn new container if no ready containers of the requested type
@@ -296,7 +308,7 @@ class DecisionLayer:
         containers = container_pools[model_name]
         available_containers = [
             c for c in containers 
-            if c.is_ready and c.config.container_type == config.container_type
+            if c.is_ready and str(c.config) == str(config)
         ]
         
         if not available_containers:
@@ -351,7 +363,7 @@ class ContainerManager:
         cpu_config = ContainerConfig(cpu_cores=1.0, memory="4g")
         cpu_containers = [
             c for c in container_pools[model_name] 
-            if c.config.container_type == "cpu"
+            if str(c.config) == str(cpu_config)
         ]
         
         # Add CPU containers if needed
@@ -376,7 +388,7 @@ class ContainerManager:
         # Find next available container index
         existing_containers = [
             c for c in container_pools[model_name] 
-            if c.config.container_type == config.container_type
+            if str(c.config) == str(config)
         ]
         container_index = len(existing_containers)
         
@@ -473,7 +485,7 @@ async def initialize_all_model_clusters():
 class ModelMetrics:
     """Metrics for a specific model and configuration"""
     model_name: str
-    config_type: str  # 'cpu' or 'gpu'
+    config_type: str  # String representation of the actual configuration
     
     # Performance metrics
     total_requests: int = 0
@@ -481,15 +493,25 @@ class ModelMetrics:
     total_time_seconds: float = 0.0
     time_to_first_token: List[float] = field(default_factory=list)
     
+    # Detailed timing metrics from benchmarkv2.py
+    prompt_processing_ms: List[float] = field(default_factory=list)
+    predicted_processing_ms: List[float] = field(default_factory=list)
+    prompt_tokens: List[int] = field(default_factory=list)
+    predicted_tokens: List[int] = field(default_factory=list)
+    
     # Throughput tracking
     tokens_per_second: List[float] = field(default_factory=list)
+    prompt_processing_throughput: List[float] = field(default_factory=list)
+    token_generation_throughput: List[float] = field(default_factory=list)
     request_durations: List[float] = field(default_factory=list)
     
     # Error tracking
     error_count: int = 0
     last_updated: float = field(default_factory=lambda: time.time())
     
-    def record_request(self, tokens: int, duration_seconds: float, time_to_first: Optional[float] = None):
+    def record_request(self, tokens: int, duration_seconds: float, time_to_first: Optional[float] = None,
+                      prompt_ms: Optional[float] = None, predicted_ms: Optional[float] = None,
+                      prompt_tok: Optional[int] = None, predicted_tok: Optional[int] = None):
         """Record metrics for a completed request"""
         self.total_requests += 1
         self.total_tokens += tokens
@@ -501,10 +523,32 @@ class ModelMetrics:
         if time_to_first is not None:
             self.time_to_first_token.append(time_to_first)
         
+        if prompt_ms is not None:
+            self.prompt_processing_ms.append(prompt_ms)
+        
+        if predicted_ms is not None:
+            self.predicted_processing_ms.append(predicted_ms)
+        
+        if prompt_tok is not None:
+            self.prompt_tokens.append(prompt_tok)
+        
+        if predicted_tok is not None:
+            self.predicted_tokens.append(predicted_tok)
+        
         # Calculate tokens per second for this request
         if duration_seconds > 0:
             tps = tokens / duration_seconds
             self.tokens_per_second.append(tps)
+        
+        # Calculate prompt processing throughput
+        if prompt_ms is not None and prompt_tok is not None and prompt_ms > 0:
+            prompt_tps = prompt_tok / (prompt_ms / 1000.0)
+            self.prompt_processing_throughput.append(prompt_tps)
+        
+        # Calculate token generation throughput
+        if predicted_ms is not None and predicted_tok is not None and predicted_ms > 0:
+            token_tps = predicted_tok / (predicted_ms / 1000.0)
+            self.token_generation_throughput.append(token_tps)
     
     def record_error(self):
         """Record an error"""
@@ -526,6 +570,20 @@ class ModelMetrics:
         return sum(self.time_to_first_token) / len(self.time_to_first_token)
     
     @property
+    def average_prompt_processing_throughput(self) -> float:
+        """Get average prompt processing throughput in tokens per second"""
+        if not self.prompt_processing_throughput:
+            return 0.0
+        return sum(self.prompt_processing_throughput) / len(self.prompt_processing_throughput)
+    
+    @property
+    def average_token_generation_throughput(self) -> float:
+        """Get average token generation throughput in tokens per second"""
+        if not self.token_generation_throughput:
+            return 0.0
+        return sum(self.token_generation_throughput) / len(self.token_generation_throughput)
+    
+    @property
     def error_rate(self) -> float:
         """Get error rate as percentage"""
         if self.total_requests == 0:
@@ -533,7 +591,7 @@ class ModelMetrics:
         return (self.error_count / self.total_requests) * 100
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert metrics to dictionary"""
+        """Convert metrics to dictionary with benchmarkv2.py format"""
         return {
             "model_name": self.model_name,
             "config_type": self.config_type,
@@ -541,12 +599,21 @@ class ModelMetrics:
             "total_tokens": self.total_tokens,
             "average_throughput": self.average_throughput,
             "average_time_to_first_token": self.average_time_to_first_token,
+            "average_prompt_processing_throughput": self.average_prompt_processing_throughput,
+            "average_token_generation_throughput": self.average_token_generation_throughput,
             "error_rate": self.error_rate,
             "last_updated": self.last_updated,
+            "total_prompt_tokens": sum(self.prompt_tokens),
+            "total_predicted_tokens": sum(self.predicted_tokens),
+            "total_prompt_ms": sum(self.prompt_processing_ms),
+            "total_predicted_ms": sum(self.predicted_processing_ms),
+            "prompt_processing_ms_per_token": (sum(self.prompt_processing_ms) / sum(self.prompt_tokens)) if sum(self.prompt_tokens) > 0 else 0.0,
+            "predicted_processing_ms_per_token": (sum(self.predicted_processing_ms) / sum(self.predicted_tokens)) if sum(self.predicted_tokens) > 0 else 0.0,
             "recent_tokens_per_second": self.tokens_per_second[-10:],  # Last 10 values
             "recent_time_to_first": self.time_to_first_token[-10:],   # Last 10 values
+            "recent_prompt_processing_throughput": self.prompt_processing_throughput[-10:],
+            "recent_token_generation_throughput": self.token_generation_throughput[-10:],
         }
-
 
 class MetricsTracker:
     """Centralized metrics tracking for all model and configuration combinations"""
@@ -555,8 +622,8 @@ class MetricsTracker:
         self.lock = asyncio.Lock()
     
     def _get_key(self, model_name: str, config: ContainerConfig) -> str:
-        """Generate unique key for model and configuration"""
-        return f"{model_name}_{config.container_type}"
+        """Generate unique key for model and full configuration"""
+        return f"{model_name}_{str(config)}"
     
     async def record_request(
         self, 
@@ -564,7 +631,11 @@ class MetricsTracker:
         config: ContainerConfig,
         tokens: int,
         duration_seconds: float,
-        time_to_first: Optional[float] = None
+        time_to_first: Optional[float] = None,
+        prompt_ms: Optional[float] = None,
+        predicted_ms: Optional[float] = None,
+        prompt_tok: Optional[int] = None,
+        predicted_tok: Optional[int] = None
     ):
         """Record metrics for a completed request"""
         async with self.lock:
@@ -573,10 +644,13 @@ class MetricsTracker:
             if key not in self.metrics:
                 self.metrics[key] = ModelMetrics(
                     model_name=model_name,
-                    config_type=config.container_type
+                    config_type=str(config)  # Store string representation of config
                 )
             
-            self.metrics[key].record_request(tokens, duration_seconds, time_to_first)
+            self.metrics[key].record_request(
+                tokens, duration_seconds, time_to_first, 
+                prompt_ms, predicted_ms, prompt_tok, predicted_tok
+            )
     
     async def record_error(self, model_name: str, config: ContainerConfig):
         """Record an error for model and configuration"""
@@ -586,7 +660,7 @@ class MetricsTracker:
             if key not in self.metrics:
                 self.metrics[key] = ModelMetrics(
                     model_name=model_name,
-                    config_type=config.container_type
+                    config_type=str(config)
                 )
             
             self.metrics[key].record_error()
@@ -612,11 +686,91 @@ class MetricsTracker:
     async def get_model_metrics(self, model_name: str) -> Dict[str, Dict[str, Any]]:
         """Get all metrics for a specific model"""
         async with self.lock:
-            model_metrics = {}
+            return {
+                key: metrics.to_dict() 
+                for key, metrics in self.metrics.items() 
+                if metrics.model_name == model_name
+            }
+    
+    async def save_metrics(self, output_dir: str = "./metrics_results"):
+        """Save all metrics to CSV and JSON files like benchmarkv2.py"""
+        async with self.lock:
+            if not self.metrics:
+                print("No metrics to save")
+                return
+            
+            output_dir = Path(output_dir)
+            output_dir.mkdir(exist_ok=True)
+            
+            # Collect all metrics into a list of dictionaries
+            all_metrics = []
             for key, metrics in self.metrics.items():
-                if metrics.model_name == model_name:
-                    model_metrics[key] = metrics.to_dict()
-            return model_metrics
+                metrics_dict = metrics.to_dict()
+                
+                # Add configuration details
+                config_parts = metrics_dict['config_type'].split('_')
+                if len(config_parts) >= 2:
+                    metrics_dict['variant'] = config_parts[0]
+                    metrics_dict['cpu_cores'] = config_parts[1] if len(config_parts) > 1 else None
+                    metrics_dict['gpu_percentage'] = config_parts[2] if len(config_parts) > 2 else None
+                
+                all_metrics.append(metrics_dict)
+            
+            if not all_metrics:
+                print("No metrics to save")
+                return
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            # Save as CSV
+            try:
+                df = pd.DataFrame(all_metrics)
+                csv_path = output_dir / f"metrics_results_{timestamp}.csv"
+                df.to_csv(csv_path, index=False)
+                print(f"Metrics saved to: {csv_path}")
+                
+                # Save as JSON
+                json_path = output_dir / f"metrics_results_{timestamp}.json"
+                with open(json_path, 'w') as f:
+                    json.dump(all_metrics, f, indent=2, default=str)
+                print(f"Metrics saved to: {json_path}")
+                
+                # Print summary
+                print("\n📊 Metrics Summary:")
+                print("-" * 50)
+                
+                # Calculate averages by variant
+                variants = set(m.get('variant', 'unknown') for m in all_metrics)
+                for variant in sorted(variants):
+                    variant_results = [m for m in all_metrics if m.get('variant') == variant]
+                    if variant_results:
+                        print(f"\n{variant.upper()} Results:")
+                        
+                        # Calculate averages
+                        avg_throughput = statistics.mean([m.get('average_throughput', 0) for m in variant_results])
+                        avg_prompt_throughput = statistics.mean([m.get('average_prompt_processing_throughput', 0) for m in variant_results])
+                        avg_token_throughput = statistics.mean([m.get('average_token_generation_throughput', 0) for m in variant_results])
+                        avg_time_to_first = statistics.mean([m.get('average_time_to_first_token', 0) for m in variant_results])
+                        avg_error_rate = statistics.mean([m.get('error_rate', 0) for m in variant_results])
+                        
+                        print(f"  Average Throughput: {avg_throughput:.2f} tokens/sec")
+                        print(f"  Average Prompt Processing: {avg_prompt_throughput:.2f} tokens/sec")
+                        print(f"  Average Token Generation: {avg_token_throughput:.2f} tokens/sec")
+                        print(f"  Average Time to First Token: {avg_time_to_first:.2f} seconds")
+                        print(f"  Average Error Rate: {avg_error_rate:.2f}%")
+                        
+                        total_requests = sum([m.get('total_requests', 0) for m in variant_results])
+                        print(f"  Total Requests: {total_requests}")
+                        
+                return {
+                    "csv_path": str(csv_path),
+                    "json_path": str(json_path),
+                    "metrics_count": len(all_metrics)
+                }
+                
+            except Exception as e:
+                print(f"Error saving metrics: {e}")
+                return {"error": str(e)}
 
 async def stream_chat_completion(request: ChatCompletionRequest, container: ContainerInstance) -> AsyncGenerator[str, None]:
     """Stream chat completion responses with metrics tracking"""
@@ -624,56 +778,117 @@ async def stream_chat_completion(request: ChatCompletionRequest, container: Cont
     first_token_time = None
     total_tokens = 0
     
+    # Prepare the request payload
+    messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+    payload = {
+        "messages": messages,
+        "max_tokens": request.max_tokens,
+        "temperature": request.temperature,
+        "top_p": request.top_p,
+        "stream": True,
+        "stop": request.stop
+    }
+    
     try:
+        endpoint = container.get_endpoint()
         async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{container.get_endpoint()}/v1/chat/completions",
-                json=request.dict(),
-                timeout=aiohttp.ClientTimeout(total=None)
-            ) as response:
+            async with session.post(f"{endpoint}/v1/chat/completions", json=payload) as response:
                 if response.status != 200:
-                    await container_manager.metrics_tracker.record_error(request.model, container.config)
+                    await container_manager.metrics_tracker.record_error(
+                        request.model, container.config
+                    )
                     raise HTTPException(status_code=response.status, detail="Container error")
                 
+                # Collect response data for metrics
+                response_data = []
                 async for line in response.content:
                     line = line.decode('utf-8').strip()
                     if line.startswith('data: '):
-                        data = line[6:]
+                        data = line[6:]  # Remove 'data: ' prefix
                         if data == '[DONE]':
                             break
-                        
                         try:
                             chunk = json.loads(data)
-                            if first_token_time is None and 'choices' in chunk:
+                            response_data.append(chunk)
+                            
+                            # Track first token time
+                            if first_token_time is None:
                                 first_token_time = time.time()
                             
+                            # Count tokens from choices
                             if 'choices' in chunk and chunk['choices']:
                                 delta = chunk['choices'][0].get('delta', {})
                                 if 'content' in delta:
-                                    total_tokens += len(delta['content'].split())
+                                    content = delta['content']
+                                    # Rough token estimation (1 token ~ 4 chars)
+                                    total_tokens += max(1, len(content) // 4)
                             
-                            yield line
+                            yield f"data: {data}\n\n"
                         except json.JSONDecodeError:
                             continue
-        
-        # Calculate and record metrics
-        duration = time.time() - start_time
-        time_to_first = first_token_time - start_time if first_token_time else None
-        
-        await container_manager.metrics_tracker.record_request(
-            request.model, container.config, total_tokens, duration, time_to_first
-        )
-        
+                
+                # Calculate detailed metrics
+                end_time = time.time()
+                total_duration = end_time - start_time
+                time_to_first = first_token_time - start_time if first_token_time else total_duration
+                
+                # Extract timing data from response if available
+                prompt_ms = 0
+                predicted_ms = total_duration * 1000  # Convert to ms
+                prompt_tokens = 0
+                predicted_tokens = total_tokens
+                
+                # Try to get actual token counts from the last chunk
+                if response_data:
+                    last_chunk = response_data[-1]
+                    if 'usage' in last_chunk:
+                        usage = last_chunk['usage']
+                        prompt_tokens = usage.get('prompt_tokens', 0)
+                        predicted_tokens = usage.get('completion_tokens', total_tokens)
+                        
+                        # Estimate prompt processing time based on prompt tokens
+                        if prompt_tokens > 0:
+                            prompt_ms = time_to_first * 1000
+                            predicted_ms = (total_duration - time_to_first) * 1000
+                
+                # Record detailed metrics
+                await container_manager.metrics_tracker.record_request(
+                    request.model,
+                    container.config,
+                    total_tokens,
+                    total_duration,
+                    time_to_first,
+                    prompt_ms,
+                    predicted_ms,
+                    prompt_tokens,
+                    predicted_tokens
+                )
+                
+                yield "data: [DONE]\n\n"
+                
     except Exception as e:
-        await container_manager.metrics_tracker.record_error(request.model, container.config)
-        logger.error(f"Streaming error: {e}")
-        raise
+        await container_manager.metrics_tracker.record_error(
+            request.model, container.config
+        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 async def non_streaming_chat_completion(request: ChatCompletionRequest, container: ContainerInstance) -> ChatCompletionResponse:
     """Non-streaming chat completion with metrics tracking"""
     start_time = time.time()
     
+    # Prepare the request payload
+    messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+    payload = {
+        "messages": messages,
+        "max_tokens": request.max_tokens,
+        "temperature": request.temperature,
+        "top_p": request.top_p,
+        "stream": False,
+        "stop": request.stop
+    }
+    
     try:
+        endpoint = container.get_endpoint()
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 f"{container.get_endpoint()}/v1/chat/completions",
@@ -686,37 +901,70 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest, containe
                 
                 result = await response.json()
                 
-                # Calculate metrics
-                duration = time.time() - start_time
-                tokens = result.get('usage', {}).get('total_tokens', 0)
+                # Calculate detailed metrics
+                end_time = time.time()
+                total_duration = end_time - start_time
                 
+                # Extract usage data
+                usage = result.get('usage', {})
+                prompt_tokens = usage.get('prompt_tokens', 0)
+                completion_tokens = usage.get('completion_tokens', 0)
+                total_tokens = prompt_tokens + completion_tokens
+                
+                # Extract timing data if available in response
+                prompt_ms = 0
+                predicted_ms = total_duration * 1000
+                
+                # Try to get timing from response metadata
+                if 'timings' in result:
+                    timings = result['timings']
+                    prompt_ms = timings.get('prompt_ms', 0)
+                    predicted_ms = timings.get('predicted_ms', total_duration * 1000)
+                    prompt_tokens = timings.get('prompt_n', prompt_tokens)
+                    completion_tokens = timings.get('predicted_n', completion_tokens)
+                
+                # Time to first token is the same as total duration for non-streaming
+                time_to_first = total_duration
+                
+                # Record detailed metrics
                 await container_manager.metrics_tracker.record_request(
-                    request.model, container.config, tokens, duration
+                    request.model,
+                    container.config,
+                    completion_tokens,  # Only count completion tokens for throughput
+                    total_duration,
+                    time_to_first,
+                    prompt_ms,
+                    predicted_ms,
+                    prompt_tokens,
+                    completion_tokens
                 )
                 
-                # Convert to our response format
+                # Build response
+                choices = []
+                for i, choice_data in enumerate(result.get('choices', [])):
+                    message = choice_data.get('message', {})
+                    choices.append(ChatCompletionChoice(
+                        index=i,
+                        message={
+                            "role": message.get('role', 'assistant'),
+                            "content": message.get('content', '')
+                        },
+                        finish_reason=choice_data.get('finish_reason')
+                    ))
+                
                 return ChatCompletionResponse(
-                    id=f"chatcmpl-{uuid.uuid4()}",
-                    object="chat.completion",
+                    id=str(uuid.uuid4()),
                     created=int(time.time()),
                     model=request.model,
-                    choices=[
-                        ChatCompletionChoice(
-                            index=0,
-                            message=Message(
-                                role="assistant",
-                                content=result['choices'][0]['message']['content']
-                            ),
-                            finish_reason=result['choices'][0].get('finish_reason', 'stop')
-                        )
-                    ],
-                    usage=result.get('usage', {})
+                    choices=choices,
+                    usage=usage
                 )
-    
+                
     except Exception as e:
-        await container_manager.metrics_tracker.record_error(request.model, container.config)
-        logger.error(f"Non-streaming error: {e}")
-        raise
+        await container_manager.metrics_tracker.record_error(
+            request.model, container.config
+        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/v1/chat/completions")
 async def create_chat_completion(request: ChatCompletionRequest):
@@ -804,6 +1052,77 @@ async def get_model_config_metrics(model_name: str, config_type: str):
     config = ContainerConfig(container_type=config_type)
     return await container_manager.metrics_tracker.get_metrics(model_name, config)
 
+@app.post("/v1/save-metrics")
+async def save_metrics():
+    """Save all metrics to CSV and JSON files"""
+    try:
+        result = await container_manager.metrics_tracker.save_metrics()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/v1/metrics-summary")
+async def get_metrics_summary():
+    """Get a summary of all metrics"""
+    try:
+        all_metrics = await container_manager.metrics_tracker.get_all_metrics()
+        if not all_metrics:
+            return {"message": "No metrics available"}
+        
+        # Calculate summary statistics
+        summary = {
+            "total_models": len(all_metrics),
+            "total_requests": sum(m.get('total_requests', 0) for m in all_metrics.values()),
+            "total_tokens": sum(m.get('total_tokens', 0) for m in all_metrics.values()),
+            "average_throughput": 0,
+            "average_time_to_first_token": 0,
+            "error_rate": 0,
+            "models": {}
+        }
+        
+        # Calculate averages
+        total_requests = summary['total_requests']
+        if total_requests > 0:
+            summary['average_throughput'] = sum(
+                m.get('average_throughput', 0) * m.get('total_requests', 0) 
+                for m in all_metrics.values()
+            ) / total_requests
+            
+            summary['average_time_to_first_token'] = sum(
+                m.get('average_time_to_first_token', 0) * m.get('total_requests', 0)
+                for m in all_metrics.values()
+            ) / total_requests
+            
+            summary['error_rate'] = sum(
+                m.get('error_count', 0) for m in all_metrics.values()
+            ) / total_requests * 100
+        
+        # Group by model
+        for key, metrics in all_metrics.items():
+            model_name = metrics['model_name']
+            if model_name not in summary['models']:
+                summary['models'][model_name] = {
+                    'total_requests': 0,
+                    'total_tokens': 0,
+                    'configurations': []
+                }
+            
+            summary['models'][model_name]['total_requests'] += metrics['total_requests']
+            summary['models'][model_name]['total_tokens'] += metrics['total_tokens']
+            summary['models'][model_name]['configurations'].append({
+                'config': metrics['config_type'],
+                'requests': metrics['total_requests'],
+                'tokens': metrics['total_tokens'],
+                'throughput': metrics['average_throughput'],
+                'time_to_first': metrics['average_time_to_first_token'],
+                'error_rate': metrics['error_rate']
+            })
+        
+        return summary
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 def main():
     """Main entry point"""
     import argparse
@@ -837,5 +1156,4 @@ def main():
 
 if __name__ == "__main__":
     container_manager = ContainerManager()
-    app = FastAPI(title="llama.cpp OpenAI Proxy", version="1.0.0", lifespan=lifespan)
     main()

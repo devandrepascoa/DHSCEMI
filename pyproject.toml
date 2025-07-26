@@ -17,3 +17,8 @@ dev = [
 
 [project.scripts]
 proxy = "main:main"
+
+[tool.uv.workspace]
+members = [
+    "benchmarks",
+]

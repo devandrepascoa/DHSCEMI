@@ -197,7 +197,6 @@ def check_gpu():
 def main():
     parser = argparse.ArgumentParser(description="Run LLM benchmarks")
     parser.add_argument("--models-dir", default="./models", help="Directory containing model files")
-    parser.add_argument("--docker-dir", default="./docker", help="Directory with Docker files")
     parser.add_argument("--cpu-only", action="store_true", help="Run only CPU benchmarks")
     parser.add_argument("--gpu-only", action="store_true", help="Run only GPU benchmarks")
     parser.add_argument("--config-path", default="benchmark_config.json", help="Path to configuration file")
