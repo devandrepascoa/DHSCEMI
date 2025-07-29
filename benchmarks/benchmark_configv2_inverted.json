@@ -8,8 +8,8 @@
   "gpu_percentages": [100, 75, 50, 25],
   "cpu_configs": [16, 8, 4, 2, 1],
   "temperature": 0.7,
-  "concurrent_levels": [ 4, 1],
-  "token_sizes": [1024, 128],
+  "concurrent_levels": [4, 2, 1],
+  "token_sizes": [256, 128],
   "test_prompts": [
     "Explain the concept of machine learning in simple terms."
   ]

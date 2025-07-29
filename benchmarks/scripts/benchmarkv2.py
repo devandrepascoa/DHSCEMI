@@ -75,6 +75,7 @@ class LlamaServerBenchmark:
             "max_tokens": max_tokens,
             "temperature": temperature,
             "n": 1,
+            "cache_prompt": False,
             "stream": False
         }
         
@@ -91,11 +92,11 @@ class LlamaServerBenchmark:
         
         try:
             # Create progress bar
-            pbar = tqdm(total=concurrent_requests, desc=f"Processing {concurrent_requests} concurrent requests")
+            # pbar = tqdm(total=concurrent_requests, desc=f"Processing {concurrent_requests} concurrent requests")
             
             async def tracked_request():
                 result = await single_request()
-                pbar.update(1)
+                # pbar.update(1)
                 return result
             
             # Run concurrent requests with progress tracking
@@ -103,10 +104,19 @@ class LlamaServerBenchmark:
             results = await asyncio.gather(*tasks, return_exceptions=True)
             
             # Close progress bar
-            pbar.close()
+            # pbar.close()
             
             # Filter successful results
             successful_results = [r for r in results if r and not isinstance(r, Exception)]
+
+            # Print results
+            print("DATA_DUMP")
+            for result in successful_results:
+                result_copy = result.copy()
+
+                # Remove content
+                result_copy["content"] = None
+                print(json.dumps(result, indent=4))
 
             if not successful_results:
                 return {}
@@ -203,7 +213,8 @@ class LlamaServerBenchmark:
             "messages": messages,
             "max_tokens": max_tokens,
             "temperature": temperature,
-            "stream": False
+            "stream": False,
+            "cache_prompt" : False
         }
         
         start_time = time.time()
@@ -363,15 +374,15 @@ def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, 
     return cmd, port, container_name
 
 
-async def run_benchmark(model_path, variant, config, models_dir, cpu_cores=None, gpu_percentage=None):
-    """Run a single benchmark configuration"""
+async def run_benchmark_with_samples(model_path, variant, config, models_dir, cpu_cores=None, gpu_percentage=None, num_samples=1):
+    """Run benchmark with multiple samples and calculate statistics"""
     config_desc = f"{model_path.name} - {variant}"
     if cpu_cores is not None:
         config_desc += f" - CPU {cpu_cores} cores"
     if gpu_percentage is not None:
         config_desc += f" - GPU {gpu_percentage}%"
 
-    print(f"Running benchmark: {config_desc}")
+    print(f"Running benchmark with {num_samples} samples: {config_desc}")
 
     # Build Docker command to start server
     server_cmd, port, container_name = start_llama_server(model_path, variant, config, models_dir,
@@ -386,7 +397,7 @@ async def run_benchmark(model_path, variant, config, models_dir, cpu_cores=None,
         # Wait for server to be ready
         benchmark = LlamaServerBenchmark(server_url=f"http://localhost:{port}")
 
-        if not await benchmark.wait_for_server(timeout=300):
+        if not await benchmark.wait_for_server(timeout=45):
             print("❌ Server failed to start")
             return {}
 
@@ -397,10 +408,10 @@ async def run_benchmark(model_path, variant, config, models_dir, cpu_cores=None,
         # Prepare test prompts
         test_prompts = config.get("test_prompts")
         # Test configurations
-        concurrent_levels = config.get("concurrent_levels", [1, 4, 16, 32, 128, 512, 2048])
-        token_sizes = config.get("token_sizes", [128, 512])
+        concurrent_levels = config.get("concurrent_levels")
+        token_sizes = config.get("token_sizes")
 
-        results = []
+        all_results = []
 
         for token_size in token_sizes:
             print(f"\n📊 Testing with {token_size} output tokens...")
@@ -409,35 +420,47 @@ async def run_benchmark(model_path, variant, config, models_dir, cpu_cores=None,
                 print(f"\n🔄 Testing concurrent requests: {concurrent_level}")
 
                 for prompt in test_prompts:
-                    # Test concurrent completion endpoint
-                    print(f"\n📝 Testing prompt with {concurrent_level} concurrent requests...")
-                    completion_metrics = await benchmark.run_concurrent_completion_benchmark(
-                        prompt=prompt,
-                        max_tokens=token_size,
-                        temperature=config.get("temperature", 0.7),
-                        concurrent_requests=concurrent_level,
-                        variant=variant,
-                        cpu_cores=cpu_cores,
-                        gpu_percentage=gpu_percentage,
-                        model_name=model_path.name,
-                    )
+                    # Collect samples for this configuration
+                    samples = []
+                    
+                    for sample_num in range(1, num_samples + 1):
+                        print(f"\n📝 Sample {sample_num}/{num_samples} - prompt with {concurrent_level} concurrent requests...")
+                        
+                        completion_metrics = await benchmark.run_concurrent_completion_benchmark(
+                            prompt=prompt,
+                            max_tokens=token_size,
+                            temperature=config.get("temperature", 0.7),
+                            concurrent_requests=concurrent_level,
+                            variant=variant,
+                            cpu_cores=cpu_cores,
+                            gpu_percentage=gpu_percentage,
+                            model_name=model_path.name,
+                        )
 
-                    if completion_metrics:
-                        completion_metrics["endpoint"] = "concurrent_completion"
-                        completion_metrics["prompt"] = prompt
-                        completion_metrics["variant"] = variant
-                        completion_metrics["model"] = model_path.name
-                        completion_metrics["cpu_cores"] = cpu_cores
-                        completion_metrics["gpu_percentage"] = gpu_percentage
-                        completion_metrics["token_size"] = token_size
-                        results.append(completion_metrics)
-                        print(f"  ✅ Concurrent completion test completed - "
-                              f"{completion_metrics.get('successful_requests', 0)}/{concurrent_level} successful, "
-                              f"Throughput: {completion_metrics.get('throughput', 0):.2f} tokens/sec")
-                    else:
-                        print(f"  ❌ Concurrent completion test failed")
+                        if completion_metrics:
+                            samples.append(completion_metrics)
+                            print(f"  ✅ Sample {sample_num} completed - "
+                                  f"{completion_metrics.get('successful_requests', 0)}/{concurrent_level} successful")
+                        else:
+                            print(f"  ❌ Sample {sample_num} failed")
 
-        return results
+                    # Calculate statistics from samples
+                    if samples:
+                        stats_result = calculate_statistics_from_samples(samples, {
+                            "endpoint": "concurrent_completion",
+                            "prompt": prompt,
+                            "variant": variant,
+                            "model": model_path.name,
+                            "cpu_cores": cpu_cores,
+                            "gpu_percentage": gpu_percentage,
+                            "token_size": token_size,
+                            "concurrent_requests": concurrent_level
+                        })
+                        all_results.append(stats_result)
+                        print(f"stats_result: {stats_result}")
+                        print(f"  📊 Statistics calculated from {len(samples)} samples")
+
+        return all_results
 
     finally:
         # Stop server container using Docker
@@ -451,48 +474,48 @@ async def run_benchmark(model_path, variant, config, models_dir, cpu_cores=None,
             print(f"Error stopping container: {e}")
 
 
-async def save_results(results, output_dir="./benchmark_results"):
-    """Save benchmark results to CSV and JSON"""
-    if not results:
-        print("No results to save")
-        return
+def calculate_statistics_from_samples(samples, metadata):
+    """Calculate mean and standard deviation from benchmark samples"""
+    if not samples:
+        return {}
     
-    output_dir = Path(output_dir)
-    output_dir.mkdir(exist_ok=True)
+    # List of metrics to calculate statistics for
+    metrics_to_calculate = [
+        "throughput", "prompt_processing_throughput", "token_generation_throughput",
+        "time_to_first_token", "total_time", "avg_time_per_request",
+        "prompt_ms_per_token", "predicted_ms_per_token", "request_failure_rate"
+    ]
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    result = metadata.copy()
     
-    # Save as CSV
-    df = pd.DataFrame(results)
-    csv_path = output_dir / f"benchmark_results_{timestamp}.csv"
-    df.to_csv(csv_path, index=False)
-    print(f"Results saved to: {csv_path}")
-    
-    # Save as JSON
-    json_path = output_dir / f"benchmark_results_{timestamp}.json"
-    with open(json_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"Results saved to: {json_path}")
-    
-    # Print summary
-    print("\n📊 Benchmark Summary:")
-    print("-" * 50)
-    
-    for variant in ['cpu', 'cuda']:
-        variant_results = [r for r in results if r.get('variant') == variant]
-        if variant_results:
-            print(f"\n{variant.upper()} Results:")
+    for metric in metrics_to_calculate:
+        values = [sample.get(metric, 0) for sample in samples if metric in sample]
+        if values:
+            mean_value = statistics.mean(values)
+            stddev_value = statistics.stdev(values) if len(values) > 1 else 0.0
             
-            # Calculate averages
-            avg_throughput = statistics.mean([r.get('throughput', 0) for r in variant_results])
-            avg_prompt_throughput = statistics.mean([r.get('prompt_processing_throughput', 0) for r in variant_results])
-            avg_token_throughput = statistics.mean([r.get('token_generation_throughput', 0) for r in variant_results])
-            avg_time_to_first = statistics.mean([r.get('time_to_first_token', 0) for r in variant_results])
-            
-            print(f"  Average Throughput: {avg_throughput:.2f} tokens/sec")
-            print(f"  Average Prompt Processing: {avg_prompt_throughput:.2f} tokens/sec")
-            print(f"  Average Token Generation: {avg_token_throughput:.2f} tokens/sec")
-            print(f"  Average Time to First Token: {avg_time_to_first:.3f} seconds")
+            result[f"{metric}_mean"] = mean_value
+            result[f"{metric}_stddev"] = stddev_value
+            result[f"{metric}_samples"] = len(values)
+            result[f"{metric}_values"] = values  # Include the actual sample values
+        else:
+            result[f"{metric}_mean"] = 0.0
+            result[f"{metric}_stddev"] = 0.0
+            result[f"{metric}_samples"] = 0
+            result[f"{metric}_values"] = []
+    
+    # Copy other important fields from first sample
+    first_sample = samples[0]
+    copy_fields = [
+        "successful_requests", "total_requests", "total_prompt_tokens", 
+        "total_predicted_tokens", "total_prompt_ms", "total_predicted_ms"
+    ]
+    
+    for field in copy_fields:
+        if field in first_sample:
+            result[field] = first_sample[field]
+    
+    return result
 
 
 async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=False):
@@ -526,7 +549,7 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
             print("-" * 50)
             
             for gpu_pct in gpu_percentages:
-                results = await run_benchmark(model, 'cuda', config, models_dir, 
+                results = await run_benchmark_with_samples(model, 'cuda', config, models_dir, 
                                               cpu_cores=None, gpu_percentage=gpu_pct)
                 if results:
                     all_results.extend(results)
@@ -540,8 +563,8 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
             print("-" * 50)
             
             for cpu_cores in cpu_configs:
-                results = await run_benchmark(model, 'cpu', config, models_dir, 
-                                              cpu_cores=cpu_cores, gpu_percentage=0)
+                results = await run_benchmark_with_samples(model, 'cpu', config, models_dir, 
+                                              cpu_cores=cpu_cores, gpu_percentage=None)
                 if results:
                     all_results.extend(results)
                 results_count += len(results) if results else 0
@@ -549,9 +572,6 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
     
     print(f"\n🎉 Benchmark run completed!")
     print(f"📊 Total results: {results_count}")
-    
-    # Save results
-    await save_results(all_results)
 
 
 def check_gpu():
@@ -563,9 +583,10 @@ def check_gpu():
         return False
 
 
+
 async def main():
     parser = argparse.ArgumentParser(description="Run LLM benchmarks using llama-server")
-    parser.add_argument("--models-dir", default="./models", help="Directory containing model files")
+    parser.add_argument("--models-dir", default="../models", help="Directory containing model files")
     parser.add_argument("--cpu-only", action="store_true", help="Run only CPU benchmarks")
     parser.add_argument("--gpu-only", action="store_true", help="Run only GPU benchmarks")
     parser.add_argument("--config-path", default="benchmark_configv2.json", help="Path to configuration file")
