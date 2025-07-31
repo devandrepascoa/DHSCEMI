@@ -91,6 +91,9 @@ class ContainerConfig:
             if self.memory is not None:
                 args.extend(['--memory', self.memory])
         elif self.container_type == "gpu":
+            # TODO: Add MPI support
+            if self.gpu_percentage is not None:
+                args.extend([ "-e", f"CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.gpu_percentage}"])
             # GPU containers get GPU access
             args.extend(['--gpus', 'all'])
 

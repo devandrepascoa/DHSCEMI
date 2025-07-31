@@ -33,7 +33,7 @@ class LlamaServerBenchmark:
         self.session = aiohttp.ClientSession(connector=connector)
         self.session.headers.update({"Content-Type": "application/json"})
     
-    async def wait_for_server(self, timeout: int = 300) -> bool:
+    async def wait_for_server(self, timeout: int = 60) -> bool: # 1 minutes timeout
         """Wait for llama-server to be ready"""
         print("Waiting for llama-server to be ready...")
         start_time = time.time()
@@ -101,11 +101,11 @@ class LlamaServerBenchmark:
             
             # Run concurrent requests with progress tracking
             tasks = [tracked_request() for _ in range(concurrent_requests)]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            results = await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=1200) # 20 minutes timeout
             
             # Close progress bar
             # pbar.close()
-            
+
             # Filter successful results
             successful_results = [r for r in results if r and not isinstance(r, Exception)]
 
@@ -344,6 +344,14 @@ def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, 
     if variant == 'cuda':
         cmd.extend(['--gpus', 'all'])
 
+    if cpu_cores is not None:
+        cmd.extend(['--cpus', str(cpu_cores)])
+
+    if gpu_percentage is not None and gpu_percentage < 100:
+        cmd.extend([
+            "-e", f"CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={gpu_percentage}"
+        ])
+
     # Add the image and server command
     cmd.extend([image, '--server'])
 
@@ -397,7 +405,7 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
         # Wait for server to be ready
         benchmark = LlamaServerBenchmark(server_url=f"http://localhost:{port}")
 
-        if not await benchmark.wait_for_server(timeout=45):
+        if not await benchmark.wait_for_server():
             print("❌ Server failed to start")
             return {}
 
@@ -522,6 +530,9 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
     """Run all benchmark configurations"""
     config = load_config(config_path)
     models = get_models(models_dir)
+
+    for model in models:
+        print(f"Model: {model.name}")
     
     if not models:
         print("❌ No models found in ./models directory")
@@ -553,8 +564,10 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
                                               cpu_cores=None, gpu_percentage=gpu_pct)
                 if results:
                     all_results.extend(results)
-                results_count += len(results) if results else 0
-                print(f"  ✅ Completed: {model.name} - CUDA - GPU {gpu_pct}%")
+                    results_count += len(results) if results else 0
+                    print(f"  ✅ Completed: {model.name} - CUDA - GPU {gpu_pct}%")
+                else:
+                    print(f"  ❌ Failed: {model.name} - CUDA - GPU {gpu_pct}%")
         
         # CPU scenarios with increasing CPU core count
         if not gpu_only:
