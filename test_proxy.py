@@ -9,13 +9,10 @@ import signal
 from pathlib import Path
 
 
-# Global fixture available to all test classes
 @pytest.fixture(scope="session")
 def proxy_server():
-    """Start the proxy server before tests and stop it after."""
     BASE_URL = "http://localhost:8000"
 
-    # Check if server is already running
     try:
         response = requests.get(f"{BASE_URL}/health", timeout=2)
         if response.status_code == 200:
@@ -25,16 +22,14 @@ def proxy_server():
     except requests.exceptions.RequestException:
         pass
 
-    # Start the proxy server
     print("Starting proxy server...")
     process = subprocess.Popen(
         ["uv", "run", "python", "main.py"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        preexec_fn=os.setsid if os.name != 'nt' else None  # Create new process group on Unix
+        preexec_fn=os.setsid if os.name != 'nt' else None
     )
 
-    # Wait for server to start
     max_attempts = 30
     server_started = False
     for attempt in range(max_attempts):
@@ -47,7 +42,6 @@ def proxy_server():
         except requests.exceptions.RequestException:
             pass
 
-        # Check if process is still alive
         if process.poll() is not None:
             stdout, stderr = process.communicate()
             pytest.fail(f"Proxy server process died. stdout: {stdout.decode()}, stderr: {stderr.decode()}")
@@ -55,7 +49,6 @@ def proxy_server():
         time.sleep(1)
 
     if not server_started:
-        # Kill the process if it didn't start properly
         try:
             if os.name != 'nt':
                 os.killpg(os.getpgid(process.pid), signal.SIGTERM)
@@ -67,7 +60,6 @@ def proxy_server():
 
     yield
 
-    # Stop the proxy server
     print("Stopping proxy server...")
     try:
         if os.name != 'nt':
@@ -76,7 +68,6 @@ def proxy_server():
             process.terminate()
         process.wait(timeout=10)
     except (subprocess.TimeoutExpired, ProcessLookupError, OSError):
-        # Force kill if graceful shutdown fails
         try:
             if os.name != 'nt':
                 os.killpg(os.getpgid(process.pid), signal.SIGKILL)
@@ -87,18 +78,15 @@ def proxy_server():
     print("Proxy server stopped")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def base_url(proxy_server):
-    """Provide base URL for all test classes."""
     return "http://localhost:8000"
 
 
 class TestProxy:
-
     TEST_MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
 
     def test_health_endpoint(self, base_url):
-
         try:
             response = requests.get(f"{base_url}/health", timeout=10)
             assert response.status_code == 200
@@ -114,7 +102,6 @@ class TestProxy:
             pytest.fail(f"Health check failed: {e}")
 
     def test_models_endpoint(self, base_url):
-
         try:
             response = requests.get(f"{base_url}/v1/models", timeout=10)
             assert response.status_code == 200
@@ -137,7 +124,6 @@ class TestProxy:
             pytest.fail(f"Models endpoint failed: {e}")
 
     def test_containers_endpoint(self, base_url):
-
         try:
             response = requests.get(f"{base_url}/containers", timeout=10)
             assert response.status_code == 200
@@ -145,7 +131,6 @@ class TestProxy:
             data = response.json()
             assert "containers" in data
             assert isinstance(data["containers"], list)
-
 
             if data["containers"]:
                 container = data["containers"][0]
@@ -173,7 +158,6 @@ class TestProxy:
         try:
             response = requests.post(f"{base_url}/v1/chat/completions", json=payload, timeout=30)
 
-
             assert response.status_code in [200, 404]
 
             if response.status_code == 404:
@@ -191,7 +175,6 @@ class TestProxy:
             pytest.fail(f"Chat completion failed: {e}")
 
     def test_chat_completion_streaming(self, base_url):
-
         payload = {
             "model": self.TEST_MODEL,
             "messages": [
@@ -205,59 +188,45 @@ class TestProxy:
         try:
             response = requests.post(f"{base_url}/v1/chat/completions", json=payload, timeout=30, stream=True)
 
-            # Accept both success and model not found responses
             assert response.status_code in [200, 404]
 
             if response.status_code == 404:
-                # Model not available, test passes but skip validation
                 pytest.skip(f"Model {self.TEST_MODEL} not available")
 
-            # Only validate response structure if model is available
             assert response.headers.get('content-type') == 'text/plain; charset=utf-8'
 
-            # Handle streaming response more robustly
             content_parts = []
             has_data = False
-            
+
             try:
                 for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
                     if chunk:
                         content_parts.append(chunk)
-                        # Check if we have any actual data lines
                         if 'data: ' in chunk:
                             has_data = True
             except requests.exceptions.ChunkedEncodingError as e:
-                # If we got some data before the error, continue with validation
                 if not has_data:
-                    # If no data was received, this might be a legitimate streaming issue
-                    # Let's try a simpler approach - just verify the response started correctly
                     if response.status_code == 200:
-                        # The streaming endpoint responded correctly, even if incomplete
-                        return  # Test passes
+                        return
                     else:
                         pytest.fail(f"Streaming failed with no data and error: {e}")
 
             if not has_data and not content_parts:
-                # No data received at all - this is likely a real issue
                 pytest.fail("No streaming data received")
 
             content = ''.join(content_parts)
-            
-            # If we have content, validate it
+
             if content.strip():
                 lines = content.strip().split('\n')
                 data_lines = [line for line in lines if line.startswith('data: ')]
-                
-                # We should have at least some data lines
-                assert len(data_lines) > 0, f"No data lines found in response: {content}"
-                
-                # Check for completion marker (optional since streaming might be incomplete)
+
+                assert len(data_lines) > 0
+
                 done_lines = [line for line in lines if line.strip() == 'data: [DONE]']
-                # Don't require [DONE] marker as streaming might be incomplete
+
             else:
-                # Empty content but successful response - this is acceptable for streaming
                 if response.status_code == 200:
-                    return  # Test passes
+                    return
                 else:
                     pytest.fail("Empty streaming response with non-200 status")
 
@@ -265,7 +234,6 @@ class TestProxy:
             pytest.fail(f"Streaming chat completion failed: {e}")
 
     def test_load_balancing_multiple_requests(self, base_url):
-
         payload = {
             "model": self.TEST_MODEL,
             "messages": [
@@ -284,12 +252,10 @@ class TestProxy:
             except requests.exceptions.RequestException as e:
                 results.append(f"error: {e}")
 
-
         assert len(results) == 3
         assert all(isinstance(r, int) for r in results)
 
     def test_invalid_model_error(self, base_url):
-
         payload = {
             "model": "nonexistent-model",
             "messages": [
@@ -310,7 +276,6 @@ class TestProxy:
             pytest.fail(f"Invalid model test failed: {e}")
 
     def test_invalid_request_error(self, base_url):
-
         payload = {
             "invalid_field": "test"
         }
@@ -326,14 +291,11 @@ class TestProxy:
 
 class TestModelDiscovery:
 
-
     def test_models_directory_exists(self):
-
         models_dir = Path("./models")
         assert models_dir.exists() or models_dir.mkdir(exist_ok=True)
 
     def test_model_file_extensions(self):
-
         models_dir = Path("./models")
         supported_extensions = {'.gguf', '.bin'}
 
@@ -347,7 +309,6 @@ class TestModelDiscovery:
 class TestContainerManagement:
 
     def test_container_health_check(self, base_url):
-
         try:
             response = requests.get(f"{base_url}/health", timeout=10)
             assert response.status_code == 200
@@ -362,5 +323,4 @@ class TestContainerManagement:
 
 
 if __name__ == "__main__":
-
     pytest.main([__file__, "-v"])

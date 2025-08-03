@@ -1,6 +1,8 @@
-# llama.cpp OpenAI Proxy
+# Dynamic Hardware Selection for Cost Effective ML Inference
 
-An OpenAI-compatible proxy server for llama.cpp Docker containers with intelligent container management and workload optimization (work in progress).
+This proxy dynamically selects hardware resources (CPU/GPU/accelerators) for incoming workloads to maximize cost efficiency. The system decides which hardware to deploy and proxy for LLM inference based on current workload requirements.
+
+This proxy uses llama-server as the backend inference engine, and orchestrates the servers with docker containers.
 
 ## Prerequisites
 - Docker installed and running
@@ -53,7 +55,7 @@ The test suite validates proxy functionality, model discovery, and container man
 ### Prerequisites for Testing
 
 1. Ensure the proxy server is running on `http://localhost:8000`
-2. Have at least one model available (tests expect `1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M` by default)
+2. Have at least one model available (tests expect `01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M` by default)
 
 ### Run All Tests
 ```bash
@@ -67,15 +69,4 @@ uv run pytest test_proxy.py::TestProxy -v
 uv run pytest test_proxy.py::TestModelDiscovery -v
 
 uv run pytest test_proxy.py::TestContainerManagement -v
-```
-
-### Project Structure
-```
-thesis_proxy/
-├── main.py              # Main proxy server
-├── test_proxy.py         # Test suite
-├── pyproject.toml        # Project configuration
-├── uv.lock              # UV lock file
-├── models/               # Model files directory
-└── benchmarks/           # Benchmarking tools
 ```
