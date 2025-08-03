@@ -32,43 +32,31 @@ else
     echo "⚠️  NVIDIA GPU not detected. CUDA benchmarking will be skipped."
 fi
 
-# Create necessary directories
-echo "📁 Creating directories..."
-mkdir -p models results scripts docker
-
 # Pull prebuilt Docker images
 echo "🐳 Pulling prebuilt Docker images..."
 
 # Pull CPU image (full version includes llama-bench)
 echo "  Pulling CPU image..."
 docker pull ghcr.io/ggml-org/llama.cpp:full
-docker tag ghcr.io/ggml-org/llama.cpp:full llama-bench:cpu
 
 # Pull CUDA image if nvidia-smi is available (full-cuda version includes llama-bench)
 if command -v nvidia-smi &> /dev/null; then
     echo "  Pulling CUDA image..."
     docker pull ghcr.io/ggml-org/llama.cpp:full-cuda
-    docker tag ghcr.io/ggml-org/llama.cpp:full-cuda llama-bench:cuda
 else
     echo "  Skipping CUDA image (no NVIDIA GPU detected)"
 fi
 
-# Install Python dependencies
-echo "📦 Installing Python dependencies..."
-pip3 install -r requirements.txt
+echo "📦 Installing Uv dependencies..."
+uv sync
 
-# Make scripts executable
-echo "🔧 Making scripts executable..."
-chmod +x scripts/*.py scripts/*.sh
-
-# Test the system
 echo "🧪 Testing system setup..."
-python3 scripts/test_setup.py
+uv run scripts/test_setup.py
 
 echo "✅ Setup complete!"
 echo ""
 echo "📋 Next steps:"
 echo "1. Add your model files (.gguf or .bin) to the models/ directory"
-echo "2. Run: python3 scripts/benchmark.py"
+echo "2. Run: uv run main.py"
 echo ""
 echo "📖 For detailed instructions, see README.md"

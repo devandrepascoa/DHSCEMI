@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-LLM Benchmarking System using llama-server API
-Supports both CUDA and CPU variants with batch size variations
-Measures: throughput, prompt processing throughput, token generation throughput, time to first token
-"""
-
 import os
 import json
 import subprocess
@@ -21,10 +15,10 @@ import concurrent.futures
 import threading
 import json
 from tqdm import tqdm
+import tiktoken
 
 
 class LlamaServerBenchmark:
-    """Class to handle llama-server benchmarking"""
 
     def __init__(self, server_url: str = "http://localhost:8080"):
         self.server_url = server_url
@@ -34,7 +28,7 @@ class LlamaServerBenchmark:
         self.session.headers.update({"Content-Type": "application/json"})
 
     async def wait_for_server(self, timeout: int = 60) -> bool:
-        """Wait for llama-server to be ready"""
+
         print("Waiting for llama-server to be ready...")
         start_time = time.time()
 
@@ -53,7 +47,7 @@ class LlamaServerBenchmark:
         return False
 
     async def get_model_info(self) -> Dict:
-        """Get model information from the server"""
+
         try:
             async with self.session.get(f"{self.server_url}/models") as response:
                 response.raise_for_status()
@@ -69,7 +63,7 @@ class LlamaServerBenchmark:
                                                   cpu_cores: int = None,
                                                   gpu_percentage: int = None,
                                                   model_name: str = None) -> Dict:
-        """Run concurrent completion benchmark"""
+
         payload = {
             "prompt": prompt,
             "max_tokens": max_tokens,
@@ -142,10 +136,10 @@ class LlamaServerBenchmark:
             throughput = total_predicted_tokens / total_time if total_time > 0 else 0
 
             prompt_processing_throughput = total_prompt_tokens / (
-                        total_prompt_ms / 1000.0) if total_prompt_ms > 0 else 0
+                    total_prompt_ms / 1000.0) if total_prompt_ms > 0 else 0
 
             token_generation_throughput = total_predicted_tokens / (
-                        total_predicted_ms / 1000.0) if total_predicted_ms > 0 else 0
+                    total_predicted_ms / 1000.0) if total_predicted_ms > 0 else 0
 
             metrics = {
 
@@ -189,60 +183,8 @@ class LlamaServerBenchmark:
             print(f"Error running concurrent completion benchmark: {e}")
             return {}
 
-    async def run_chat_benchmark(self, messages: List[Dict], max_tokens: int = 100,
-                                 temperature: float = 0.7) -> Dict:
-        """Run a chat completion benchmark"""
-        payload = {
-            "messages": messages,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "stream": False,
-            "cache_prompt": False
-        }
-
-        start_time = time.time()
-
-        try:
-            async with self.session.post(f"{self.server_url}/v1/chat/completions", json=payload) as response:
-                response.raise_for_status()
-
-                result = await response.json()
-                end_time = time.time()
-
-                total_time = end_time - start_time
-                choices = result.get("choices", [])
-
-                if choices:
-                    message = choices[0].get("message", {}).get("content", "")
-                    tokens_generated = len(message.split())
-
-                    usage = result.get("usage", {})
-
-                    metrics = {
-                        "total_time": total_time,
-                        "tokens_generated": tokens_generated,
-                        "throughput": tokens_generated / total_time if total_time > 0 else 0,
-                        "prompt_tokens": usage.get("prompt_tokens", 0),
-                        "completion_tokens": usage.get("completion_tokens", 0),
-                        "total_tokens": usage.get("total_tokens", 0),
-                        "time_to_first_token": total_time,
-                        "prompt_processing_throughput": usage.get("prompt_tokens",
-                                                                  0) / total_time if total_time > 0 else 0,
-                        "token_generation_throughput": usage.get("completion_tokens",
-                                                                 0) / total_time if total_time > 0 else 0
-                    }
-
-                    print(json.dumps(metrics, indent=2))
-
-                    return metrics
-
-        except Exception as e:
-            print(f"Error running chat benchmark: {e}")
-            return {}
-
 
 def load_config(config_path):
-    """Load configuration from JSON file"""
     with open(config_path, 'r') as f:
         config = json.load(f)
     print(f"Loaded configuration from: {config_path}")
@@ -250,7 +192,6 @@ def load_config(config_path):
 
 
 def get_models(models_dir):
-    """Get list of available model files"""
     models_dir = Path(models_dir)
     models = []
     for ext in ['.gguf', '.bin']:
@@ -258,14 +199,16 @@ def get_models(models_dir):
     return sorted(models)
 
 
-def verify_docker_images():
-    """Verify that required Docker images exist"""
+def verify_docker_images(cpu_only: bool = True):
     print("Verifying Docker images...")
 
     images = [
         'ghcr.io/ggml-org/llama.cpp:full',
-        'ghcr.io/ggml-org/llama.cpp:full-cuda'
     ]
+
+    if not cpu_only:
+        images.append('ghcr.io/ggml-org/llama.cpp:full-cuda')
+
 
     missing_images = []
     for image in images:
@@ -286,14 +229,14 @@ def verify_docker_images():
     return True
 
 
-def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, gpu_percentage=None):
-    """Start llama-server in a Docker container with unique naming for each config"""
-
-    config_id = f"{model_path.name}_{variant}"
+def get_start_llama_server_cmd(model_path, variant, config, models_dir, cpu_cores=None, gpu_percentage=None, unique_id=None, token_size=None, concurrent_level=None, current_prompt=None):
+    config_id = f"{variant}"
     if cpu_cores is not None:
         config_id += f"_cpu{cpu_cores}"
     if gpu_percentage is not None:
         config_id += f"_gpu{gpu_percentage}"
+    if unique_id is not None:
+        config_id += f"_{unique_id}"
 
     container_name = f"llama-server-{config_id}"
     port = 8080 + hash(config_id) % 1000
@@ -311,6 +254,14 @@ def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, 
         'cuda': 'ghcr.io/ggml-org/llama.cpp:full-cuda'
     }
     image = image_map[variant]
+
+
+    # list all files in current dir
+
+    import os
+
+    files = os.listdir()
+    print(f"Files in current directory: {files}")
 
     cmd = [
         'docker', 'run', '-d', '--rm', '--name', container_name,
@@ -351,21 +302,22 @@ def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, 
     elif variant == 'cuda' and gpu_percentage is None:
         cmd.extend(['-ngl', '0'])
 
-    concurrent_levels = config.get("concurrent_levels", [1])
-    max_concurrent = max(concurrent_levels) if concurrent_levels else 1
-    cmd.extend(['--parallel', str(max_concurrent)])
+    # Use the provided concurrent_level directly
+    cmd.extend(['--parallel', str(concurrent_level)])
 
-    test_prompts = config.get("test_prompts", [""])
-    token_sizes = config.get("token_sizes", [100])
 
-    max_prompt_length = max(len(prompt) // 4 for prompt in test_prompts) if test_prompts else 100
-    max_token_size = max(token_sizes) if token_sizes else 100
+    try:
+        tokenizer = tiktoken.get_encoding("cl100k_base")
+        current_prompt_length = len(tokenizer.encode(current_prompt))
+    except Exception as e:
+        print(f"Warning: Failed to use tokenizer, falling back to character approximation: {e}")
+        current_prompt_length = len(current_prompt) // 4
 
-    min_ctx_per_slot = max_prompt_length + max_token_size
+    min_ctx_per_slot = current_prompt_length + token_size
 
-    ctx_size = int(min_ctx_per_slot * max_concurrent)
+    ctx_size = int(min_ctx_per_slot * concurrent_level)
 
-    ctx_size = max(ctx_size, 4096)
+    ctx_size = max(ctx_size, 2048)
 
     cmd.extend(['--ctx-size', str(ctx_size)])
 
@@ -374,7 +326,6 @@ def start_llama_server(model_path, variant, config, models_dir, cpu_cores=None, 
 
 async def run_benchmark_with_samples(model_path, variant, config, models_dir, cpu_cores=None, gpu_percentage=None,
                                      num_samples=1):
-    """Run benchmark with multiple samples and calculate statistics"""
     config_desc = f"{model_path.name} - {variant}"
     if cpu_cores is not None:
         config_desc += f" - CPU {cpu_cores} cores"
@@ -383,45 +334,50 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
 
     print(f"Running benchmark with {num_samples} samples: {config_desc}")
 
-    server_cmd, port, container_name = start_llama_server(model_path, variant, config, models_dir,
-                                                          cpu_cores, gpu_percentage)
+    test_prompts = config.get("test_prompts")
 
-    try:
-        print("🐳 Starting llama-server container with command:", " ".join(server_cmd))
-        subprocess.run(server_cmd, capture_output=True, text=True)
-        print(f"✅ llama-server container started: {container_name}")
+    concurrent_levels = config.get("concurrent_levels")
+    token_sizes = config.get("token_sizes")
 
-        benchmark = LlamaServerBenchmark(server_url=f"http://localhost:{port}")
+    all_results = []
 
-        if not await benchmark.wait_for_server():
-            print("❌ Server failed to start")
-            return {}
+    for token_size in token_sizes:
+        print(f"\n📊 Testing with {token_size} output tokens...")
 
-        model_info = await benchmark.get_model_info()
-        print(f"Model info: {model_info}")
+        for concurrent_level in concurrent_levels:
+            print(f"\n🔄 Testing concurrent requests: {concurrent_level}")
 
-        test_prompts = config.get("test_prompts")
+            for prompt in test_prompts:
 
-        concurrent_levels = config.get("concurrent_levels")
-        token_sizes = config.get("token_sizes")
+                samples = []
 
-        all_results = []
+                for sample_num in range(1, num_samples + 1):
+                    print(
+                        f"\n📝 Sample {sample_num}/{num_samples} - prompt with {concurrent_level} concurrent requests...")
 
-        for token_size in token_sizes:
-            print(f"\n📊 Testing with {token_size} output tokens...")
+                    # Generate unique identifier for this specific benchmark call
+                    import time
+                    unique_id = f"{int(time.time() * 1000000)}"  # microsecond timestamp
 
-            for concurrent_level in concurrent_levels:
-                print(f"\n🔄 Testing concurrent requests: {concurrent_level}")
+                    # Start a new container for this specific benchmark call
+                    server_cmd, port, container_name = get_start_llama_server_cmd(
+                        model_path, variant, config, models_dir,
+                        cpu_cores, gpu_percentage, unique_id=unique_id,
+                        token_size=token_size, concurrent_level=concurrent_level, current_prompt=prompt
+                    )
 
-                for prompt in test_prompts:
+                    try:
+                        print(f"🐳 Starting new container for this benchmark call: {container_name} with cmd: {" ".join(server_cmd)}")
+                        subprocess.run(server_cmd, capture_output=True, text=True)
 
-                    samples = []
+                        # Create benchmark instance for this specific container
+                        call_benchmark = LlamaServerBenchmark(server_url=f"http://localhost:{port}")
 
-                    for sample_num in range(1, num_samples + 1):
-                        print(
-                            f"\n📝 Sample {sample_num}/{num_samples} - prompt with {concurrent_level} concurrent requests...")
+                        if not await call_benchmark.wait_for_server():
+                            print("❌ Server failed to start for this call")
+                            continue
 
-                        completion_metrics = await benchmark.run_concurrent_completion_benchmark(
+                        completion_metrics = await call_benchmark.run_concurrent_completion_benchmark(
                             prompt=prompt,
                             max_tokens=token_size,
                             temperature=config.get("temperature", 0.7),
@@ -432,44 +388,44 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
                             model_name=model_path.name,
                         )
 
-                        if completion_metrics:
-                            samples.append(completion_metrics)
-                            print(f"  ✅ Sample {sample_num} completed - "
-                                  f"{completion_metrics.get('successful_requests', 0)}/{concurrent_level} successful")
-                        else:
-                            print(f"  ❌ Sample {sample_num} failed")
+                        # Clean up the container after this call
+                        subprocess.run(['docker', 'stop', container_name], capture_output=True, text=True)
+                        subprocess.run(['docker', 'rm', container_name], capture_output=True, text=True)
+                        print(f"🗑️ Cleaned up container: {container_name}")
 
-                    if samples:
-                        stats_result = calculate_statistics_from_samples(samples, {
-                            "endpoint": "concurrent_completion",
-                            "prompt": prompt,
-                            "variant": variant,
-                            "model": model_path.name,
-                            "cpu_cores": cpu_cores,
-                            "gpu_percentage": gpu_percentage,
-                            "token_size": token_size,
-                            "concurrent_requests": concurrent_level
-                        })
-                        all_results.append(stats_result)
-                        print(f"stats_result: {stats_result}")
-                        print(f"  📊 Statistics calculated from {len(samples)} samples")
+                    except Exception as e:
+                        print(f"Error in benchmark call: {e}")
+                        completion_metrics = {}
+                    finally:
+                        subprocess.run(['docker', 'stop', container_name], capture_output=True, text=True)
+                        subprocess.run(['docker', 'rm', container_name], capture_output=True, text=True)
 
-        return all_results
+                    if completion_metrics:
+                        samples.append(completion_metrics)
+                        print(f"  ✅ Sample {sample_num} completed - "
+                              f"{completion_metrics.get('successful_requests', 0)}/{concurrent_level} successful")
+                    else:
+                        print(f"  ❌ Sample {sample_num} failed")
 
-    finally:
+                if samples:
+                    stats_result = calculate_statistics_from_samples(samples, {
+                        "endpoint": "concurrent_completion",
+                        "prompt": prompt,
+                        "variant": variant,
+                        "model": model_path.name,
+                        "cpu_cores": cpu_cores,
+                        "gpu_percentage": gpu_percentage,
+                        "token_size": token_size,
+                        "concurrent_requests": concurrent_level
+                    })
+                    all_results.append(stats_result)
+                    print(f"stats_result: {stats_result}")
+                    print(f"  📊 Statistics calculated from {len(samples)} samples")
 
-        try:
-            subprocess.run(['docker', 'stop', container_name],
-                           check=False, capture_output=True)
-            subprocess.run(['docker', 'rm', container_name],
-                           check=False, capture_output=True)
-            print(f"✅ llama-server container stopped and removed: {container_name}")
-        except Exception as e:
-            print(f"Error stopping container: {e}")
+    return all_results
 
 
 def calculate_statistics_from_samples(samples, metadata):
-    """Calculate mean and standard deviation from benchmark samples"""
     if not samples:
         return {}
 
@@ -511,7 +467,6 @@ def calculate_statistics_from_samples(samples, metadata):
 
 
 async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=False):
-    """Run all benchmark configurations"""
     config = load_config(config_path)
     models = get_models(models_dir)
 
@@ -523,7 +478,7 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
         print("Please add .gguf or .bin model files to the models directory")
         return
 
-    if not verify_docker_images():
+    if not verify_docker_images(cpu_only):
         return
 
     print(config)
@@ -570,7 +525,6 @@ async def run_all_benchmarks(config_path, models_dir, cpu_only=False, gpu_only=F
 
 
 def check_gpu():
-    """Check if GPU is available"""
     try:
         result = subprocess.run(['nvidia-smi'], capture_output=True, text=True)
         return result.returncode == 0
@@ -580,10 +534,10 @@ def check_gpu():
 
 async def main():
     parser = argparse.ArgumentParser(description="Run LLM benchmarks using llama-server")
-    parser.add_argument("--models-dir", default="../models", help="Directory containing model files")
+    parser.add_argument("--models-dir", default="./models", help="Directory containing model files")
     parser.add_argument("--cpu-only", action="store_true", help="Run only CPU benchmarks")
     parser.add_argument("--gpu-only", action="store_true", help="Run only GPU benchmarks")
-    parser.add_argument("--config-path", default="benchmark_config.json", help="Path to configuration file")
+    parser.add_argument("--config-path", default="./benchmarks/benchmark_config.json", help="Path to configuration file")
     parser.add_argument("--server-url", default="http://localhost:8080", help="URL for llama-server")
 
     args = parser.parse_args()
