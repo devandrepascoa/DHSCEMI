@@ -583,7 +583,7 @@ async def main():
     parser.add_argument("--models-dir", default="../models", help="Directory containing model files")
     parser.add_argument("--cpu-only", action="store_true", help="Run only CPU benchmarks")
     parser.add_argument("--gpu-only", action="store_true", help="Run only GPU benchmarks")
-    parser.add_argument("--config-path", default="benchmark_configv2.json", help="Path to configuration file")
+    parser.add_argument("--config-path", default="benchmark_config.json", help="Path to configuration file")
     parser.add_argument("--server-url", default="http://localhost:8080", help="URL for llama-server")
 
     args = parser.parse_args()
