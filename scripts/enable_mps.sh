@@ -1,27 +1,5 @@
 #!/bin/bash
 
-# ==============================================================================
-# enable_mps.sh: Enable NVIDIA CUDA Multi-Process Service (MPS)
-# (Single GPU Version)
-# ==============================================================================
-# This script sets the GPU compute mode to EXCLUSIVE_PROCESS and starts the
-# NVIDIA MPS daemon for a system with a single NVIDIA GPU.
-#
-# IMPORTANT WARNINGS:
-# 1. ROOT PRIVILEGES: This script must be run with 'sudo' or as root.
-# 2. GPU USAGE: Ensure no critical GPU applications are running before enabling MPS.
-#    Ideally, the GPU should be idle. A reboot might be necessary if the GPU is
-#    in heavy use and you change modes.
-# 3. COMPATIBILITY: Assumes a single NVIDIA GPU (compute capability 3.5+)
-#    with NVIDIA drivers and the NVIDIA Container Toolkit installed.
-# 4. MIG: MPS is distinct from MIG. Do not use this script if you intend
-#    to use MIG or if your GPU is already in MIG mode.
-# 5. DOCKER: Remember to run Docker containers with '--ipc=host' to use MPS.
-# ==============================================================================
-
-# --- Functions ---
-
-# Function to check for root privileges
 check_root() {
     if [[ $EUID -ne 0 ]]; then
         echo "Error: This script must be run with sudo or as root."
@@ -30,22 +8,18 @@ check_root() {
     fi
 }
 
-# Function to check GPU compute mode for the single GPU
 get_compute_mode() {
     nvidia-smi -q -d COMPUTE | grep "Compute Mode" | awk '{print $NF}' | head -n 1
 }
 
-# Function to check if MPS daemon is running
 is_mps_daemon_running() {
     pgrep -x "nvidia-cuda-mps-control" >/dev/null
     return $?
 }
 
-# --- Main Script Logic ---
 check_root
 echo "--- Enabling NVIDIA MPS ---"
 
-# Verify a single GPU is present
 num_gpus=$(nvidia-smi -L | wc -l)
 if [ "$num_gpus" -ne 1 ]; then
     echo "Error: This script is for single GPU machines. Found $num_gpus GPUs."
@@ -83,7 +57,3 @@ else
     fi
 fi
 
-echo "--- MPS Enablement Attempt Complete ---"
-echo "RECOMMENDATION: If compute mode was changed and GPU was in use, consider a reboot."
-echo "Verification: Run 'nvidia-smi -q -d COMPUTE' and 'ps -ef | grep mps'."
-echo "Docker containers MUST use '--ipc=host'."

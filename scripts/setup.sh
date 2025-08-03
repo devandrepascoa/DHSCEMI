@@ -1,22 +1,11 @@
 #!/bin/bash
 
-# LLM Benchmarking System Setup Script
-
 set -e
 
 echo "🚀 Setting up LLM Benchmarking System..."
 
-# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker is not installed. Please install Docker first."
-    exit 1
-fi
-
-# Check if Docker Compose is available (modern docker compose)
-if ! docker compose version &> /dev/null; then
-    echo "❌ Docker Compose is not available. Please install Docker Compose plugin."
-    echo "   On Ubuntu/Debian: sudo apt-get install docker-compose-plugin"
-    echo "   On other systems: Follow Docker documentation"
     exit 1
 fi
 
@@ -32,14 +21,11 @@ else
     echo "⚠️  NVIDIA GPU not detected. CUDA benchmarking will be skipped."
 fi
 
-# Pull prebuilt Docker images
 echo "🐳 Pulling prebuilt Docker images..."
 
-# Pull CPU image (full version includes llama-bench)
 echo "  Pulling CPU image..."
 docker pull ghcr.io/ggml-org/llama.cpp:full
 
-# Pull CUDA image if nvidia-smi is available (full-cuda version includes llama-bench)
 if command -v nvidia-smi &> /dev/null; then
     echo "  Pulling CUDA image..."
     docker pull ghcr.io/ggml-org/llama.cpp:full-cuda

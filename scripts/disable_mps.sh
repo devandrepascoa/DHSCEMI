@@ -1,24 +1,5 @@
 #!/bin/bash
 
-# ==============================================================================
-# disable_mps.sh: Disable NVIDIA CUDA Multi-Process Service (MPS)
-# (Single GPU Version)
-# ==============================================================================
-# This script stops the NVIDIA MPS daemon and sets the GPU compute mode back
-# to DEFAULT for a system with a single NVIDIA GPU.
-#
-# IMPORTANT WARNINGS:
-# 1. ROOT PRIVILEGES: This script must be run with 'sudo' or as root.
-# 2. GPU USAGE: Ensure ALL CUDA applications and Docker containers using MPS
-#    are stopped BEFORE running this script. Otherwise, it may fail or cause
-#    instability. A reboot might be necessary if the GPU is in heavy use.
-# 3. COMPATIBILITY: Assumes a single NVIDIA GPU (compute capability 3.5+).
-# 4. MIG: MPS is distinct from MIG.
-# ==============================================================================
-
-# --- Functions ---
-
-# Function to check for root privileges
 check_root() {
     if [[ $EUID -ne 0 ]]; then
         echo "Error: This script must be run with sudo or as root."
@@ -27,22 +8,18 @@ check_root() {
     fi
 }
 
-# Function to check GPU compute mode for the single GPU
 get_compute_mode() {
     nvidia-smi -q -d COMPUTE | grep "Compute Mode" | awk '{print $NF}' | head -n 1
 }
 
-# Function to check if MPS daemon is running
 is_mps_daemon_running() {
     pgrep -x "nvidia-cuda-mps-control" >/dev/null
     return $?
 }
 
-# --- Main Script Logic ---
 check_root
 echo "--- Disabling NVIDIA MPS ---"
 
-# Verify a single GPU is present
 num_gpus=$(nvidia-smi -L | wc -l)
 if [ "$num_gpus" -ne 1 ]; then
     echo "Error: This script is for single GPU machines. Found $num_gpus GPUs."
