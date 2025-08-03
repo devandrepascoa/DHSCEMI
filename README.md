@@ -1,6 +1,6 @@
 # Dynamic Hardware Selection for Cost Effective ML Inference
 
-This proxy dynamically selects hardware resources (CPU/GPU/accelerators) for incoming workloads to maximize cost efficiency. The system decides which hardware to deploy and proxy for LLM inference based on current workload requirements.
+This proxy dynamically selects hardware resources (CPU/GPU/accelerators) for incoming workloads to maximize cost efficiency. 
 
 This proxy uses llama-server as the backend inference engine, and orchestrates the servers with docker containers.
 
