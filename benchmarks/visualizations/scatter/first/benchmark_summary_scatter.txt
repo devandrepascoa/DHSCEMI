@@ -1,0 +1,25 @@
+==================================================
+BENCHMARK ANALYSIS SUMMARY (Scatter Plots Only)
+==================================================
+Total benchmark runs: 199
+Unique models tested: 5
+Unique quantizations: 3
+Device types: GPU, CPU
+
+PERFORMANCE SUMMARY
+------------------------------
+GPU: 190.73 ± 130.76 tokens/sec
+CPU: 18.99 ± 11.28 tokens/sec
+
+TOP PERFORMERS
+------------------------------
+qwen2 1.5B Q4_K - Medium (GPU, Q4_K)
+  Throughput: 658.89 tokens/sec
+qwen2 1.5B Q4_K - Medium (GPU, Q4_K)
+  Throughput: 657.83 tokens/sec
+qwen2 1.5B Q4_K - Medium (GPU, Q4_K)
+  Throughput: 656.88 tokens/sec
+qwen2 1.5B Q4_K - Medium (GPU, Q4_K)
+  Throughput: 642.37 tokens/sec
+qwen2 1.5B Q4_K - Medium (GPU, Q4_K)
+  Throughput: 639.88 tokens/sec

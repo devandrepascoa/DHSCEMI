@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-OpenAI-compatible proxy for llama.cpp Docker containers with container clustering
-Maintains a pool of pre-loaded containers per model for efficient request routing
-"""
 
 import json
 import subprocess
@@ -30,11 +26,9 @@ import pandas as pd
 import statistics
 from datetime import datetime
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global container registry
 container_pools: Dict[str, List['ContainerInstance']] = {}
 model_configs: Dict[str, Dict[str, Any]] = {}
 
@@ -46,15 +40,13 @@ app = FastAPI(
 
 @dataclass
 class ContainerConfig:
-    """Detailed container configuration"""
     cpu_cores: Optional[float] = None
     memory: Optional[str] = None
     gpu_percentage: Optional[int] = None
 
     def __post_init__(self):
-        """Validate configuration after initialization"""
         if self.gpu_percentage is not None and self.gpu_percentage > 0:
-            # GPU containers should not have CPU/memory constraints
+
             if self.cpu_cores is not None:
                 raise ValueError("cpu_cores cannot be set when gpu_percentage is specified")
             if self.memory is not None:
@@ -68,33 +60,33 @@ class ContainerConfig:
 
     @property
     def container_type(self) -> str:
-        """Determine container type based on configuration"""
+
         if self.gpu_percentage is not None and self.gpu_percentage > 0:
             return "gpu"
         return "cpu"
 
     @property
     def image(self) -> str:
-        """Get appropriate Docker image based on configuration"""
+
         if self.container_type == "gpu":
             return "ghcr.io/ggml-org/llama.cpp:full-cuda"
         return "ghcr.io/ggml-org/llama.cpp:full"
 
     def to_docker_args(self) -> List[str]:
-        """Convert configuration to Docker command arguments"""
+
         args = []
 
         if self.container_type == "cpu":
-            # Only add CPU/memory constraints for CPU containers
+
             if self.cpu_cores is not None:
                 args.extend(['--cpus', str(self.cpu_cores)])
             if self.memory is not None:
                 args.extend(['--memory', self.memory])
         elif self.container_type == "gpu":
-            # TODO: Add MPI support
+
             if self.gpu_percentage is not None:
-                args.extend([ "-e", f"CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.gpu_percentage}"])
-            # GPU containers get GPU access
+                args.extend(["-e", f"CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.gpu_percentage}"])
+
             args.extend(['--gpus', 'all'])
 
         return args
@@ -150,7 +142,7 @@ class ContainerInstance:
         self.model_path = model_path
         self.container_name = container_name
         self.port = port
-        self.config = config  # Detailed configuration instead of simple type
+        self.config = config
         self.process = None
         self._is_ready = False
         self.last_used = datetime.now()
@@ -158,16 +150,16 @@ class ContainerInstance:
         self.lock = asyncio.Lock()
 
     async def is_ready(self) -> bool:
-        """Ensure container is ready for requests"""
+
         if self._is_ready:
             return True
 
         async with self.lock:
-            if self._is_ready:  # Double-check after acquiring lock
+            if self._is_ready:
                 return True
 
             try:
-                # Health check the container
+
                 async with aiohttp.ClientSession() as session:
                     async with session.get(f"http://localhost:{self.port}/health") as response:
                         if response.status == 200:
@@ -180,31 +172,28 @@ class ContainerInstance:
                 return False
 
     async def restart(self):
-        """Restart the container"""
+
         try:
-            # Stop existing container
+
             subprocess.run(['docker', 'stop', self.container_name],
                            capture_output=True, check=False)
 
-            # Start new container
             await self.start_container()
 
         except Exception as e:
             logger.error(f"Error restarting container {self.container_name}: {e}")
 
     async def start_container(self):
-        """Start the Docker container with detailed configuration"""
+
         docker_cmd = [
             'docker', 'run', '--rm', '-d',
-            # '--name', self.container_name,
+
             '-v', f'{self.model_path.parent}:/models:ro',
             '-p', f'{self.port}:8080',
         ]
 
-        # Add configuration-specific arguments
         docker_cmd.extend(self.config.to_docker_args())
 
-        # Add common arguments
         docker_cmd.extend([
             self.config.image,
             '--server',
@@ -213,7 +202,6 @@ class ContainerInstance:
             '--port', '8080',
         ])
 
-        # Add CPU-specific threading for CPU containers
         if self.config.container_type == "cpu" and self.config.cpu_cores:
             threads = max(1, int(self.config.cpu_cores))
             docker_cmd.extend(['--threads', str(threads)])
@@ -224,8 +212,8 @@ class ContainerInstance:
             stdout, stderr = process.communicate(timeout=30)
 
             if process.returncode == 0:
-                # Wait for container to be ready
-                for _ in range(30):  # 30 second timeout
+
+                for _ in range(30):
                     if await self.is_ready():
                         self._is_ready = True
                         logger.info(
@@ -241,31 +229,27 @@ class ContainerInstance:
             logger.error(f"Error starting container: {e}")
 
     def get_endpoint(self) -> str:
-        """Get the endpoint URL for this container"""
+
         return f"http://localhost:{self.port}"
 
 
 class WorkloadMetrics:
-    """Track workload metrics for decision making"""
 
     def __init__(self, gpu_threshold: int = 5, request_window: int = 60):
         self.request_counts = {}
         self.last_request_time = {}
-        self.gpu_threshold = gpu_threshold  # Requests to trigger GPU usage
-        self.request_window = request_window  # Seconds to consider for threshold
+        self.gpu_threshold = gpu_threshold
+        self.request_window = request_window
 
     def record_request(self, model_name: str):
-        """Record a request for workload tracking"""
         current_time = time.time()
 
         if model_name not in self.request_counts:
             self.request_counts[model_name] = []
 
-        # Add current request
         self.request_counts[model_name].append(current_time)
         self.last_request_time[model_name] = current_time
 
-        # Clean old requests outside the window
         cutoff_time = current_time - self.request_window
         self.request_counts[model_name] = [
             req_time for req_time in self.request_counts[model_name]
@@ -273,37 +257,33 @@ class WorkloadMetrics:
         ]
 
     def get_request_count(self, model_name: str) -> int:
-        """Get request count for a model in the current window"""
         return len(self.request_counts.get(model_name, []))
 
     def should_use_gpu(self, model_name: str) -> bool:
-        """Decide if GPU containers should be used based on workload"""
         return self.get_request_count(model_name) >= self.gpu_threshold
 
 
 class DecisionLayer:
-    """Decision layer for container management and routing"""
 
     def __init__(self, workload_metrics: WorkloadMetrics):
         self.workload_metrics = workload_metrics
 
     def choose_container_config(self, model_name: str) -> ContainerConfig:
-        """Choose container configuration based on workload"""
+
         if self.workload_metrics.should_use_gpu(model_name):
-            # High workload - use GPU configuration
             return ContainerConfig(
-                gpu_percentage=100  # Only GPU percentage, no CPU/memory
+                gpu_percentage=100
             )
         else:
-            # Low workload - use CPU configuration
+
             return ContainerConfig(
                 cpu_cores=1.0,
                 memory="4g"
-                # No GPU percentage for CPU containers
+
             )
 
     def should_spawn_new_container(self, model_name: str, config: ContainerConfig) -> bool:
-        """Decide if a new container should be spawned"""
+
         if model_name not in container_pools:
             return True
 
@@ -313,11 +293,10 @@ class DecisionLayer:
             if c._is_ready and str(c.config) == str(config)
         ]
 
-        # Spawn new container if no ready containers of the requested type
         return len(ready_containers) == 0
 
     def get_best_container(self, model_name: str, config: ContainerConfig) -> Optional[ContainerInstance]:
-        """Get the best available container for routing"""
+
         if model_name not in container_pools:
             return None
 
@@ -330,7 +309,6 @@ class DecisionLayer:
         if not available_containers:
             return None
 
-        # Return container with lowest request count (load balancing)
         return min(available_containers, key=lambda c: c.request_count)
 
 
@@ -339,32 +317,29 @@ class ContainerManager:
                  gpu_threshold: int = 5, request_window: int = 60):
         self.models_dir = Path(models_dir).resolve()
         self.containers_per_model = containers_per_model
-        self.used_ports = set()  # Track used ports instead of sequential counter
+        self.used_ports = set()
         self.lock = asyncio.Lock()
         self.workload_metrics = WorkloadMetrics(gpu_threshold, request_window)
         self.decision_layer = DecisionLayer(self.workload_metrics)
         self.metrics_tracker = MetricsTracker()
 
     def ensure_models_dir(self):
-        """Ensure models directory exists"""
+
         self.models_dir.mkdir(parents=True, exist_ok=True)
 
     def get_model_path(self, model_name: str) -> Optional[Path]:
-        """Find model file by name"""
+
         self.ensure_models_dir()
 
-        # Try exact match first
         model_path = self.models_dir / model_name
         if model_path.exists():
             return model_path
 
-        # Try common extensions
         for ext in ['.gguf', '.bin']:
             model_path = self.models_dir / f"{model_name}{ext}"
             if model_path.exists():
                 return model_path
 
-        # Try to find any matching file
         for file in self.models_dir.iterdir():
             if file.is_file() and model_name.lower() in file.name.lower():
                 return file
@@ -372,37 +347,32 @@ class ContainerManager:
         return None
 
     def _get_available_port(self, min_port: int = 8081, max_port: int = 65535) -> int:
-        """Get a random available port that's not currently used"""
 
-        # Check if port is actually available on the system
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                # Try to bind to the port to check availability
+
                 s.bind(('', 0))
                 port = s.getsockname()[1]
                 s.close()
 
-                # Port is available, add to used ports and return
                 self.used_ports.add(port)
                 return port
 
         except OSError:
-            # Port is already in use by another application
+
             raise RuntimeError(f"Error looking for an available port")
 
     async def initialize_model_cluster(self, model_name: str, model_path: Path):
-        """Initialize a cluster of containers for a model"""
+
         if model_name not in container_pools:
             container_pools[model_name] = []
 
-        # Always start with CPU containers
         cpu_config = ContainerConfig(cpu_cores=1.0, memory="4g")
         cpu_containers = [
             c for c in container_pools[model_name]
             if str(c.config) == str(cpu_config)
         ]
 
-        # Add CPU containers if needed
         for i in range(max(0, self.containers_per_model - len(cpu_containers))):
             port = self._get_available_port()
             container_name = f"llama-cluster-{model_name}-cpu-{port}"
@@ -418,7 +388,7 @@ class ContainerManager:
 
     async def spawn_container(self, model_name: str, model_path: Path, config: ContainerConfig) -> Optional[
         ContainerInstance]:
-        """Spawn a container with specific configuration"""
+
         if model_name not in container_pools:
             container_pools[model_name] = []
 
@@ -438,28 +408,24 @@ class ContainerManager:
             return None
 
     async def get_available_container(self, model_name: str) -> Optional[ContainerInstance]:
-        """Get an available container for a model based on workload"""
+
         if model_name not in container_pools:
             return None
 
-        # Record request for workload tracking
         self.workload_metrics.record_request(model_name)
 
-        # Choose container configuration based on workload
         config = self.decision_layer.choose_container_config(model_name)
 
-        # Check if we need to spawn a new container
         if self.decision_layer.should_spawn_new_container(model_name, config):
             model_path = self.get_model_path(model_name)
             if model_path:
                 return await self.spawn_container(model_name, model_path, config)
             return None
 
-        # Get best available container
         return self.decision_layer.get_best_container(model_name, config)
 
     async def cleanup_all_containers(self):
-        """Cleanup all containers"""
+
         for model_name, containers in container_pools.items():
             for container in containers:
                 try:
@@ -472,7 +438,6 @@ class ContainerManager:
 
 
 async def initialize_all_model_clusters():
-    """Initialize container clusters for all available models"""
     logger.info("Scanning for models and initializing clusters...")
 
     model_files = []
@@ -485,7 +450,6 @@ async def initialize_all_model_clusters():
         logger.warning("No model files found in models directory")
         return
 
-    # Initialize clusters for each model
     initialization_tasks = []
     for model_file in model_files:
         model_name = model_file.stem
@@ -493,10 +457,8 @@ async def initialize_all_model_clusters():
         task = container_manager.initialize_model_cluster(model_name, model_file)
         initialization_tasks.append(task)
 
-    # Wait for all clusters to initialize
     results = await asyncio.gather(*initialization_tasks, return_exceptions=True)
 
-    # Log results
     for i, (model_file, result) in enumerate(zip(model_files, results)):
         model_name = model_file.stem
         if isinstance(result, Exception):
@@ -509,36 +471,31 @@ async def initialize_all_model_clusters():
 
 @dataclass
 class ModelMetrics:
-    """Metrics for a specific model and configuration"""
     model_name: str
-    config_type: str  # String representation of the actual configuration
+    config_type: str
 
-    # Performance metrics
     total_requests: int = 0
     total_tokens: int = 0
     total_time_seconds: float = 0.0
     time_to_first_token: List[float] = field(default_factory=list)
 
-    # Detailed timing metrics from benchmarkv2.py
     prompt_processing_ms: List[float] = field(default_factory=list)
     predicted_processing_ms: List[float] = field(default_factory=list)
     prompt_tokens: List[int] = field(default_factory=list)
     predicted_tokens: List[int] = field(default_factory=list)
 
-    # Throughput tracking
     tokens_per_second: List[float] = field(default_factory=list)
     prompt_processing_throughput: List[float] = field(default_factory=list)
     token_generation_throughput: List[float] = field(default_factory=list)
     request_durations: List[float] = field(default_factory=list)
 
-    # Error tracking
     error_count: int = 0
     last_updated: float = field(default_factory=lambda: time.time())
 
     def record_request(self, tokens: int, duration_seconds: float, time_to_first: Optional[float] = None,
                        prompt_ms: Optional[float] = None, predicted_ms: Optional[float] = None,
                        prompt_tok: Optional[int] = None, predicted_tok: Optional[int] = None):
-        """Record metrics for a completed request"""
+
         self.total_requests += 1
         self.total_tokens += tokens
         self.total_time_seconds += duration_seconds
@@ -561,63 +518,58 @@ class ModelMetrics:
         if predicted_tok is not None:
             self.predicted_tokens.append(predicted_tok)
 
-        # Calculate tokens per second for this request
         if duration_seconds > 0:
             tps = tokens / duration_seconds
             self.tokens_per_second.append(tps)
 
-        # Calculate prompt processing throughput
         if prompt_ms is not None and prompt_tok is not None and prompt_ms > 0:
             prompt_tps = prompt_tok / (prompt_ms / 1000.0)
             self.prompt_processing_throughput.append(prompt_tps)
 
-        # Calculate token generation throughput
         if predicted_ms is not None and predicted_tok is not None and predicted_ms > 0:
             token_tps = predicted_tok / (predicted_ms / 1000.0)
             self.token_generation_throughput.append(token_tps)
 
     def record_error(self):
-        """Record an error"""
         self.error_count += 1
         self.last_updated = time.time()
 
     @property
     def average_throughput(self) -> float:
-        """Get average throughput in tokens per second"""
         if not self.tokens_per_second:
             return 0.0
         return sum(self.tokens_per_second) / len(self.tokens_per_second)
 
     @property
     def average_time_to_first_token(self) -> float:
-        """Get average time to first token in seconds"""
+
         if not self.time_to_first_token:
             return 0.0
         return sum(self.time_to_first_token) / len(self.time_to_first_token)
 
     @property
     def average_prompt_processing_throughput(self) -> float:
-        """Get average prompt processing throughput in tokens per second"""
+
         if not self.prompt_processing_throughput:
             return 0.0
         return sum(self.prompt_processing_throughput) / len(self.prompt_processing_throughput)
 
     @property
     def average_token_generation_throughput(self) -> float:
-        """Get average token generation throughput in tokens per second"""
+
         if not self.token_generation_throughput:
             return 0.0
         return sum(self.token_generation_throughput) / len(self.token_generation_throughput)
 
     @property
     def error_rate(self) -> float:
-        """Get error rate as percentage"""
+
         if self.total_requests == 0:
             return 0.0
         return (self.error_count / self.total_requests) * 100
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert metrics to dictionary with benchmarkv2.py format"""
+
         return {
             "model_name": self.model_name,
             "config_type": self.config_type,
@@ -636,24 +588,23 @@ class ModelMetrics:
             "prompt_processing_ms_per_token": (sum(self.prompt_processing_ms) / sum(self.prompt_tokens)) if sum(
                 self.prompt_tokens) > 0 else 0.0,
             "predicted_processing_ms_per_token": (
-                        sum(self.predicted_processing_ms) / sum(self.predicted_tokens)) if sum(
+                    sum(self.predicted_processing_ms) / sum(self.predicted_tokens)) if sum(
                 self.predicted_tokens) > 0 else 0.0,
-            "recent_tokens_per_second": self.tokens_per_second[-10:],  # Last 10 values
-            "recent_time_to_first": self.time_to_first_token[-10:],  # Last 10 values
+            "recent_tokens_per_second": self.tokens_per_second[-10:],
+            "recent_time_to_first": self.time_to_first_token[-10:],
             "recent_prompt_processing_throughput": self.prompt_processing_throughput[-10:],
             "recent_token_generation_throughput": self.token_generation_throughput[-10:],
         }
 
 
 class MetricsTracker:
-    """Centralized metrics tracking for all model and configuration combinations"""
 
     def __init__(self):
         self.metrics: Dict[str, ModelMetrics] = {}
         self.lock = asyncio.Lock()
 
     def _get_key(self, model_name: str, config: ContainerConfig) -> str:
-        """Generate unique key for model and full configuration"""
+
         return f"{model_name}_{str(config)}"
 
     async def record_request(
@@ -668,14 +619,14 @@ class MetricsTracker:
             prompt_tok: Optional[int] = None,
             predicted_tok: Optional[int] = None
     ):
-        """Record metrics for a completed request"""
+
         async with self.lock:
             key = self._get_key(model_name, config)
 
             if key not in self.metrics:
                 self.metrics[key] = ModelMetrics(
                     model_name=model_name,
-                    config_type=str(config)  # Store string representation of config
+                    config_type=str(config)
                 )
 
             self.metrics[key].record_request(
@@ -684,7 +635,7 @@ class MetricsTracker:
             )
 
     async def record_error(self, model_name: str, config: ContainerConfig):
-        """Record an error for model and configuration"""
+
         async with self.lock:
             key = self._get_key(model_name, config)
 
@@ -697,7 +648,7 @@ class MetricsTracker:
             self.metrics[key].record_error()
 
     async def get_metrics(self, model_name: str, config: ContainerConfig) -> Dict[str, Any]:
-        """Get metrics for specific model and configuration"""
+
         key = self._get_key(model_name, config)
 
         async with self.lock:
@@ -707,7 +658,7 @@ class MetricsTracker:
             return self.metrics[key].to_dict()
 
     async def get_all_metrics(self) -> Dict[str, Dict[str, Any]]:
-        """Get all metrics"""
+
         async with self.lock:
             return {
                 key: metrics.to_dict()
@@ -715,7 +666,7 @@ class MetricsTracker:
             }
 
     async def get_model_metrics(self, model_name: str) -> Dict[str, Dict[str, Any]]:
-        """Get all metrics for a specific model"""
+
         async with self.lock:
             return {
                 key: metrics.to_dict()
@@ -726,8 +677,6 @@ class MetricsTracker:
 
 async def stream_chat_completion(request: ChatCompletionRequest, container: ContainerInstance) -> AsyncGenerator[
     str, None]:
-    """Stream chat completion responses with metrics tracking"""
-    # Prepare the request payload
     messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
     payload = {
         "messages": messages,
@@ -748,26 +697,21 @@ async def stream_chat_completion(request: ChatCompletionRequest, container: Cont
                     )
                     raise HTTPException(status_code=response.status, detail="Container error")
 
-                # Collect response data for metrics
                 async for line in response.content:
                     line = line.decode('utf-8').strip()
                     if line.startswith('data: '):
-                        data = line[6:]  # Remove 'data: ' prefix
+                        data = line[6:]
                         if data == '[DONE]':
                             break
                         try:
                             result = json.loads(data)
 
-                            # TODO: Verify
-                            # Extract usage data
                             usage = result.get('usage', {})
                             prompt_tokens = usage.get('prompt_tokens', 0)
                             completion_tokens = usage.get('completion_tokens', 0)
 
-                            # Extract timing data if available in response
                             prompt_ms = 0
 
-                            # Try to get timing from response metadata
                             if 'timings' in result:
                                 timings = result['timings']
                                 prompt_ms = timings.get('prompt_ms', 0)
@@ -775,11 +719,10 @@ async def stream_chat_completion(request: ChatCompletionRequest, container: Cont
                                 prompt_tokens = timings.get('prompt_n', prompt_tokens)
                                 completion_tokens = timings.get('predicted_n', completion_tokens)
 
-                            # Record detailed metrics
                             await container_manager.metrics_tracker.record_request(
                                 request.model,
                                 container.config,
-                                completion_tokens,  # Only count completion tokens for throughput
+                                completion_tokens,
                                 -1,
                                 -1,
                                 prompt_ms,
@@ -803,7 +746,6 @@ async def stream_chat_completion(request: ChatCompletionRequest, container: Cont
 
 async def non_streaming_chat_completion(request: ChatCompletionRequest,
                                         container: ContainerInstance) -> ChatCompletionResponse:
-    """Non-streaming chat completion with metrics tracking"""
     start_time = time.time()
 
     try:
@@ -811,7 +753,7 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest,
             async with session.post(
                     f"{container.get_endpoint()}/v1/chat/completions",
                     json=request.dict(),
-                    timeout=aiohttp.ClientTimeout(total=300)  # 5 minute timeout
+                    timeout=aiohttp.ClientTimeout(total=300)
             ) as response:
                 if response.status != 200:
                     await container_manager.metrics_tracker.record_error(request.model, container.config)
@@ -819,20 +761,16 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest,
 
                 result = await response.json()
 
-                # Calculate detailed metrics
                 end_time = time.time()
                 total_duration = end_time - start_time
 
-                # Extract usage data
                 usage = result.get('usage', {})
                 prompt_tokens = usage.get('prompt_tokens', 0)
                 completion_tokens = usage.get('completion_tokens', 0)
 
-                # Extract timing data if available in response
                 prompt_ms = 0
                 predicted_ms = total_duration * 1000
 
-                # Try to get timing from response metadata
                 if 'timings' in result:
                     timings = result['timings']
                     prompt_ms = timings.get('prompt_ms', 0)
@@ -840,14 +778,12 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest,
                     prompt_tokens = timings.get('prompt_n', prompt_tokens)
                     completion_tokens = timings.get('predicted_n', completion_tokens)
 
-                # Time to first token is the same as total duration for non-streaming
                 time_to_first = total_duration
 
-                # Record detailed metrics
                 await container_manager.metrics_tracker.record_request(
                     request.model,
                     container.config,
-                    completion_tokens,  # Only count completion tokens for throughput
+                    completion_tokens,
                     total_duration,
                     time_to_first,
                     prompt_ms,
@@ -856,7 +792,6 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest,
                     completion_tokens
                 )
 
-                # Build response
                 choices = []
                 for i, choice_data in enumerate(result.get('choices', [])):
                     message = choice_data.get('message', {})
@@ -887,22 +822,16 @@ async def non_streaming_chat_completion(request: ChatCompletionRequest,
 @app.post("/v1/chat/completions")
 @app.post("/v1/completions")
 async def create_chat_completion(request: ChatCompletionRequest):
-    """Create a chat completion using the container cluster"""
-
-    # Find model file
     model_path = container_manager.get_model_path(request.model)
     if not model_path:
         raise HTTPException(status_code=404, detail=f"Model '{request.model}' not found")
 
-    # Ensure model cluster is initialized
     await container_manager.initialize_model_cluster(request.model, model_path)
 
-    # Get available container
     container = await container_manager.get_available_container(request.model)
     if not container:
         raise HTTPException(status_code=503, detail=f"No available containers for model '{request.model}'")
 
-    # Mark container as in use
     container.request_count += 1
     container.last_used = datetime.now()
 
@@ -925,7 +854,6 @@ async def create_chat_completion(request: ChatCompletionRequest):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     total_containers = sum(len(containers) for containers in container_pools.values())
     ready_containers = sum(len([c for c in containers if c._is_ready])
                            for containers in container_pools.values())
@@ -940,7 +868,6 @@ async def health_check():
 
 @app.get("/containers")
 async def list_containers():
-    """List all containers and their status"""
     containers_info = []
 
     for model_name, containers in container_pools.items():
@@ -960,33 +887,29 @@ async def list_containers():
 
 @app.get("/metrics")
 async def get_metrics():
-    """Get all metrics"""
     return await container_manager.metrics_tracker.get_all_metrics()
 
 
 @app.get("/v1/models")
 async def list_models():
     global container_pools
-    """List all models"""
+
     return {"models": list(container_pools.keys())}
 
 
 @app.get("/metrics/{model_name}")
 async def get_model_metrics(model_name: str):
-    """Get metrics for a specific model"""
     return await container_manager.metrics_tracker.get_model_metrics(model_name)
 
 
 @app.get("/metrics/{model_name}/{config_type}")
 async def get_model_config_metrics(model_name: str, config_type: str):
-    """Get metrics for a specific model and configuration"""
     config = ContainerConfig(container_type=config_type)
     return await container_manager.metrics_tracker.get_metrics(model_name, config)
 
 
 @app.post("/v1/save-metrics")
 async def save_metrics():
-    """Save all metrics to CSV and JSON files"""
     try:
         result = await container_manager.metrics_tracker.save_metrics()
         return result
@@ -996,13 +919,11 @@ async def save_metrics():
 
 @app.get("/v1/metrics-summary")
 async def get_metrics_summary():
-    """Get a summary of all metrics"""
     try:
         all_metrics = await container_manager.metrics_tracker.get_all_metrics()
         if not all_metrics:
             return {"message": "No metrics available"}
 
-        # Calculate summary statistics
         summary = {
             "total_models": len(all_metrics),
             "total_requests": sum(m.get('total_requests', 0) for m in all_metrics.values()),
@@ -1013,7 +934,6 @@ async def get_metrics_summary():
             "models": {}
         }
 
-        # Calculate averages
         total_requests = summary['total_requests']
         if total_requests > 0:
             summary['average_throughput'] = sum(
@@ -1030,7 +950,6 @@ async def get_metrics_summary():
                 m.get('error_count', 0) for m in all_metrics.values()
             ) / total_requests * 100
 
-        # Group by model
         for key, metrics in all_metrics.items():
             model_name = metrics['model_name']
             if model_name not in summary['models']:
@@ -1058,7 +977,6 @@ async def get_metrics_summary():
 
 
 def main():
-    """Main entry point"""
     import argparse
 
     parser = argparse.ArgumentParser(description="OpenAI-compatible llama.cpp proxy with clustering")
@@ -1074,7 +992,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Update configuration
     container_manager.models_dir = Path(args.models_dir).resolve()
     container_manager.containers_per_model = args.containers_per_model
     container_manager.workload_metrics.gpu_threshold = args.gpu_threshold

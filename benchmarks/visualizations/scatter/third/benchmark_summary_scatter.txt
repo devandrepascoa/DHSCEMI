@@ -1,0 +1,31 @@
+==================================================
+BENCHMARK ANALYSIS SUMMARY (Scatter Plots Only)
+==================================================
+Total benchmark runs: 257
+Unique models tested: 15
+Unique quantizations: 3
+Device types: CPU_16_cores, CPU_4_cores, CPU_2_cores, GPU_High_100%, GPU_Med_75%, GPU_Low_25%, GPU_Med_50%, CPU_8_cores
+
+PERFORMANCE SUMMARY
+------------------------------
+CPU_8_cores: 5.73 ± 4.59 tokens/sec
+CPU_16_cores: 5.59 ± 4.31 tokens/sec
+GPU_Med_50%: 85.20 ± 33.09 tokens/sec
+GPU_Low_25%: 27.95 ± 13.82 tokens/sec
+GPU_High_100%: 86.52 ± 33.35 tokens/sec
+GPU_Med_75%: 85.55 ± 33.03 tokens/sec
+CPU_4_cores: 4.66 ± 3.69 tokens/sec
+CPU_2_cores: 3.22 ± 2.28 tokens/sec
+
+TOP PERFORMERS
+------------------------------
+01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU_High_100%, Q4_K_M)
+  Throughput: 131.87 tokens/sec
+01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU_High_100%, Q4_K_M)
+  Throughput: 130.95 tokens/sec
+01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU_Med_50%, Q4_K_M)
+  Throughput: 129.08 tokens/sec
+01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU_High_100%, Q4_K_M)
+  Throughput: 128.95 tokens/sec
+01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU_Med_75%, Q4_K_M)
+  Throughput: 128.83 tokens/sec

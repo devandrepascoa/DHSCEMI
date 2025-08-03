@@ -1,0 +1,25 @@
+==================================================
+BENCHMARK ANALYSIS SUMMARY (Scatter Plots Only)
+==================================================
+Total benchmark runs: 149
+Unique models tested: 15
+Unique quantizations: 3
+Device types: CPU, GPU
+
+PERFORMANCE SUMMARY
+------------------------------
+CPU: 9.79 ± 8.26 tokens/sec
+GPU: 91.37 ± 35.20 tokens/sec
+
+TOP PERFORMERS
+------------------------------
+1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU, Q4_K_M)
+  Throughput: 142.65 tokens/sec
+1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU, Q4_K_M)
+  Throughput: 142.46 tokens/sec
+11-Qwen3-1.7B-Q4_K_M.gguf (GPU, Q4_K_M)
+  Throughput: 140.51 tokens/sec
+1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU, Q4_K_M)
+  Throughput: 140.27 tokens/sec
+1-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf (GPU, Q4_K_M)
+  Throughput: 140.04 tokens/sec
