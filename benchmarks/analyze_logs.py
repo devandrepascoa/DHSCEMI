@@ -21,7 +21,6 @@ class BenchmarkLogAnalyzer:
         self.raw_data = []
 
     def load_json_result_file(self, filepath: str) -> List[Dict]:
-        """Load data from a pre-parsed JSON result file."""
         results = []
         
         try:
@@ -31,35 +30,28 @@ class BenchmarkLogAnalyzer:
             print(f"Loaded {len(json_data)} entries from JSON file")
             
             for data in json_data:
-                # Extract relevant metrics from the JSON structure
                 gpu_percentage = data.get('gpu_percentage', 0)
                 cpu_cores = data.get('cpu_cores', 0)
                 
-                # Determine device type
                 if gpu_percentage and gpu_percentage > 0:
                     device_type = f"GPU_{gpu_percentage}%_CPU_{cpu_cores}"
                 else:
                     device_type = f"CPU_{cpu_cores}_cores"
                 
-                # Extract model information
                 model_filename = data.get('model', '')
                 model_type = model_filename.replace('.gguf', '') if model_filename else ''
                 
-                # Calculate prompt length (approximate from prompt text)
                 prompt = data.get('prompt', '')
                 try:
                     import tiktoken
                     tokenizer = tiktoken.get_encoding("cl100k_base")
                     prompt_length = len(tokenizer.encode(prompt))
                 except:
-                    # Fallback to character-based approximation
                     prompt_length = len(prompt) // 4
                 
-                # Extract quantization and model size
                 quantization = self.extract_quantization(model_type)
                 model_size = self.extract_model_size(model_type)
                 
-                # Calculate n_params from model size
                 n_params = 0
                 if model_size != "unknown":
                     try:
@@ -97,7 +89,7 @@ class BenchmarkLogAnalyzer:
                 
                 results.append(result)
                 self.raw_data.append(data)
-                
+
         except Exception as e:
             print(f"Error loading JSON file {filepath}: {e}")
         
