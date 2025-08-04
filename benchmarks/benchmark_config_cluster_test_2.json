@@ -1,0 +1,17 @@
+{
+  "server_params": [
+    "--port","8080",
+    "--host","0.0.0.0",
+    "--flash-attn"
+  ],
+  "default_threads": 8,
+  "gpu_percentages": [100, 75, 50, 25],
+  "cpu_configs": [52, 35, 18, 1],
+  "temperature": 0.7,
+  "concurrent_levels": [1, 4, 16, 64],
+  "token_sizes": [256],
+  "test_prompts": [
+    "Explain the concept of machine learning in simple terms.",
+    "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse"
+  ]
+}
