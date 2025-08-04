@@ -367,7 +367,8 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
                     )
 
                     try:
-                        print(f"🐳 Starting new container for this benchmark call: {container_name} with cmd: {" ".join(server_cmd)}")
+                        joined_cmd = " ".join(server_cmd)
+                        print(f"🐳 Starting new container for this benchmark call: {container_name} with cmd: {joined_cmd}")
                         subprocess.run(server_cmd, capture_output=True, text=True)
 
                         # Create benchmark instance for this specific container
