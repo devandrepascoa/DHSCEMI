@@ -16,9 +16,10 @@ else
 fi
 
 echo "3. Downloading models..."
-uv run scripts/download_models.py
+#uv run scripts/download_models.py
 
 echo "4. Running benchmark..."
-uv run benchmarks/scripts/benchmark.py
+uv run benchmarks/benchmark.py --config benchmarks/benchmark_config_cluster_test_1.json
+uv run benchmarks/benchmark.py --config benchmarks/benchmark_config_cluster_test_2.json
 
 echo "Benchmark process completed!"
