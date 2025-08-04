@@ -46,7 +46,7 @@ Run the main proxy server:
 uv run main.py
 ```
 
-The server will start on `http://localhost:8000` by default.
+An OpenAI-compatible proxy server will start on `http://localhost:8000` by default.
 
 ## Running Tests
 
