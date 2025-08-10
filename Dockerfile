@@ -1,12 +1,9 @@
 # Use NVIDIA CUDA base image for GPU support
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+FROM ubuntu:22.04
 
-# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
-
-RUN nvidia-smi
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

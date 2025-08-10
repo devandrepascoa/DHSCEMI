@@ -9,7 +9,6 @@ is_mps_daemon_running() {
     return $?
 }
 
-check_root
 echo "--- Disabling NVIDIA MPS ---"
 
 num_gpus=$(nvidia-smi -L | wc -l)
