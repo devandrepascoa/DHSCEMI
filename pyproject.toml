@@ -17,6 +17,7 @@ dependencies = [
     "pyarrow>=21.0.0",
     "tqdm>=4.67.1",
     "tiktoken>=0.5.0",
+    "verify>=1.1.1",
 ]
 
 [project.optional-dependencies]

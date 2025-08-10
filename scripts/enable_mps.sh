@@ -1,23 +1,15 @@
 #!/bin/bash
 
-check_root() {
-    if [[ $EUID -ne 0 ]]; then
-        echo "Error: This script must be run with sudo or as root."
-        echo "Usage: sudo $0"
-        exit 1
-    fi
-}
 
 get_compute_mode() {
     nvidia-smi -q -d COMPUTE | grep "Compute Mode" | awk '{print $NF}' | head -n 1
 }
 
 is_mps_daemon_running() {
-    pgrep -x "nvidia-cuda-mps-control" >/dev/null
+    pgrep -x "nvidia-cuda-mps" >/dev/null
     return $?
 }
 
-check_root
 echo "--- Enabling NVIDIA MPS ---"
 
 num_gpus=$(nvidia-smi -L | wc -l)
@@ -34,7 +26,7 @@ if [[ "$current_mode" == "EXCLUSIVE_PROCESS" ]]; then
     echo "GPU 0 is already in EXCLUSIVE_PROCESS mode."
 else
     echo "Setting GPU compute mode to EXCLUSIVE_PROCESS for GPU 0..."
-    if ! sudo nvidia-smi -i 0 -c EXCLUSIVE_PROCESS; then
+    if ! nvidia-smi -i 0 -c EXCLUSIVE_PROCESS; then
         echo "Warning: Failed to set EXCLUSIVE_PROCESS mode for GPU 0."
         echo "This usually means the GPU is in use. A reboot might be required for changes to apply."
     fi
@@ -44,7 +36,7 @@ echo "Attempting to start MPS daemon..."
 if is_mps_daemon_running; then
     echo "MPS daemon is already running."
 else
-    if sudo nvidia-cuda-mps-control -d; then
+    if nvidia-cuda-mps-control -d; then
         echo "MPS daemon started successfully."
         sleep 2 # Give it a moment to initialize
         if is_mps_daemon_running; then
