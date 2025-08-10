@@ -22,8 +22,8 @@ echo ""
 # Run the container with GPU support and privileged mode for MPS/MIG management
 docker run --rm \
     --name $CONTAINER_NAME \
-    --gpus 0 \
     --privileged \
+    --gpus all \
     -v $(pwd)/models:/app/models \
     -v $(pwd)/_models:/app/_models \
     -v $(pwd)/benchmarks:/app/benchmarks \
