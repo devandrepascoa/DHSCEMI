@@ -376,6 +376,20 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
 
                         if not await call_benchmark.wait_for_server():
                             print("❌ Server failed to start for this call")
+                            # Get the container ID from the result
+                            container_id = result.stdout.strip()
+                            if container_id:
+                                # Fetch the actual container logs
+                                logs_result = subprocess.run(
+                                    ["docker", "logs", container_id], 
+                                    capture_output=True, 
+                                    text=True
+                                )
+                                if logs_result.stdout:
+                                    print(f"📄 Container logs (stdout):\n{logs_result.stdout}")
+                                if logs_result.stderr:
+                                    print(f"⚠️ Container logs (stderr):\n{logs_result.stderr}")
+                            
                             if result.stdout:
                                 print(f"📄 Container stdout:\n{result.stdout}")
                             if result.stderr:

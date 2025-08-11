@@ -25,6 +25,7 @@ docker run --rm \
     --privileged \
     --gpus all \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /usr/bin/nvidia-container-toolkit:/usr/bin/nvidia-container-toolkit \
     -v $(pwd)/models:/app/models \
     -v $(pwd)/_models:/app/_models \
     -v $(pwd)/benchmarks:/app/benchmarks \
