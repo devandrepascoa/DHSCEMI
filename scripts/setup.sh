@@ -4,6 +4,9 @@ set -e
 
 echo "🚀 Setting up LLM Benchmarking System..."
 
+# create models folder if it doesn't exist
+mkdir -p models
+
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker is not installed. Please install Docker first."
     exit 1
