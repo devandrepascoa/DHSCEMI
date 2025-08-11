@@ -1,25 +1,25 @@
-# Use Docker-in-Docker base image for running Docker commands within container
-FROM docker:dind
+# Use NVIDIA CUDA base image for GPU support
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
 
 # Install system dependencies
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     curl \
     wget \
     git \
-    build-base \
+    build-essential \
     cmake \
-    pkgconfig \
-    openssl-dev \
+    pkg-config \
+    libssl-dev \
     ca-certificates \
+    sudo \
+    docker.io \
     python3 \
-    python3-dev \
-    py3-pip \
-    bash \
-    shadow
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
@@ -34,16 +34,5 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
     chmod +x scripts/*.sh && \
     chmod +x run_benchmark.sh
 
-# Create startup script that starts Docker daemon and runs benchmark
-RUN echo '#!/bin/bash' > /start.sh && \
-    echo 'set -e' >> /start.sh && \
-    echo 'echo "Starting Docker daemon..."' >> /start.sh && \
-    echo 'dockerd-entrypoint.sh &' >> /start.sh && \
-    echo 'sleep 10' >> /start.sh && \
-    echo 'echo "Docker daemon started, running benchmark..."' >> /start.sh && \
-    echo 'cd /app' >> /start.sh && \
-    echo './run_benchmark.sh' >> /start.sh && \
-    chmod +x /start.sh
-
-# Run the startup script
-CMD ["/start.sh"]
+# Run the benchmark script
+CMD ["./run_benchmark.sh"]
