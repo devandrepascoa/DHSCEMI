@@ -5,11 +5,7 @@ set -e
 # Cleanup function to ensure MPS is disabled
 cleanup() {
     echo "Running cleanup..."
-    if [ -f "./scripts/disable_mps.sh" ]; then
-        ./scripts/disable_mps.sh
-    else
-        echo "Warning: disable_mps.sh not found, skipping MPS cleanup"
-    fi
+    ./scripts/disable_mps.sh
 }
 
 # Set up signal handlers to ensure cleanup runs on exit/termination
@@ -37,5 +33,7 @@ echo "4. Running benchmark..."
 uv run benchmarks/benchmark.py --config benchmarks/benchmark_config_cluster_test_1.json
 uv run benchmarks/benchmark.py --config benchmarks/benchmark_config_cluster_test_2.json
 
+echo "..Cleaning up"
+./scripts/disable_mps.sh
+
 echo "Benchmark process completed!"
-# Note: cleanup() will be called automatically via EXIT trap
