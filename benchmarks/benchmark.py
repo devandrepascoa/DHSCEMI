@@ -369,13 +369,19 @@ async def run_benchmark_with_samples(model_path, variant, config, models_dir, cp
                     try:
                         joined_cmd = " ".join(server_cmd)
                         print(f"🐳 Starting new container for this benchmark call: {container_name} with cmd: {joined_cmd}")
-                        subprocess.run(server_cmd, capture_output=True, text=True)
-
+                        result = subprocess.run(server_cmd, capture_output=True, text=True)
+                        
                         # Create benchmark instance for this specific container
                         call_benchmark = LlamaServerBenchmark(server_url=f"http://localhost:{port}")
 
                         if not await call_benchmark.wait_for_server():
                             print("❌ Server failed to start for this call")
+                            if result.stdout:
+                                print(f"📄 Container stdout:\n{result.stdout}")
+                            if result.stderr:
+                                print(f"⚠️ Container stderr:\n{result.stderr}")
+                            if result.returncode != 0:
+                                print(f"❌ Container exited with code: {result.returncode}")
                             continue
 
                         completion_metrics = await call_benchmark.run_concurrent_completion_benchmark(
