@@ -1,0 +1,1612 @@
+[
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 4,
+    "throughput_mean": 336.12881649981665,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      336.12881649981665
+    ],
+    "prompt_processing_throughput_mean": 667.1577689132279,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      667.1577689132279
+    ],
+    "token_generation_throughput_mean": 86.12192307562918,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      86.12192307562918
+    ],
+    "time_to_first_token_mean": 0.01798675,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.01798675
+    ],
+    "total_time_mean": 1.5232255458831787,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      1.5232255458831787
+    ],
+    "avg_time_per_request_mean": 0.3808063864707947,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.3808063864707947
+    ],
+    "prompt_ms_per_token_mean": 1.4988958333333333,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      1.4988958333333333
+    ],
+    "predicted_ms_per_token_mean": 11.611445312499999,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      11.611445312499999
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 48,
+    "total_predicted_tokens": 512,
+    "total_prompt_ms": 71.947,
+    "total_predicted_ms": 5945.0599999999995
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 4,
+    "throughput_mean": 268.78736585875055,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      268.78736585875055
+    ],
+    "prompt_processing_throughput_mean": 2570.5355446846406,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      2570.5355446846406
+    ],
+    "token_generation_throughput_mean": 78.56539587138845,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      78.56539587138845
+    ],
+    "time_to_first_token_mean": 0.2026815,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.2026815
+    ],
+    "total_time_mean": 1.9048514366149902,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      1.9048514366149902
+    ],
+    "avg_time_per_request_mean": 0.47621285915374756,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.47621285915374756
+    ],
+    "prompt_ms_per_token_mean": 0.3890239923224568,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      0.3890239923224568
+    ],
+    "predicted_ms_per_token_mean": 12.72825,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      12.72825
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 2084,
+    "total_predicted_tokens": 512,
+    "total_prompt_ms": 810.726,
+    "total_predicted_ms": 6516.864
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 16,
+    "throughput_mean": 1030.1265244849387,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      1030.1265244849387
+    ],
+    "prompt_processing_throughput_mean": 346.64736033451464,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      346.64736033451464
+    ],
+    "token_generation_throughput_mean": 66.62030786714597,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      66.62030786714597
+    ],
+    "time_to_first_token_mean": 0.034617312500000004,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.034617312500000004
+    ],
+    "total_time_mean": 1.988105297088623,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      1.988105297088623
+    ],
+    "avg_time_per_request_mean": 0.12425658106803894,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.12425658106803894
+    ],
+    "prompt_ms_per_token_mean": 2.884776041666667,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      2.884776041666667
+    ],
+    "predicted_ms_per_token_mean": 15.01043798828125,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      15.01043798828125
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 192,
+    "total_predicted_tokens": 2048,
+    "total_prompt_ms": 553.8770000000001,
+    "total_predicted_ms": 30741.377
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 16,
+    "throughput_mean": 523.0108944790392,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      523.0108944790392
+    ],
+    "prompt_processing_throughput_mean": 1147.1489646416378,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      1147.1489646416378
+    ],
+    "token_generation_throughput_mean": 45.94640737457786,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      45.94640737457786
+    ],
+    "time_to_first_token_mean": 0.45416943749999994,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.45416943749999994
+    ],
+    "total_time_mean": 3.915788412094116,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      3.915788412094116
+    ],
+    "avg_time_per_request_mean": 0.24473677575588226,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.24473677575588226
+    ],
+    "prompt_ms_per_token_mean": 0.87172636756238,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      0.87172636756238
+    ],
+    "predicted_ms_per_token_mean": 21.7644873046875,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      21.7644873046875
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 8336,
+    "total_predicted_tokens": 2048,
+    "total_prompt_ms": 7266.710999999999,
+    "total_predicted_ms": 44573.67
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 64,
+    "throughput_mean": 1577.7636231553572,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      1577.7636231553572
+    ],
+    "prompt_processing_throughput_mean": 117.69451163520587,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      117.69451163520587
+    ],
+    "token_generation_throughput_mean": 26.211992496117073,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      26.211992496117073
+    ],
+    "time_to_first_token_mean": 0.10195887499999999,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.10195887499999999
+    ],
+    "total_time_mean": 5.066665172576904,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      5.066665172576904
+    ],
+    "avg_time_per_request_mean": 0.07916664332151413,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.07916664332151413
+    ],
+    "prompt_ms_per_token_mean": 8.496572916666667,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      8.496572916666667
+    ],
+    "predicted_ms_per_token_mean": 38.15047635726797,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      38.15047635726797
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 768,
+    "total_predicted_tokens": 7994,
+    "total_prompt_ms": 6525.3679999999995,
+    "total_predicted_ms": 304974.90800000017
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 128,
+    "concurrent_requests": 64,
+    "throughput_mean": 438.5543683921504,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      438.5543683921504
+    ],
+    "prompt_processing_throughput_mean": 566.7233457997513,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      566.7233457997513
+    ],
+    "token_generation_throughput_mean": 10.024318872770825,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      10.024318872770825
+    ],
+    "time_to_first_token_mean": 0.9193198124999999,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.9193198124999999
+    ],
+    "total_time_mean": 18.679553985595703,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      18.679553985595703
+    ],
+    "avg_time_per_request_mean": 0.29186803102493286,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.29186803102493286
+    ],
+    "prompt_ms_per_token_mean": 1.7645293905950095,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      1.7645293905950095
+    ],
+    "predicted_ms_per_token_mean": 99.75740124511718,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      99.75740124511718
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 33344,
+    "total_predicted_tokens": 8192,
+    "total_prompt_ms": 58836.46799999999,
+    "total_predicted_ms": 817212.6309999999
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 4,
+    "throughput_mean": 200.22499474958983,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      200.22499474958983
+    ],
+    "prompt_processing_throughput_mean": 359.3244699964067,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      359.3244699964067
+    ],
+    "token_generation_throughput_mean": 50.41286859363949,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      50.41286859363949
+    ],
+    "time_to_first_token_mean": 0.033396,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.033396
+    ],
+    "total_time_mean": 5.114246606826782,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      5.114246606826782
+    ],
+    "avg_time_per_request_mean": 1.2785616517066956,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      1.2785616517066956
+    ],
+    "prompt_ms_per_token_mean": 2.783,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      2.783
+    ],
+    "predicted_ms_per_token_mean": 19.836205078125,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      19.836205078125
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 48,
+    "total_predicted_tokens": 1024,
+    "total_prompt_ms": 133.584,
+    "total_predicted_ms": 20312.274
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 4,
+    "throughput_mean": 166.06372750834308,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      166.06372750834308
+    ],
+    "prompt_processing_throughput_mean": 969.2739236013083,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      969.2739236013083
+    ],
+    "token_generation_throughput_mean": 47.86115329861966,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      47.86115329861966
+    ],
+    "time_to_first_token_mean": 0.5375157500000001,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.5375157500000001
+    ],
+    "total_time_mean": 6.16630744934082,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      6.16630744934082
+    ],
+    "avg_time_per_request_mean": 1.541576862335205,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      1.541576862335205
+    ],
+    "prompt_ms_per_token_mean": 1.03170009596929,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      1.03170009596929
+    ],
+    "predicted_ms_per_token_mean": 20.893771484375,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      20.893771484375
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 2084,
+    "total_predicted_tokens": 1024,
+    "total_prompt_ms": 2150.063,
+    "total_predicted_ms": 21395.222
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 16,
+    "throughput_mean": 743.3298389359301,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      743.3298389359301
+    ],
+    "prompt_processing_throughput_mean": 161.14425852239108,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      161.14425852239108
+    ],
+    "token_generation_throughput_mean": 47.76070810330939,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      47.76070810330939
+    ],
+    "time_to_first_token_mean": 0.0744674375,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.0744674375
+    ],
+    "total_time_mean": 5.475362062454224,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      5.475362062454224
+    ],
+    "avg_time_per_request_mean": 0.342210128903389,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.342210128903389
+    ],
+    "prompt_ms_per_token_mean": 6.205619791666667,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      6.205619791666667
+    ],
+    "predicted_ms_per_token_mean": 20.937713022113023,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      20.937713022113023
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 192,
+    "total_predicted_tokens": 4070,
+    "total_prompt_ms": 1191.479,
+    "total_predicted_ms": 85216.492
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 16,
+    "throughput_mean": 445.2201811707488,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      445.2201811707488
+    ],
+    "prompt_processing_throughput_mean": 542.2739845812303,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      542.2739845812303
+    ],
+    "token_generation_throughput_mean": 37.478044897398505,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      37.478044897398505
+    ],
+    "time_to_first_token_mean": 0.9607689375,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.9607689375
+    ],
+    "total_time_mean": 9.199942350387573,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      9.199942350387573
+    ],
+    "avg_time_per_request_mean": 0.5749963968992233,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.5749963968992233
+    ],
+    "prompt_ms_per_token_mean": 1.8440862523992323,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      1.8440862523992323
+    ],
+    "predicted_ms_per_token_mean": 26.682288330078123,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      26.682288330078123
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 8336,
+    "total_predicted_tokens": 4096,
+    "total_prompt_ms": 15372.303,
+    "total_predicted_ms": 109290.65299999999
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 64,
+    "throughput_mean": 1522.7781470477519,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      1522.7781470477519
+    ],
+    "prompt_processing_throughput_mean": 92.43203116499987,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      92.43203116499987
+    ],
+    "token_generation_throughput_mean": 24.83974201319304,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      24.83974201319304
+    ],
+    "time_to_first_token_mean": 0.12982512499999996,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.12982512499999996
+    ],
+    "total_time_mean": 10.49594783782959,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      10.49594783782959
+    ],
+    "avg_time_per_request_mean": 0.16399918496608734,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.16399918496608734
+    ],
+    "prompt_ms_per_token_mean": 10.818760416666663,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      10.818760416666663
+    ],
+    "predicted_ms_per_token_mean": 40.25806707126322,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      40.25806707126322
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 768,
+    "total_predicted_tokens": 15983,
+    "total_prompt_ms": 8308.807999999997,
+    "total_predicted_ms": 643444.686
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cuda",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": null,
+    "gpu_percentage": 100,
+    "token_size": 256,
+    "concurrent_requests": 64,
+    "throughput_mean": 563.8550298842382,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      563.8550298842382
+    ],
+    "prompt_processing_throughput_mean": 482.32778703631243,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      482.32778703631243
+    ],
+    "token_generation_throughput_mean": 11.800321244954072,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      11.800321244954072
+    ],
+    "time_to_first_token_mean": 1.08017828125,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      1.08017828125
+    ],
+    "total_time_mean": 28.927648305892944,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      28.927648305892944
+    ],
+    "avg_time_per_request_mean": 0.45199450477957726,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      0.45199450477957726
+    ],
+    "prompt_ms_per_token_mean": 2.0732788507677546,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      2.0732788507677546
+    ],
+    "predicted_ms_per_token_mean": 84.74345564343083,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      84.74345564343083
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 33344,
+    "total_predicted_tokens": 16311,
+    "total_prompt_ms": 69131.41,
+    "total_predicted_ms": 1382250.5050000004
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 4,
+    "throughput_mean": 77.17610041917993,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      77.17610041917993
+    ],
+    "prompt_processing_throughput_mean": 59.90019130623599,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      59.90019130623599
+    ],
+    "token_generation_throughput_mean": 20.172659844393934,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      20.172659844393934
+    ],
+    "time_to_first_token_mean": 0.20033325,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.20033325
+    ],
+    "total_time_mean": 6.634178161621094,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      6.634178161621094
+    ],
+    "avg_time_per_request_mean": 1.6585445404052734,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      1.6585445404052734
+    ],
+    "prompt_ms_per_token_mean": 16.6944375,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      16.6944375
+    ],
+    "predicted_ms_per_token_mean": 49.572044921875005,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      49.572044921875005
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 48,
+    "total_predicted_tokens": 512,
+    "total_prompt_ms": 801.333,
+    "total_predicted_ms": 25380.887000000002
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 4,
+    "throughput_mean": 24.46748935784286,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      24.46748935784286
+    ],
+    "prompt_processing_throughput_mean": 74.46676490038337,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      74.46676490038337
+    ],
+    "token_generation_throughput_mean": 12.290786272084736,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      12.290786272084736
+    ],
+    "time_to_first_token_mean": 6.99640975,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      6.99640975
+    ],
+    "total_time_mean": 20.925726890563965,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      20.925726890563965
+    ],
+    "avg_time_per_request_mean": 5.231431722640991,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      5.231431722640991
+    ],
+    "prompt_ms_per_token_mean": 13.428809500959693,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      13.428809500959693
+    ],
+    "predicted_ms_per_token_mean": 81.361759765625,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      81.361759765625
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 2084,
+    "total_predicted_tokens": 512,
+    "total_prompt_ms": 27985.639,
+    "total_predicted_ms": 41657.221
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 16,
+    "throughput_mean": 90.69094389868282,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      90.69094389868282
+    ],
+    "prompt_processing_throughput_mean": 13.304043188804537,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      13.304043188804537
+    ],
+    "token_generation_throughput_mean": 5.973517106098138,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      5.973517106098138
+    ],
+    "time_to_first_token_mean": 0.9019814375,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.9019814375
+    ],
+    "total_time_mean": 22.582188606262207,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      22.582188606262207
+    ],
+    "avg_time_per_request_mean": 1.411386787891388,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      1.411386787891388
+    ],
+    "prompt_ms_per_token_mean": 75.16511979166667,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      75.16511979166667
+    ],
+    "predicted_ms_per_token_mean": 167.40556396484374,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      167.40556396484374
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 192,
+    "total_predicted_tokens": 2048,
+    "total_prompt_ms": 14431.703000000001,
+    "total_predicted_ms": 342846.595
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 16,
+    "throughput_mean": 22.595047770687486,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      22.595047770687486
+    ],
+    "prompt_processing_throughput_mean": 30.82405553666522,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      30.82405553666522
+    ],
+    "token_generation_throughput_mean": 2.6277500477225963,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      2.6277500477225963
+    ],
+    "time_to_first_token_mean": 16.90238325,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      16.90238325
+    ],
+    "total_time_mean": 90.63933038711548,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      90.63933038711548
+    ],
+    "avg_time_per_request_mean": 5.664958149194717,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      5.664958149194717
+    ],
+    "prompt_ms_per_token_mean": 32.4421943378119,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      32.4421943378119
+    ],
+    "predicted_ms_per_token_mean": 380.5536987304688,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      380.5536987304688
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 8336,
+    "total_predicted_tokens": 2048,
+    "total_prompt_ms": 270438.132,
+    "total_predicted_ms": 779373.9750000001
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 64,
+    "throughput_mean": 93.67992706601787,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      93.67992706601787
+    ],
+    "prompt_processing_throughput_mean": 2.659340239709189,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      2.659340239709189
+    ],
+    "token_generation_throughput_mean": 1.5622906922003,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      1.5622906922003
+    ],
+    "time_to_first_token_mean": 4.512397406250001,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      4.512397406250001
+    ],
+    "total_time_mean": 87.05173301696777,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      87.05173301696777
+    ],
+    "avg_time_per_request_mean": 1.3601833283901215,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      1.3601833283901215
+    ],
+    "prompt_ms_per_token_mean": 376.03311718750007,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      376.03311718750007
+    ],
+    "predicted_ms_per_token_mean": 640.0857439607602,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      640.0857439607602
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 768,
+    "total_predicted_tokens": 8155,
+    "total_prompt_ms": 288793.43400000007,
+    "total_predicted_ms": 5219899.242
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 128,
+    "concurrent_requests": 64,
+    "throughput_mean": 18.915082098877335,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      18.915082098877335
+    ],
+    "prompt_processing_throughput_mean": 21.660115532980146,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      21.660115532980146
+    ],
+    "token_generation_throughput_mean": 0.47969658483644023,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      0.47969658483644023
+    ],
+    "time_to_first_token_mean": 24.053426640625,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      24.053426640625
+    ],
+    "total_time_mean": 433.0935471057892,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      433.0935471057892
+    ],
+    "avg_time_per_request_mean": 6.767086673527956,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      6.767086673527956
+    ],
+    "prompt_ms_per_token_mean": 46.16780545225528,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      46.16780545225528
+    ],
+    "predicted_ms_per_token_mean": 2084.651072387695,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      2084.651072387695
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 33344,
+    "total_predicted_tokens": 8192,
+    "total_prompt_ms": 1539419.305,
+    "total_predicted_ms": 17077461.584999997
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 256,
+    "concurrent_requests": 4,
+    "throughput_mean": 54.06906276980054,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      54.06906276980054
+    ],
+    "prompt_processing_throughput_mean": 39.71823224077855,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      39.71823224077855
+    ],
+    "token_generation_throughput_mean": 13.869963484747599,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      13.869963484747599
+    ],
+    "time_to_first_token_mean": 0.30212825,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      0.30212825
+    ],
+    "total_time_mean": 18.938741445541382,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      18.938741445541382
+    ],
+    "avg_time_per_request_mean": 4.7346853613853455,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      4.7346853613853455
+    ],
+    "prompt_ms_per_token_mean": 25.177354166666664,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      25.177354166666664
+    ],
+    "predicted_ms_per_token_mean": 72.0982431640625,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      72.0982431640625
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 48,
+    "total_predicted_tokens": 1024,
+    "total_prompt_ms": 1208.513,
+    "total_predicted_ms": 73828.601
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 256,
+    "concurrent_requests": 4,
+    "throughput_mean": 22.86801397618467,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      22.86801397618467
+    ],
+    "prompt_processing_throughput_mean": 35.848873808661416,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      35.848873808661416
+    ],
+    "token_generation_throughput_mean": 9.903846226384092,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      9.903846226384092
+    ],
+    "time_to_first_token_mean": 14.533232,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      14.533232
+    ],
+    "total_time_mean": 44.77870273590088,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      44.77870273590088
+    ],
+    "avg_time_per_request_mean": 11.19467568397522,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      11.19467568397522
+    ],
+    "prompt_ms_per_token_mean": 27.894879078694817,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      27.894879078694817
+    ],
+    "predicted_ms_per_token_mean": 100.970873046875,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      100.970873046875
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 4,
+    "total_requests": 4,
+    "total_prompt_tokens": 2084,
+    "total_predicted_tokens": 1024,
+    "total_prompt_ms": 58132.928,
+    "total_predicted_ms": 103394.174
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 256,
+    "concurrent_requests": 16,
+    "throughput_mean": 71.67193797263796,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      71.67193797263796
+    ],
+    "prompt_processing_throughput_mean": 8.857254139578423,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      8.857254139578423
+    ],
+    "token_generation_throughput_mean": 4.674357676750125,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      4.674357676750125
+    ],
+    "time_to_first_token_mean": 1.3548216875,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      1.3548216875
+    ],
+    "total_time_mean": 56.63304376602173,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      56.63304376602173
+    ],
+    "avg_time_per_request_mean": 3.539565235376358,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      3.539565235376358
+    ],
+    "prompt_ms_per_token_mean": 112.90180729166667,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      112.90180729166667
+    ],
+    "predicted_ms_per_token_mean": 213.93313673318553,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      213.93313673318553
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 192,
+    "total_predicted_tokens": 4059,
+    "total_prompt_ms": 21677.147,
+    "total_predicted_ms": 868354.6020000001
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "FROM fairest creatures we desire increase,\nThat thereby beauty's rose might never die,\nBut as the riper should by time decease,\nHis tender heir might bear his memory:\nBut thou, contracted to thine own bright eyes,\nFeed'st thy light'st flame with self-substantial fuel,\nMaking a famine where abundance lies,\nThyself thy foe, to thy sweet self too cruel.\nThou that art now the world's fresh ornament\nAnd only herald to the gaudy spring,\nWithin thine own bud buriest thy content\nAnd, tender churl, makest waste in niggarding.\nPity the world, or else this glutton be,\nTo eat the world's due, by the grave and thee.\nWhen forty winters shall beseige thy brow,\nAnd dig deep trenches in thy beauty's field,\nThy youth's proud livery, so gazed on now,\nWill be a tatter'd weed, of small worth held:\nThen being ask'd where all thy beauty lies,\nWhere all the treasure of thy lusty days,\nTo say, within thine own deep-sunken eyes,\nWere an all-eating shame and thriftless praise.\nHow much more praise deserved thy beauty's use,\nIf thou couldst answer 'This fair child of mine\nShall sum my count and make my old excuse,'\nProving his beauty by succession thine!\nThis were to be new made when thou art old,\nAnd see thy blood warm when thou feel'st it cold.\nLook in thy glass, and tell the face thou viewest\nNow is the time that face should form another;\nWhose fresh repair if now thou not renewest,\nThou dost beguile the world, unbless some mother.\nFor where is she so fair whose unear'd womb\nDisdains the tillage of thy husbandry?\nOr who is he so fond will be the tomb\nOf his self-love, to stop posterity?\nThou art thy mother's glass, and she in thee\nCalls back the lovely April of her prime:\nSo thou through windows of thine age shall see\nDespite of wrinkles this thy golden time.\nBut if thou live, remember'd not to be,\nDie single, and thine image dies with thee.\nUnthrifty loveliness, why dost thou spend\nUpon thyself thy beauty's legacy?\nNature's bequest gives nothing but doth lend,\nAnd being frank she lends to those are free.\nThen, beauteous niggard, why dost thou abuse",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 256,
+    "concurrent_requests": 16,
+    "throughput_mean": 27.07014583658295,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      27.07014583658295
+    ],
+    "prompt_processing_throughput_mean": 23.611665308122557,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      23.611665308122557
+    ],
+    "token_generation_throughput_mean": 2.682957181795518,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      2.682957181795518
+    ],
+    "time_to_first_token_mean": 22.0653644375,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      22.0653644375
+    ],
+    "total_time_mean": 150.9781301021576,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      150.9781301021576
+    ],
+    "avg_time_per_request_mean": 9.43613313138485,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      9.43613313138485
+    ],
+    "prompt_ms_per_token_mean": 42.35194709692898,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      42.35194709692898
+    ],
+    "predicted_ms_per_token_mean": 372.72305603131883,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      372.72305603131883
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 16,
+    "total_requests": 16,
+    "total_prompt_tokens": 8336,
+    "total_predicted_tokens": 4087,
+    "total_prompt_ms": 353045.831,
+    "total_predicted_ms": 1523319.1300000001
+  },
+  {
+    "endpoint": "concurrent_completion",
+    "prompt": "Explain the concept of machine learning in simple terms.",
+    "variant": "cpu",
+    "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+    "cpu_cores": 16,
+    "gpu_percentage": null,
+    "token_size": 256,
+    "concurrent_requests": 64,
+    "throughput_mean": 88.35821060886404,
+    "throughput_stddev": 0.0,
+    "throughput_samples": 1,
+    "throughput_values": [
+      88.35821060886404
+    ],
+    "prompt_processing_throughput_mean": 2.927955348314944,
+    "prompt_processing_throughput_stddev": 0.0,
+    "prompt_processing_throughput_samples": 1,
+    "prompt_processing_throughput_values": [
+      2.927955348314944
+    ],
+    "token_generation_throughput_mean": 1.4638885467584297,
+    "token_generation_throughput_stddev": 0.0,
+    "token_generation_throughput_samples": 1,
+    "token_generation_throughput_values": [
+      1.4638885467584297
+    ],
+    "time_to_first_token_mean": 4.09842315625,
+    "time_to_first_token_stddev": 0.0,
+    "time_to_first_token_samples": 1,
+    "time_to_first_token_values": [
+      4.09842315625
+    ],
+    "total_time_mean": 180.20962500572205,
+    "total_time_stddev": 0.0,
+    "total_time_samples": 1,
+    "total_time_values": [
+      180.20962500572205
+    ],
+    "avg_time_per_request_mean": 2.815775390714407,
+    "avg_time_per_request_stddev": 0.0,
+    "avg_time_per_request_samples": 1,
+    "avg_time_per_request_values": [
+      2.815775390714407
+    ],
+    "prompt_ms_per_token_mean": 341.5352630208333,
+    "prompt_ms_per_token_stddev": 0.0,
+    "prompt_ms_per_token_samples": 1,
+    "prompt_ms_per_token_values": [
+      341.5352630208333
+    ],
+    "predicted_ms_per_token_mean": 683.1121141116623,
+    "predicted_ms_per_token_stddev": 0.0,
+    "predicted_ms_per_token_samples": 1,
+    "predicted_ms_per_token_values": [
+      683.1121141116623
+    ],
+    "request_failure_rate_mean": 0.0,
+    "request_failure_rate_stddev": 0.0,
+    "request_failure_rate_samples": 1,
+    "request_failure_rate_values": [
+      0.0
+    ],
+    "successful_requests": 64,
+    "total_requests": 64,
+    "total_prompt_tokens": 768,
+    "total_predicted_tokens": 15923,
+    "total_prompt_ms": 262299.082,
+    "total_predicted_ms": 10877194.193
+  }
+]
