@@ -952,6 +952,10 @@ class BenchmarkLogAnalyzer:
     def run_analysis(self, output_dir: str) -> None:
         print("Starting benchmark log analysis with line plots...")
 
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Output directory: {output_dir}")
+
         self.load_all_logs()
 
         df = self.create_polars_dataframe()
