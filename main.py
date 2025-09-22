@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+                      
 from __future__ import annotations
 
 import json
@@ -38,7 +38,7 @@ container_manager: 'ContainerManager' = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize containers
+                                    
     global container_manager
     container_manager = ContainerManager()
     logger.info("Initializing container manager and model clusters...")
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown: Cleanup containers
+                                  
     logger.info("Shutting down containers...")
     await container_manager.cleanup_all_containers()
     await container_manager.stop_background_container_management()
@@ -68,7 +68,7 @@ class ContainerConfig:
     gpu_percentage: Optional[int] = None
 
     def __post_init__(self):
-        # Basic validation only
+                               
         if self.gpu_percentage and (self.cpu_cores or self.memory):
             raise ValueError("Cannot mix GPU and CPU/memory configs")
 
@@ -163,25 +163,25 @@ class ContainerInstance:
         self.request_count = 0
         self.lock = asyncio.Lock()
         
-        # Processing time estimation fields
-        self.processing_times = deque(maxlen=20)  # Store last 20 processing times
-        self.token_processing_times = deque(maxlen=20)  # Store (tokens, time) pairs
-        self.active_requests = 0  # Current number of active requests
-        self.queue_start_times = {}  # Track when requests started queuing
-        self.avg_processing_time = 5.0  # Default 5 seconds
-        self.tokens_per_second = 10.0  # Default throughput
-        self.metrics_lock = asyncio.Lock()  # Protect metrics from race conditions
+                                           
+        self.processing_times = deque(maxlen=20)                                  
+        self.token_processing_times = deque(maxlen=20)                              
+        self.active_requests = 0                                     
+        self.queue_start_times = {}                                       
+        self.avg_processing_time = 5.0                     
+        self.tokens_per_second = 10.0                      
+        self.metrics_lock = asyncio.Lock()                                        
         
-        # Circuit breaker pattern for error handling
+                                                    
         self.failure_count = 0
         self.last_failure_time = None
-        self.circuit_breaker_threshold = 5  # failures before circuit opens
-        self.circuit_breaker_timeout = 60  # seconds before attempting recovery
+        self.circuit_breaker_threshold = 5                                 
+        self.circuit_breaker_timeout = 60                                      
         self.is_circuit_open = False
 
     async def is_ready(self) -> bool:
         if self.is_circuit_open:
-            # Check if circuit breaker timeout has passed
+                                                         
             if self.last_failure_time and (time.time() - self.last_failure_time) > self.circuit_breaker_timeout:
                 logger.info(f"Circuit breaker timeout passed for {self.container_name}, attempting recovery")
                 self.is_circuit_open = False
@@ -197,12 +197,12 @@ class ContainerInstance:
                 return True
 
             try:
-                timeout = aiohttp.ClientTimeout(total=5)  # 5 second timeout
+                timeout = aiohttp.ClientTimeout(total=5)                    
                 async with aiohttp.ClientSession(timeout=timeout) as session:
                     async with session.get(f"http://localhost:{self.port}/health") as response:
                         if response.status == 200:
                             self._is_ready = True
-                            self.failure_count = 0  # Reset failure count on success
+                            self.failure_count = 0                                  
                             self.is_circuit_open = False
                             return True
 
@@ -227,7 +227,7 @@ class ContainerInstance:
     async def start_container(self):
         docker_cmd = [
             'docker', 'run', '--rm', '-d',
-            '--name', self.container_name,  # Add explicit container name
+            '--name', self.container_name,                               
             '-v', f'{self.model_path.parent}:/models:ro',
             '-p', f'{self.port}:8080',
         ]
@@ -247,7 +247,7 @@ class ContainerInstance:
             docker_cmd.extend(['--threads', str(threads)])
 
         try:
-            # Remove existing container if present
+                                                  
             subprocess.run(['docker', 'rm', '-f', self.container_name], capture_output=True)
             
             result = subprocess.run(docker_cmd, capture_output=True, text=True, timeout=30)
@@ -255,7 +255,7 @@ class ContainerInstance:
                 self._record_failure()
                 return
                 
-            # Simple readiness check
+                                    
             for _ in range(6):
                 if await self.is_ready():
                     self._is_ready = True
@@ -297,10 +297,10 @@ class ContainerInstance:
 
 class WorkloadMetrics:
     def __init__(self, token_threshold: int = 10000, request_window: int = 60):
-        self.token_events = {}  # {model_name: [(timestamp, token_count), ...]}
+        self.token_events = {}                                                 
         self.last_request_time = {}
-        self.current_hardware_type = {}  # {model_name: 'cpu' or 'gpu'}
-        self._cleanup_interval = 600  # Clean up old data every 10 minutes
+        self.current_hardware_type = {}                                
+        self._cleanup_interval = 600                                      
         self._last_cleanup = time.time()
         self.token_threshold = token_threshold
         self.request_window = request_window
@@ -313,19 +313,19 @@ class WorkloadMetrics:
 
         if model_name not in self.token_events:
             self.token_events[model_name] = []
-            self.current_hardware_type[model_name] = 'cpu'  # Default to CPU
+            self.current_hardware_type[model_name] = 'cpu'                  
 
         self.token_events[model_name].append((current_time, token_count))
         self.last_request_time[model_name] = current_time
 
-        # Clean old events outside the window
+                                             
         cutoff_time = current_time - self.request_window
         self.token_events[model_name] = [
             (timestamp, tokens) for timestamp, tokens in self.token_events[model_name]
             if timestamp > cutoff_time
         ]
         
-        # Periodic cleanup of all data structures
+                                                 
         if current_time - self._last_cleanup > self._cleanup_interval:
             self._cleanup_old_data(current_time)
             self._last_cleanup = current_time
@@ -338,20 +338,20 @@ class WorkloadMetrics:
                     (timestamp, tokens) for timestamp, tokens in self.token_events[model_name]
                     if timestamp > cutoff_time
                 ]
-            # Remove inactive models
+                                    
             if (model_name in self.last_request_time and 
                 current_time - self.last_request_time[model_name] > cutoff_time):
                 self.token_events.pop(model_name, None)
                 self.last_request_time.pop(model_name, None)
                 self.current_hardware_type.pop(model_name, None)
-                # Remove if attributes exist
+                                            
                 for attr in ['overload_events', 'last_scaling_time', 'current_container_config']:
                     if hasattr(self, attr):
                         getattr(self, attr).pop(model_name, None)
 
     def record_request(self, model_name: str):
         """Backward compatibility - record request with default token count"""
-        self.record_token_usage(model_name, 100)  # Assume 100 tokens per request
+        self.record_token_usage(model_name, 100)                                 
 
     def get_tokens_per_hour(self, model_name: str) -> float:
         """Calculate current tokens per hour for the model"""
@@ -362,10 +362,10 @@ class WorkloadMetrics:
         if not events:
             return 0.0
 
-        # Calculate tokens in the current window
+                                                
         total_tokens = sum(tokens for _, tokens in events)
 
-        # Convert to tokens per hour
+                                    
         tokens_per_hour = (total_tokens / self.request_window) * 3600
         return tokens_per_hour
 
@@ -373,33 +373,33 @@ class WorkloadMetrics:
         """Calculate cost per token using benchmark data when available"""
         tokens_per_hour = self.get_tokens_per_hour(model_name)
 
-        # Map config to benchmark hardware config names
+                                                       
         benchmark_config = self.map_config_to_benchmark(hardware_type, config)
 
-        # Try to get cost from benchmark data first
+                                                   
         if benchmark_config:
             benchmark_cost = self.get_benchmark_cost_per_token(benchmark_config, tokens_per_hour)
             if benchmark_cost is not None:
                 return benchmark_cost
 
-        # Fallback to calculated costs (simplified without memory)
+                                                                  
         if hardware_type == 'cpu':
             if config and config.cpu_cores:
                 cpu_cost = self.cpu_cost_per_core_hour * config.cpu_cores
             else:
-                cpu_cost = self.cpu_cost_per_core_hour * 1.0  # Default 1 core
+                cpu_cost = self.cpu_cost_per_core_hour * 1.0                  
 
             if tokens_per_hour == 0:
                 cost_per_hour = cpu_cost * self.cpu_idle_multiplier
             else:
                 cost_per_hour = cpu_cost
 
-        else:  # gpu
+        else:       
             if config and config.gpu_percentage:
-                # Scale GPU cost by percentage utilization
+                                                          
                 gpu_cost = self.gpu_cost_per_hour_full * (config.gpu_percentage / 100.0)
             else:
-                gpu_cost = self.gpu_cost_per_hour_full  # Default 100%
+                gpu_cost = self.gpu_cost_per_hour_full                
 
             if tokens_per_hour == 0:
                 cost_per_hour = gpu_cost * self.gpu_idle_multiplier
@@ -407,7 +407,7 @@ class WorkloadMetrics:
                 cost_per_hour = gpu_cost
 
         if tokens_per_hour == 0:
-            return float('inf')  # Infinite cost per token when no tokens
+            return float('inf')                                          
 
         return cost_per_hour / tokens_per_hour
 
@@ -420,12 +420,12 @@ class WorkloadMetrics:
                 with open(benchmark_file, 'r') as f:
                     reader = csv.DictReader(f)
                     for row in reader:
-                        if row['tokens_per_hour']:  # Skip empty rows
+                        if row['tokens_per_hour']:                   
                             tokens_per_hour = float(row['tokens_per_hour'])
                             hardware_config = row['hardware_config']
                             cost_per_token = float(row['cost_per_token'])
 
-                            # Store benchmark data by configuration
+                                                                   
                             if hardware_config not in self.benchmark_data:
                                 self.benchmark_data[hardware_config] = {}
 
@@ -451,11 +451,11 @@ class WorkloadMetrics:
         data_points = self.benchmark_data[hardware_config]
         token_rates = sorted(data_points.keys())
 
-        # Exact match
+                     
         if tokens_per_hour in data_points:
             return data_points[tokens_per_hour]['cost_per_token']
 
-        # Interpolation between closest points
+                                              
         lower_rate = None
         upper_rate = None
 
@@ -471,7 +471,7 @@ class WorkloadMetrics:
         elif upper_rate is None:
             return data_points[token_rates[-1]]['cost_per_token']
         else:
-            # Linear interpolation
+                                  
             lower_cost = data_points[lower_rate]['cost_per_token']
             upper_cost = data_points[upper_rate]['cost_per_token']
             ratio = (tokens_per_hour - lower_rate) / (upper_rate - lower_rate)
@@ -485,7 +485,7 @@ class WorkloadMetrics:
                 return f"CPU {cores} cores"
             else:
                 return "CPU 1 cores"
-        else:  # gpu
+        else:       
             if config and config.gpu_percentage:
                 percentage = config.gpu_percentage
                 return f"GPU {percentage}%"
@@ -497,41 +497,41 @@ class WorkloadMetrics:
         tokens_per_hour = self.get_tokens_per_hour(model_name)
         current_hw = self.current_hardware_type.get(model_name, 'cpu')
 
-        # Use default configs if not provided
+                                             
         if cpu_config is None:
             cpu_config = ContainerConfig(cpu_cores=1.0)
         if gpu_config is None:
             gpu_config = ContainerConfig(gpu_percentage=100)
 
-        # Calculate cost per token for both hardware types with actual configs
+                                                                              
         cpu_cost_per_token = self.calculate_cost_per_token(model_name, 'cpu', cpu_config)
         gpu_cost_per_token = self.calculate_cost_per_token(model_name, 'gpu', gpu_config)
 
-        # Apply hysteresis to avoid thrashing
+                                             
         if current_hw == 'cpu':
-            # Currently on CPU, need significant benefit to switch to GPU
+                                                                         
             threshold = self.token_threshold * (1 + self.hysteresis_factor)
             should_switch = tokens_per_hour > threshold
 
-            # Also check if cost improvement is significant enough
+                                                                  
             if should_switch and cpu_cost_per_token != float('inf'):
                 cost_improvement = (cpu_cost_per_token - gpu_cost_per_token) / cpu_cost_per_token
                 should_switch = cost_improvement > self.switching_cost_threshold
 
-        else:  # current_hw == 'gpu'
-            # Currently on GPU, need significant degradation to switch to CPU
+        else:                       
+                                                                             
             threshold = self.token_threshold * (1 - self.hysteresis_factor)
             should_switch = tokens_per_hour <= threshold
 
-            # Also check cost improvement for switching to CPU
+                                                              
             if should_switch and gpu_cost_per_token != float('inf'):
                 cost_improvement = (gpu_cost_per_token - cpu_cost_per_token) / gpu_cost_per_token
                 should_switch = cost_improvement > self.switching_cost_threshold
 
-            # Invert the logic since we're checking when to switch away from GPU
+                                                                                
             should_switch = not should_switch
 
-        # Update hardware type tracking
+                                       
         new_hw_type = 'gpu' if should_switch else 'cpu'
         if current_hw == 'cpu' and should_switch:
             new_hw_type = 'gpu'
@@ -551,29 +551,29 @@ class WorkloadMetrics:
         if tokens_per_hour == 0:
             return False
 
-        # Get benchmark capacity for current configuration
+                                                          
         benchmark_config = self.map_config_to_benchmark(current_config.container_type, current_config)
         if not benchmark_config or benchmark_config not in self.benchmark_data:
-            # Fallback to simple threshold-based overload detection
-            overload_threshold = self.token_threshold * 1.5  # 15K tokens/hour
+                                                                   
+            overload_threshold = self.token_threshold * 1.5                   
             is_overloaded = tokens_per_hour > overload_threshold
         else:
-            # Find maximum capacity from benchmark data
+                                                       
             data_points = self.benchmark_data[benchmark_config]
             max_capacity = max(data_points.keys()) if data_points else float('inf')
 
-            # Consider overloaded if current workload exceeds threshold of max benchmark capacity
+                                                                                                 
             overload_threshold = max_capacity * self.overload_threshold_multiplier
             is_overloaded = tokens_per_hour > overload_threshold
 
         if is_overloaded:
-            # Record overload event
+                                   
             current_time = time.time()
             if model_name not in self.overload_events:
                 self.overload_events[model_name] = []
             self.overload_events[model_name].append((current_time, tokens_per_hour))
 
-            # Clean old overload events (keep last 10 minutes)
+                                                              
             cutoff_time = current_time - 600
             self.overload_events[model_name] = [
                 (t, tph) for t, tph in self.overload_events[model_name] if t > cutoff_time
@@ -587,7 +587,7 @@ class WorkloadMetrics:
         """Determine the next configuration upgrade path based on benchmark data and cost optimization"""
         tokens_per_hour = self.get_tokens_per_hour(model_name)
 
-        # Define upgrade path: 1 core -> 2 cores -> 4 cores -> 8 cores -> GPU 50% -> GPU 100%
+                                                                                             
         if current_config.container_type == 'cpu':
             current_cores = current_config.cpu_cores or 1.0
 
@@ -598,24 +598,24 @@ class WorkloadMetrics:
             elif current_cores < 8.0:
                 next_config = ContainerConfig(cpu_cores=8.0)
             else:
-                # Upgrade to GPU if CPU maxed out
+                                                 
                 next_config = ContainerConfig(gpu_percentage=50)
-        else:  # GPU
+        else:       
             current_gpu = current_config.gpu_percentage or 100
             if current_gpu < 100:
                 next_config = ContainerConfig(gpu_percentage=100)
             else:
-                # No more upgrades available
+                                            
                 return None
 
-        # Verify the upgrade makes sense cost-wise
+                                                  
         current_cost = self.calculate_cost_per_token(model_name, current_config.container_type, current_config)
         next_cost = self.calculate_cost_per_token(model_name, next_config.container_type, next_config)
 
-        # Only upgrade if cost per token decreases or capacity significantly increases
+                                                                                      
         if current_cost != float('inf') and next_cost != float('inf'):
             cost_ratio = next_cost / current_cost
-            # Allow upgrade if cost increase is reasonable (< 50%) or cost decreases
+                                                                                    
             if cost_ratio > 1.5:
                 logger.warning(f"Upgrade for {model_name} would increase cost significantly: {cost_ratio:.2f}x")
                 return None
@@ -626,12 +626,12 @@ class WorkloadMetrics:
         """Determine if container should be scaled up due to too many pending requests"""
         current_time = time.time()
 
-        # Check cooldown period
+                               
         last_scaling = self.last_scaling_time.get(model_name, 0)
         if current_time - last_scaling < self.scaling_cooldown:
             return False
 
-        # Check if any containers are overloaded with pending requests
+                                                                      
         if model_name not in container_manager.container_pools:
             return False
 
@@ -641,13 +641,13 @@ class WorkloadMetrics:
         if not active_containers:
             return False
 
-        # Define request threshold for scaling (scale if any container has > 5 pending requests)
+                                                                                                
         request_threshold = 5
         max_requests = max(c.request_count for c in active_containers)
 
         if max_requests > request_threshold:
             logger.info(f"Request overload detected for {model_name}: max pending requests = {max_requests} (threshold = {request_threshold})")
-            # Update last scaling time to start cooldown
+                                                        
             self.last_scaling_time[model_name] = current_time
             return True
 
@@ -662,7 +662,7 @@ class WorkloadMetrics:
     def get_current_container_config(self, model_name: str) -> 'ContainerConfig':
         """Get the current container configuration for a model"""
         if model_name not in self.current_container_config:
-            # Default to basic CPU configuration
+                                                
             default_config = ContainerConfig(cpu_cores=1.0)
             self.current_container_config[model_name] = default_config
             return default_config
@@ -676,7 +676,7 @@ class WorkloadMetrics:
         """Get detailed workload statistics for monitoring"""
         tokens_per_hour = self.get_tokens_per_hour(model_name)
 
-        # Use default configs if not provided
+                                             
         if cpu_config is None:
             cpu_config = ContainerConfig(cpu_cores=1.0)
         if gpu_config is None:
@@ -703,23 +703,23 @@ class DecisionLayer:
 
     def __init__(self, workload_metrics: WorkloadMetrics):
         self.workload_metrics = workload_metrics
-        # Define default configurations for cost comparison
+                                                           
         self.default_cpu_config = ContainerConfig(cpu_cores=1.0, memory="4g")
         self.default_gpu_config = ContainerConfig(gpu_percentage=100)
 
-        # Configuration scaling based on workload intensity
+                                                           
         self.high_workload_cpu_config = ContainerConfig(cpu_cores=2.0, memory="8g")
         self.efficient_gpu_config = ContainerConfig(gpu_percentage=50)
         
-        # Processing time thresholds
-        self.processing_time_threshold = 30.0  # seconds - spawn new container if exceeded
-        self.max_containers_per_model = 3  # Maximum containers per model
+                                    
+        self.processing_time_threshold = 30.0                                             
+        self.max_containers_per_model = 3                                
 
     def choose_container_config(self, model_name: str) -> ContainerConfig:
         """Choose optimal container configuration based on cost analysis and scaling needs"""
         current_config = self.workload_metrics.get_current_container_config(model_name)
 
-        # First check if current container needs scaling due to overload
+                                                                        
         if self.workload_metrics.should_scale_container(model_name, current_config):
             upgrade_config = self.workload_metrics.get_next_config_upgrade(current_config, model_name)
             if upgrade_config:
@@ -729,32 +729,32 @@ class DecisionLayer:
             else:
                 logger.warning(f"No upgrade path available for {model_name} with config {current_config}")
 
-        # If no scaling needed, perform standard cost-based optimization
+                                                                        
         tokens_per_hour = self.workload_metrics.get_tokens_per_hour(model_name)
 
-        # Compare costs for different configurations
+                                                    
         cpu_configs = [self.default_cpu_config, self.high_workload_cpu_config]
         gpu_configs = [self.default_gpu_config, self.efficient_gpu_config]
 
-        best_config = current_config  # Start with current config
+        best_config = current_config                             
         best_cost = self.workload_metrics.calculate_cost_per_token(model_name, current_config.container_type, current_config)
 
-        # Evaluate CPU configurations
+                                     
         for config in cpu_configs:
             cost = self.workload_metrics.calculate_cost_per_token(model_name, 'cpu', config)
             if cost < best_cost:
                 best_cost = cost
                 best_config = config
 
-        # Evaluate GPU configurations only if workload justifies it
-        if tokens_per_hour > self.workload_metrics.token_threshold * 0.5:  # 50% of threshold
+                                                                   
+        if tokens_per_hour > self.workload_metrics.token_threshold * 0.5:                    
             for config in gpu_configs:
                 cost = self.workload_metrics.calculate_cost_per_token(model_name, 'gpu', config)
                 if cost < best_cost:
                     best_cost = cost
                     best_config = config
 
-        # Apply final decision with hysteresis
+                                              
         if best_config.container_type == 'gpu':
             should_use = self.workload_metrics.should_use_gpu(
                 model_name,
@@ -764,7 +764,7 @@ class DecisionLayer:
             if not should_use:
                 best_config = self.default_cpu_config
 
-        # Update config if it changed
+                                     
         if str(best_config) != str(current_config):
             self.workload_metrics.update_container_config(model_name, best_config)
 
@@ -774,16 +774,16 @@ class DecisionLayer:
         """Check if container should be replaced due to scaling needs"""
         current_config = self.workload_metrics.get_current_container_config(model_name)
 
-        # Check for scaling needs
+                                 
         if self.workload_metrics.should_scale_container(model_name, current_config):
             upgrade_config = self.workload_metrics.get_next_config_upgrade(current_config, model_name)
             if upgrade_config:
                 return True, upgrade_config
 
-        # Check for cost optimization opportunities
+                                                   
         optimal_config = self.choose_container_config(model_name)
         if str(optimal_config) != str(current_config):
-            # Only replace if cost improvement is significant
+                                                             
             current_cost = self.workload_metrics.calculate_cost_per_token(model_name, current_config.container_type, current_config)
             optimal_cost = self.workload_metrics.calculate_cost_per_token(model_name, optimal_config.container_type, optimal_config)
 
@@ -801,7 +801,7 @@ class DecisionLayer:
 
         containers = container_manager.container_pools[model_name]
 
-        # Enforce maximum container limit
+                                         
         if len(containers) >= self.max_containers_per_model:
             return False
 
@@ -823,7 +823,7 @@ class DecisionLayer:
             logger.warning(f"No ready containers found for {model_name}")
             return None
 
-        # First, try to find containers with matching config (preferred)
+                                                                        
         matching_containers = [
             c for c in ready_containers
             if str(c.config) == str(config)
@@ -831,14 +831,14 @@ class DecisionLayer:
 
         if matching_containers:
             logger.debug(f"Found {len(matching_containers)} containers with matching config for {model_name}")
-            # Select container with lowest estimated processing time
+                                                                    
             load_scores = await asyncio.gather(*[c.get_load_score(estimated_tokens) for c in matching_containers])
             best_idx = load_scores.index(min(load_scores))
             best_container = matching_containers[best_idx]
             logger.debug(f"Selected container {best_container.container_name} with load score {load_scores[best_idx]:.2f}")
             return best_container
 
-        # Fallback: use ANY ready container if no exact config match
+                                                                    
         logger.info(f"No exact config match found for {model_name}, using any ready container (config mismatch)")
         load_scores = await asyncio.gather(*[c.get_load_score(estimated_tokens) for c in ready_containers])
         best_idx = load_scores.index(min(load_scores))
@@ -852,25 +852,25 @@ class DecisionLayer:
         containers = container_manager.container_pools[model_name]
         ready_containers = [c for c in containers if c._is_ready]
         
-        # Don't exceed maximum containers
+                                         
         if len(containers) >= self.max_containers_per_model:
             return False
         
-        # If no ready containers, we need one
+                                             
         if not ready_containers:
             return True
             
-        # Check if all containers are overloaded
+                                                
         matching_containers = [
             c for c in ready_containers
             if str(c.config) == str(config)
         ]
         
         if not matching_containers:
-            # No containers with this config, should spawn one
+                                                              
             return True
             
-        # Check if the best available container exceeds processing time threshold
+                                                                                 
         load_scores = await asyncio.gather(*[c.get_load_score(estimated_tokens) for c in matching_containers])
         best_idx = load_scores.index(min(load_scores))
         best_container = matching_containers[best_idx]
@@ -888,7 +888,7 @@ class ContainerManager:
                  token_threshold: int = 10000, request_window: int = 60):
         self.models_dir = Path(models_dir).resolve()
         self.containers_per_model = containers_per_model
-        self.max_containers_per_model = 2  # Maximum allowed during replacement
+        self.max_containers_per_model = 2                                      
         self.used_ports = set()
         self.lock = asyncio.Lock()
         self.workload_metrics = WorkloadMetrics(token_threshold, request_window)
@@ -924,11 +924,11 @@ class ContainerManager:
 
         while self.container_management_running:
             try:
-                # Evaluate all models for container scaling needs
+                                                                 
                 for model_name in list(self.container_pools.keys()):
                     await self._evaluate_model_containers(model_name)
 
-                # Wait 30 seconds before next evaluation
+                                                        
                 await asyncio.sleep(30)
 
             except asyncio.CancelledError:
@@ -936,7 +936,7 @@ class ContainerManager:
                 break
             except Exception as e:
                 logger.error(f"Error in background container manager: {e}")
-                await asyncio.sleep(5)  # Short delay before retry
+                await asyncio.sleep(5)                            
 
         logger.info("Background container manager stopped")
 
@@ -949,37 +949,37 @@ class ContainerManager:
             containers = self.container_pools[model_name]
             active_containers = [c for c in containers if c._is_ready]
 
-            # Enforce maximum container limit
+                                             
             if len(containers) > self.max_containers_per_model:
                 logger.warning(f"Model {model_name} has {len(containers)} containers, max is {self.max_containers_per_model}")
-                # Remove excess containers (oldest first)
+                                                         
                 excess_containers = containers[self.max_containers_per_model:]
                 for container in excess_containers:
                     await container.stop()
                     containers.remove(container)
                 logger.info(f"Removed {len(excess_containers)} excess containers for {model_name}")
 
-            # Check if we need to scale based on metrics
+                                                        
             should_replace, new_config = self.decision_layer.should_replace_container(model_name)
 
             if should_replace and new_config and active_containers:
                 logger.info(f"Background evaluation: {model_name} needs scaling to {new_config}")
 
-                # SAFETY CONSTRAINT: Only replace containers with zero active requests
+                                                                                      
                 idle_containers = [c for c in active_containers if c.request_count == 0]
 
                 if idle_containers:
-                    # Select an idle container for safe replacement
-                    container_to_replace = idle_containers[0]  # Pick first idle container
+                                                                   
+                    container_to_replace = idle_containers[0]                             
                     logger.info(f"Found idle container for replacement: {container_to_replace.container_name} (request_count: {container_to_replace.request_count})")
 
-                    # Perform replacement with container limit enforcement
+                                                                          
                     new_container = await self._controlled_container_replacement(
                         model_name, container_to_replace, new_config
                     )
                 else:
                     logger.info(f"Scaling needed for {model_name} but no idle containers available (all have active requests). Will retry later.")
-                    # Log current request counts for debugging
+                                                              
                     request_counts = [f"{c.container_name}:{c.request_count}" for c in active_containers]
                     logger.debug(f"Active container request counts: {', '.join(request_counts)}")
                     new_container = None
@@ -1001,17 +1001,17 @@ class ContainerManager:
         try:
             current_containers = len(self.container_pools.get(model_name, []))
 
-            # If we're at max capacity, stop old container first
+                                                                
             if current_containers >= self.max_containers_per_model:
                 logger.info(f"At max containers ({self.max_containers_per_model}), stopping old container first")
                 await old_container.stop()
                 self.container_pools[model_name].remove(old_container)
 
-            # Spawn new container
+                                 
             new_container = await self.spawn_container(model_name, model_path, new_config)
 
             if new_container:
-                # If old container is still running, stop it now
+                                                                
                 if old_container in self.container_pools.get(model_name, []):
                     await old_container.stop()
                     self.container_pools[model_name].remove(old_container)
@@ -1119,13 +1119,13 @@ class ContainerManager:
             logger.error(f"Model path not found for {model_name}")
             return None
 
-        # Spawn new container with upgraded configuration
+                                                         
         new_container = await self.spawn_container(model_name, model_path, new_config)
         if not new_container:
             logger.error(f"Failed to spawn replacement container for {model_name}")
             return None
 
-        # Stop and remove the old container
+                                           
         try:
             await old_container.stop()
             if model_name in self.container_pools and old_container in self.container_pools[model_name]:
@@ -1134,7 +1134,7 @@ class ContainerManager:
             return new_container
         except Exception as e:
             logger.error(f"Error stopping old container {old_container.container_name}: {e}")
-            # Keep the new container even if old one fails to stop
+                                                                  
             return new_container
 
     async def check_and_scale_containers(self, model_name: str):
@@ -1146,23 +1146,23 @@ class ContainerManager:
         if not should_replace or not new_config:
             return
 
-        # Find a container to replace (prefer the least busy one)
+                                                                 
         containers = self.container_pools[model_name]
         active_containers = [c for c in containers if c._is_ready]
 
         if not active_containers:
             return
 
-        # Select container with lowest request count for replacement
+                                                                    
         container_to_replace = min(active_containers, key=lambda c: c.request_count)
         current_config = container_to_replace.config
 
         logger.info(f"Scaling {model_name}: replacing {current_config} with {new_config}")
 
-        # Replace the container
+                               
         new_container = await self.replace_container(model_name, container_to_replace, new_config)
         if new_container:
-            # Update workload metrics to track the new configuration
+                                                                    
             self.workload_metrics.update_container_config(model_name, new_config)
             logger.info(f"Successfully scaled {model_name} to {new_config}")
         else:
@@ -1172,13 +1172,13 @@ class ContainerManager:
         if model_name not in self.container_pools:
             return None
 
-        # Use token-based tracking instead of simple request counting
+                                                                     
         self.workload_metrics.record_token_usage(model_name, estimated_tokens)
 
-        # Get optimal configuration for current workload
+                                                        
         config = self.decision_layer.choose_container_config(model_name)
 
-        # Check if we need to spawn a new container due to high processing time
+                                                                               
         if await self.decision_layer.should_spawn_new_container(model_name, config, estimated_tokens):
             model_path = self.get_model_path(model_name)
             if model_path:
@@ -1188,7 +1188,7 @@ class ContainerManager:
                     logger.info(f"Successfully spawned new container {new_container.container_name}")
                     return new_container
 
-        # Select from existing containers using load balancing
+                                                              
         return await self.decision_layer.get_best_container(model_name, config, estimated_tokens)
 
     async def cleanup_all_containers(self):
@@ -1200,10 +1200,10 @@ class ContainerManager:
                 cleanup_tasks.append(self._cleanup_single_container(container))
         
         if cleanup_tasks:
-            # Run all cleanup tasks concurrently but wait for all to complete
+                                                                             
             results = await asyncio.gather(*cleanup_tasks, return_exceptions=True)
             
-            # Log any exceptions that occurred during cleanup
+                                                             
             for i, result in enumerate(results):
                 if isinstance(result, Exception):
                     logger.error(f"Error during container cleanup: {result}")
@@ -1213,7 +1213,7 @@ class ContainerManager:
     async def _cleanup_single_container(self, container: ContainerInstance):
         """Cleanup a single container with timeout"""
         try:
-            # Give containers 10 seconds to stop gracefully
+                                                           
             process = await asyncio.create_subprocess_exec(
                 'docker', 'stop', '-t', '10', container.container_name,
                 stdout=asyncio.subprocess.PIPE,
@@ -1226,7 +1226,7 @@ class ContainerManager:
                 
         except asyncio.TimeoutError:
             logger.error(f"Timeout stopping container {container.container_name}, forcing removal")
-            # Force remove if graceful stop failed
+                                                  
             try:
                 await asyncio.create_subprocess_exec(
                     'docker', 'rm', '-f', container.container_name,
@@ -1482,7 +1482,7 @@ async def stream_chat_completion_with_error_handling(request: ChatCompletionRequ
     try:
         async for chunk in stream_chat_completion(request, container):
             yield chunk
-        # Record completion metrics
+                                   
         processing_time = time.time() - request_start_time
         await container.record_processing_time(processing_time, 100)
         container_manager.workload_metrics.record_token_usage(request.model, 100)
@@ -1633,9 +1633,9 @@ async def create_chat_completion(request: ChatCompletionRequest):
     if not model_path:
         raise HTTPException(status_code=404, detail=f"Model '{request.model}' not found")
 
-    # Estimate tokens for request (prompt + expected completion)
+                                                                
     estimated_tokens = request.max_tokens or 100
-    # Add rough estimate for prompt tokens (assume ~1 token per 4 characters)
+                                                                             
     prompt_text = " ".join([msg.content for msg in request.messages])
     estimated_prompt_tokens = len(prompt_text) // 4
     estimated_tokens += estimated_prompt_tokens
@@ -1644,7 +1644,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
     if not container:
         raise HTTPException(status_code=503, detail=f"No available containers for model '{request.model}'")
 
-    # Atomic increment of request counters
+                                          
     async with container.metrics_lock:
         container.request_count += 1
         container.active_requests += 1
@@ -1661,14 +1661,14 @@ async def create_chat_completion(request: ChatCompletionRequest):
             )
         else:
             response = await non_streaming_chat_completion(request, container)
-            # Calculate and record processing time
+                                                  
             processing_time = time.time() - request_start_time
             
-            # Update workload metrics with actual token usage
+                                                             
             actual_tokens = response.usage.get("total_tokens", estimated_tokens)
             container_manager.workload_metrics.record_token_usage(request.model, actual_tokens)
             
-            # Record processing time in container
+                                                 
             await container.record_processing_time(processing_time, actual_tokens)
             
             await container_manager.metrics_tracker.record_request(
@@ -1679,7 +1679,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
             return response
 
     finally:
-        # Atomic decrement of request counters
+                                              
         async with container.metrics_lock:
             container.request_count = max(0, container.request_count - 1)
             container.active_requests = max(0, container.active_requests - 1)
@@ -1852,15 +1852,15 @@ async def get_cost_analysis(model_name: str):
         container_details = []
 
         for container in active_containers:
-            # Calculate hourly cost based on container configuration
+                                                                    
             if container.config.container_type == 'cpu':
-                # CPU cost: $0.10 per core per hour
+                                                   
                 hourly_cost = container.config.cpu_cores * 0.10
             elif container.config.container_type == 'gpu':
-                # GPU cost: $2.00 per hour (base cost for GPU access)
+                                                                     
                 hourly_cost = 2.00
             else:
-                hourly_cost = 0.10  # Default fallback
+                hourly_cost = 0.10                    
 
             total_cost += hourly_cost
 
@@ -1928,11 +1928,11 @@ if __name__ == "__main__":
         global container_manager
         container_manager = ContainerManager()
         await initialize_all_model_clusters()
-        # Start background container management system
+                                                      
         await container_manager.start_background_container_management()
 
-    # Initialize containers first
+                                 
     asyncio.run(setup_containers())
 
-    # Then start the server normally
+                                    
     main()
