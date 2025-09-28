@@ -36,6 +36,17 @@ logger.setLevel(logging.DEBUG)
 model_configs: Dict[str, Dict[str, Any]] = {}
 container_manager: 'ContainerManager' = None
 
+
+# Simple defaults used when a container has no throughput history yet.
+DEFAULT_TOKENS_PER_SECOND_BY_TYPE: Dict[str, float] = {
+    'cpu': 40.0,
+    'gpu': 120.0,
+}
+MIN_EFFECTIVE_TOKENS_PER_SECOND: float = 1.0
+QUEUE_PENALTY_FACTOR: float = 0.5
+MIN_PREDICTED_LATENCY_SECONDS: float = 0.5
+MAX_PREDICTED_LATENCY_SECONDS: float = 600.0
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
                                     
@@ -284,9 +295,29 @@ class ContainerInstance:
                 self.tokens_per_second = sum(t[0] for t in self.token_processing_times) / sum(t[1] for t in self.token_processing_times)
     
     async def estimate_processing_time(self, estimated_tokens: int = 100) -> float:
+        estimated_tokens = max(estimated_tokens, 1)
+
         async with self.metrics_lock:
-            base_time = estimated_tokens / self.tokens_per_second if self.tokens_per_second > 0 else self.avg_processing_time
-            return base_time + (self.active_requests * base_time * 0.5)
+            has_samples = len(self.token_processing_times) > 0
+            active_requests = self.active_requests
+            tokens_per_second = self.tokens_per_second if has_samples and self.tokens_per_second > 0 else 0.0
+
+        if tokens_per_second <= 0:
+            fallback_tps = MIN_EFFECTIVE_TOKENS_PER_SECOND
+            if container_manager and container_manager.workload_metrics:
+                fallback_tps = container_manager.workload_metrics.get_tokens_per_second_default(
+                    self.model_name,
+                    self.config
+                )
+            tokens_per_second = fallback_tps
+
+        tokens_per_second = max(tokens_per_second, MIN_EFFECTIVE_TOKENS_PER_SECOND)
+
+        base_time = estimated_tokens / tokens_per_second
+        predicted_time = base_time * (1 + QUEUE_PENALTY_FACTOR * active_requests)
+        predicted_time = max(predicted_time, MIN_PREDICTED_LATENCY_SECONDS)
+        predicted_time = min(predicted_time, MAX_PREDICTED_LATENCY_SECONDS)
+        return predicted_time
     
     async def get_load_score(self, estimated_tokens: int = 100) -> float:
         if not self._is_ready:
@@ -305,6 +336,20 @@ class WorkloadMetrics:
         self.token_threshold = token_threshold
         self.request_window = request_window
         self.benchmark_data = {}
+        self.model_tps_defaults: Dict[str, Dict[str, float]] = {}
+        self.default_tps_by_type = DEFAULT_TOKENS_PER_SECOND_BY_TYPE.copy()
+        self.current_container_config: Dict[str, ContainerConfig] = {}
+        self.last_scaling_time: Dict[str, float] = {}
+        self.overload_events: Dict[str, List[Tuple[float, float]]] = {}
+        self.cpu_cost_per_core_hour: float = 0.10
+        self.cpu_idle_multiplier: float = 0.25
+        self.gpu_cost_per_hour_full: float = 2.0
+        self.gpu_idle_multiplier: float = 0.40
+        self.hysteresis_factor: float = 0.10
+        self.switching_cost_threshold: float = 0.10
+        self.overload_threshold_multiplier: float = 0.85
+        self.scaling_cooldown: float = 120.0
+        self.switching_cooldown: float = 180.0
         self.load_benchmark_metrics()
 
     def record_token_usage(self, model_name: str, token_count: int):
@@ -362,12 +407,28 @@ class WorkloadMetrics:
         if not events:
             return 0.0
 
-                                                
+
         total_tokens = sum(tokens for _, tokens in events)
 
-                                    
+
         tokens_per_hour = (total_tokens / self.request_window) * 3600
         return tokens_per_hour
+
+    def get_tokens_per_second_default(self, model_name: str, config: 'ContainerConfig') -> float:
+        """Return a fallback throughput estimate for a model/config when no history exists."""
+        model_defaults = self.model_tps_defaults.get(model_name, {})
+        config_key = config.container_type
+        # Allow overrides keyed by fully qualified config string if available
+        if str(config) in model_defaults:
+            return max(model_defaults[str(config)], MIN_EFFECTIVE_TOKENS_PER_SECOND)
+        if config_key in model_defaults:
+            return max(model_defaults[config_key], MIN_EFFECTIVE_TOKENS_PER_SECOND)
+
+        fallback = self.default_tps_by_type.get(config.container_type)
+        if fallback is None:
+            fallback = DEFAULT_TOKENS_PER_SECOND_BY_TYPE.get(config.container_type,
+                                                             MIN_EFFECTIVE_TOKENS_PER_SECOND)
+        return max(fallback, MIN_EFFECTIVE_TOKENS_PER_SECOND)
 
     def calculate_cost_per_token(self, model_name: str, hardware_type: str, config: Optional['ContainerConfig'] = None) -> float:
         """Calculate cost per token using benchmark data when available"""
@@ -1488,7 +1549,8 @@ async def stream_chat_completion_with_error_handling(request: ChatCompletionRequ
         container_manager.workload_metrics.record_token_usage(request.model, 100)
     except Exception as e:
         container._record_failure()
-        yield f"data: {{\"error\": \"Stream interrupted: {str(e)}\"}}}\n\n"
+        error_payload = {"error": f"Stream interrupted: {str(e)}"}
+        yield f"data: {json.dumps(error_payload)}\n\n"
         yield "data: [DONE]\n\n"
 
 async def stream_chat_completion(request: ChatCompletionRequest, container: ContainerInstance) -> AsyncGenerator[
@@ -1708,6 +1770,9 @@ async def list_containers():
 
     for model_name, containers in container_manager.container_pools.items():
         for container in containers:
+            estimated_processing_time = await container.estimate_processing_time(100)
+            load_score = await container.get_load_score(100)
+
             containers_info.append({
                 "model": model_name,
                 "container_name": container.container_name,
@@ -1719,8 +1784,8 @@ async def list_containers():
                 "container_type": container.config.container_type,
                 "avg_processing_time": container.avg_processing_time,
                 "tokens_per_second": container.tokens_per_second,
-                "estimated_processing_time_100_tokens": container.estimate_processing_time(100),
-                "load_score_100_tokens": container.get_load_score(100)
+                "estimated_processing_time_100_tokens": estimated_processing_time,
+                "load_score_100_tokens": load_score
             })
 
     return {"containers": containers_info}
