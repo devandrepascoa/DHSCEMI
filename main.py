@@ -189,6 +189,7 @@ class ContainerInstance:
         self.circuit_breaker_threshold = 5                                 
         self.circuit_breaker_timeout = 60                                      
         self.is_circuit_open = False
+        self.last_scale_evaluation = time.time()
 
     async def is_ready(self) -> bool:
         if self.is_circuit_open:
@@ -764,17 +765,24 @@ class DecisionLayer:
 
     def __init__(self, workload_metrics: WorkloadMetrics):
         self.workload_metrics = workload_metrics
-                                                           
+        self.container_manager: Optional['ContainerManager'] = None
+
         self.default_cpu_config = ContainerConfig(cpu_cores=1.0, memory="4g")
         self.default_gpu_config = ContainerConfig(gpu_percentage=100)
 
-                                                           
         self.high_workload_cpu_config = ContainerConfig(cpu_cores=2.0, memory="8g")
         self.efficient_gpu_config = ContainerConfig(gpu_percentage=50)
-        
-                                    
-        self.processing_time_threshold = 30.0                                             
-        self.max_containers_per_model = 3                                
+
+        self.processing_time_threshold = 30.0
+        self.max_containers_per_model = 3
+        self.scale_out_latency_threshold = 30.0
+        self.scale_in_latency_threshold = 15.0
+        self.scale_cooldown_seconds = 120.0
+        self._latency_history: Dict[Tuple[str, str], deque] = defaultdict(lambda: deque(maxlen=3))
+        self._last_scale_action: Dict[Tuple[str, str], float] = defaultdict(float)
+
+    def set_container_manager(self, manager: 'ContainerManager') -> None:
+        self.container_manager = manager
 
     def choose_container_config(self, model_name: str) -> ContainerConfig:
         """Choose optimal container configuration based on cost analysis and scaling needs"""
@@ -855,24 +863,6 @@ class DecisionLayer:
 
         return False, None
 
-    def should_spawn_new_container(self, model_name: str, config: ContainerConfig) -> bool:
-        """Check if we should spawn a new container considering limits and existing containers"""
-        if model_name not in container_manager.container_pools:
-            return True
-
-        containers = container_manager.container_pools[model_name]
-
-                                         
-        if len(containers) >= self.max_containers_per_model:
-            return False
-
-        ready_containers = [
-            c for c in containers
-            if c._is_ready and str(c.config) == str(config)
-        ]
-
-        return len(ready_containers) == 0
-
     async def get_best_container(self, model_name: str, config: ContainerConfig, estimated_tokens: int = 100) -> Optional[ContainerInstance]:
         if model_name not in container_manager.container_pools:
             return None
@@ -906,42 +896,60 @@ class DecisionLayer:
         return ready_containers[best_idx]
     
     async def should_spawn_new_container(self, model_name: str, config: ContainerConfig, estimated_tokens: int = 100) -> bool:
-        """Determine if we should spawn a new container based on processing time threshold"""
-        if model_name not in container_manager.container_pools:
+        if not self.container_manager:
+            return False
+
+        if model_name not in self.container_manager.container_pools:
             return True
 
-        containers = container_manager.container_pools[model_name]
-        ready_containers = [c for c in containers if c._is_ready]
-        
-                                         
+        containers = self.container_manager.container_pools[model_name]
         if len(containers) >= self.max_containers_per_model:
             return False
-        
-                                             
+
+        ready_containers = [c for c in containers if c._is_ready]
         if not ready_containers:
             return True
-            
-                                                
-        matching_containers = [
-            c for c in ready_containers
-            if str(c.config) == str(config)
-        ]
-        
+
+        matching_containers = [c for c in ready_containers if str(c.config) == str(config)]
         if not matching_containers:
-                                                              
             return True
-            
-                                                                                 
-        load_scores = await asyncio.gather(*[c.get_load_score(estimated_tokens) for c in matching_containers])
-        best_idx = load_scores.index(min(load_scores))
-        best_container = matching_containers[best_idx]
-        estimated_time = await best_container.estimate_processing_time(estimated_tokens)
-        
-        should_spawn = estimated_time > self.processing_time_threshold
-        if should_spawn:
-            logger.info(f"Processing time threshold exceeded: {estimated_time:.2f}s > {self.processing_time_threshold}s, spawning new container")
-            
-        return should_spawn
+
+        predictions = await self.container_manager.get_processing_time_predictions(
+            model_name,
+            estimated_tokens,
+            config
+        )
+
+        relevant_predictions = [p['prediction'] for p in predictions if p['container'] in matching_containers]
+        if not relevant_predictions:
+            return True
+
+        worst_case_latency = max(relevant_predictions)
+        key = (model_name, str(config))
+        history = self._latency_history[key]
+
+        if worst_case_latency <= self.scale_out_latency_threshold:
+            history.clear()
+            return False
+
+        history.append(worst_case_latency)
+        now = time.time()
+        last_action = self._last_scale_action.get(key, 0.0)
+        if now - last_action < self.scale_cooldown_seconds:
+            return False
+
+        if len(history) == history.maxlen and all(v > self.scale_out_latency_threshold for v in history):
+            self._last_scale_action[key] = now
+            logger.info(
+                "Scale-out triggered for %s (%s): worst-case latency %.2fs over threshold %.2fs",
+                model_name,
+                config,
+                worst_case_latency,
+                self.scale_out_latency_threshold,
+            )
+            return True
+
+        return False
 
 
 class ContainerManager:
@@ -954,10 +962,14 @@ class ContainerManager:
         self.lock = asyncio.Lock()
         self.workload_metrics = WorkloadMetrics(token_threshold, request_window)
         self.decision_layer = DecisionLayer(self.workload_metrics)
+        self.decision_layer.set_container_manager(self)
         self.metrics_tracker = MetricsTracker()
         self.container_management_running = False
         self.container_management_task = None
         self.container_pools: Dict[str, List['ContainerInstance']] = {}
+        self.scale_in_history: Dict[Tuple[str, str], deque] = defaultdict(lambda: deque(maxlen=3))
+        self.last_scale_in_action: Dict[Tuple[str, str], float] = defaultdict(float)
+        self.scale_in_evaluation_interval = 3600.0
 
     async def start_background_container_management(self):
         """Start the background container management coroutine"""
@@ -988,6 +1000,7 @@ class ContainerManager:
                                                                  
                 for model_name in list(self.container_pools.keys()):
                     await self._evaluate_model_containers(model_name)
+                    await self._evaluate_scale_in(model_name)
 
                                                         
                 await asyncio.sleep(30)
@@ -1051,6 +1064,58 @@ class ContainerManager:
 
         except Exception as e:
             logger.error(f"Error evaluating containers for {model_name}: {e}")
+
+    async def _evaluate_scale_in(self, model_name: str) -> None:
+        if model_name not in self.container_pools:
+            return
+
+        containers = self.container_pools[model_name]
+        ready_containers = [c for c in containers if c._is_ready]
+        if len(ready_containers) <= 1:
+            return
+
+        now = time.time()
+        scale_in_threshold = self.decision_layer.scale_in_latency_threshold
+        cooldown = self.decision_layer.scale_cooldown_seconds
+
+        for container in ready_containers:
+            if container.active_requests > 0 or container.queue_start_times:
+                continue
+            if now - getattr(container, "last_scale_evaluation", 0.0) < self.scale_in_evaluation_interval:
+                continue
+
+            container.last_scale_evaluation = now
+            key = (model_name, str(container.config))
+            history = self.scale_in_history[key]
+
+            predicted_latency = await container.estimate_processing_time(100)
+            if predicted_latency >= scale_in_threshold:
+                history.clear()
+                continue
+
+            history.append(predicted_latency)
+            if len(history) < history.maxlen:
+                continue
+
+            last_action = self.last_scale_in_action.get(key, 0.0)
+            if now - last_action < cooldown:
+                continue
+
+            if len([c for c in ready_containers if c is not container]) == 0:
+                continue
+
+            await container.stop()
+            if container in self.container_pools.get(model_name, []):
+                self.container_pools[model_name].remove(container)
+            self.last_scale_in_action[key] = now
+            history.clear()
+            logger.info(
+                "Scaled in %s by stopping %s after sustained low latency (%.2fs)",
+                model_name,
+                container.container_name,
+                predicted_latency,
+            )
+            break
 
     async def _controlled_container_replacement(self, model_name: str, old_container: ContainerInstance, new_config: ContainerConfig) -> Optional[ContainerInstance]:
         """Replace container with strict adherence to maximum container limits"""
@@ -1249,8 +1314,32 @@ class ContainerManager:
                     logger.info(f"Successfully spawned new container {new_container.container_name}")
                     return new_container
 
-                                                              
+                                                          
         return await self.decision_layer.get_best_container(model_name, config, estimated_tokens)
+
+    async def get_processing_time_predictions(
+        self,
+        model_name: str,
+        estimated_tokens: int = 100,
+        config: Optional[ContainerConfig] = None,
+    ) -> List[Dict[str, Any]]:
+        predictions: List[Dict[str, Any]] = []
+        containers = self.container_pools.get(model_name, [])
+        for container in containers:
+            if not container._is_ready:
+                continue
+            if config and str(container.config) != str(config):
+                continue
+            predicted_time = await container.estimate_processing_time(estimated_tokens)
+            predictions.append(
+                {
+                    "container": container,
+                    "prediction": predicted_time,
+                    "active_requests": container.active_requests,
+                    "config": container.config,
+                }
+            )
+        return predictions
 
     async def cleanup_all_containers(self):
         """Gracefully cleanup all containers with proper error handling"""
