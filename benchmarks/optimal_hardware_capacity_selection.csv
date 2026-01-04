@@ -1,0 +1,1 @@
+requests_per_hour,hardware_config,required_instances,cost_per_request,fleet_utilization_percent,latency_p95_s,meets_latency_sla

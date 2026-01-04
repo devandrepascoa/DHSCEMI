@@ -1,0 +1,2 @@
+base_threshold,hysteresis_factor,switching_cost_threshold,total_simulation_points,cpu_selections,gpu_selections,benchmark_configs_loaded
+10000,0.2,0.05,100,100,0,8
