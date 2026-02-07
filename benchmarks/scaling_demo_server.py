@@ -1,23 +1,28 @@
 """
-Dedicated server entrypoint for the scaling demo benchmark.
+Dedicated server entrypoint for the 4-config scaling demo benchmark.
 
-CPU-only configs: cpu_4, cpu_8, cpu_12 with short cooldown and demand
-window so scaling transitions happen within minutes.
+Configs: cpu_4, cpu_12, gpu_25, gpu_100 with asymmetric hysteresis
+(headroom=0.25) validated by 320/320 simulation passes.
 
-Thresholds (demand in tok/s to trigger scale-up):
-  - cpu_4 throughput: 12 tok/s → demand > 12 triggers scale to cpu_8
-  - cpu_8 throughput: 18 tok/s → demand > 18 triggers scale to cpu_12
-  - cpu_12 throughput: 22 tok/s (max CPU tier)
+Scaling runs in a background task (not inline with requests) to avoid
+blocking the event loop with subprocess.run() Docker commands.
 
 Usage:
     uv run uvicorn benchmarks.scaling_demo_server:app --port <PORT>
 """
 from __future__ import annotations
 
+import asyncio
 import os
+import json
+import subprocess
+import time
+import uuid
 import logging
-from typing import List
+import socket
+from typing import Dict, List, Optional
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from main_cost_aware import (
     HardwareConfig,
@@ -29,142 +34,202 @@ from main_cost_aware import (
     ChatCompletionChoice,
     Message,
     DEFAULT_THROUGHPUT,
+    get_throughput,
+    get_cost_per_token,
 )
 
 from fastapi import FastAPI, HTTPException
 import aiohttp
-import uuid
-import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# CPU-only configs for clean scaling transitions
 CONFIGS: List[HardwareConfig] = [
-    HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.40),
-    HardwareConfig(cpu_cores=8, memory="16g", hourly_cost=0.80),
-    HardwareConfig(cpu_cores=12, memory="24g", hourly_cost=1.20),
+    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
+    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
+    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
+    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
 ]
 
-DEFAULT_THROUGHPUT["cpu_12"] = 22.0
+MEASURED_THROUGHPUT = {
+    "cpu_4":   32.0,
+    "cpu_12":  47.0,
+    "gpu_25":  147.0,
+    "gpu_100": 1064.0,
+}
+for k, v in MEASURED_THROUGHPUT.items():
+    DEFAULT_THROUGHPUT[k] = v
 
+HEADROOM = 0.25
 COOLDOWN = 300
-DEMAND_WINDOW = 60
+DEMAND_WINDOW = 180
+SCALING_CHECK_INTERVAL = 10  # Check scaling every 10s
 
 MODELS_DIR = os.environ.get("E2E_MODELS_DIR", "./models")
 MODEL_NAME = os.environ.get("E2E_MODEL_NAME", "")
 
 autoscaler: CostAwareAutoscaler | None = None
+server_start_time: float = 0.0
+scaling_in_progress: bool = False
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global autoscaler
-    autoscaler = CostAwareAutoscaler(
-        configs=CONFIGS,
-        cooldown_seconds=COOLDOWN,
-        models_dir=MODELS_DIR,
-    )
-    autoscaler.demand_tracker = DemandTracker(window_seconds=DEMAND_WINDOW)
-
-    if MODEL_NAME:
-        model_path = autoscaler.get_model_path(MODEL_NAME)
-        if model_path:
-            cheapest = min(CONFIGS, key=lambda c: c.hourly_cost)
-            port = autoscaler._get_port()
-            container = Container(MODEL_NAME, model_path, cheapest, port)
-            if await container.start():
-                autoscaler.containers[MODEL_NAME] = container
-                autoscaler.current_config[MODEL_NAME] = cheapest
-                autoscaler.last_scale_time[MODEL_NAME] = autoscaler.clock()
-                logger.info(f"Started {MODEL_NAME} on {cheapest.config_id()}")
-    else:
-        await autoscaler.initialize()
-
-    yield
-    await autoscaler.cleanup()
-
-
-app = FastAPI(title="Scaling Demo Server", lifespan=lifespan)
-
-
-@app.get("/health")
-async def health():
-    ready = sum(1 for c in autoscaler.containers.values() if c.is_ready)
+def _container_info(container: Container) -> Dict:
+    """Extract full container metadata for logging."""
+    config = container.config
     return {
-        "status": "healthy" if ready > 0 else "down",
-        "ready_containers": ready,
-        "models": list(autoscaler.containers.keys()),
+        "container_name": container.container_name,
+        "config_id": config.config_id(),
+        "container_type": config.container_type,
+        "cpu_cores": config.cpu_cores,
+        "memory": config.memory,
+        "gpu_percentage": config.gpu_percentage,
+        "hourly_cost": config.hourly_cost,
+        "image": config.image,
+        "port": container.port,
+        "parallel": config.cpu_cores or 1,
+        "threads": config.cpu_cores or 1,
+        "n_gpu_layers": 99 if config.gpu_percentage else 0,
+        "docker_flags": container._docker_args(),
+        "measured_throughput_tps": MEASURED_THROUGHPUT.get(config.config_id(), 0),
+        "cost_per_token_micro": round(get_cost_per_token(container.model_name, config) * 1e6, 4),
     }
 
 
-@app.get("/status")
-async def status():
-    return autoscaler.get_status()
+async def _async_container_start(container: Container) -> bool:
+    """Non-blocking container start using asyncio subprocess."""
+    # Remove existing container
+    proc = await asyncio.create_subprocess_exec(
+        'docker', 'rm', '-f', container.container_name,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    await proc.wait()
+
+    threads = container.config.cpu_cores or 1
+    parallel = container.config.cpu_cores or 1
+
+    docker_cmd = [
+        'docker', 'run', '--rm', '-d',
+        '--name', container.container_name,
+        '-v', f'{container.model_path.parent}:/models:ro',
+        '-p', f'{container.port}:8080',
+        *container._docker_args(),
+        container.config.image,
+        '--server',
+        '-m', f'/models/{container.model_path.name}',
+        '--host', '0.0.0.0',
+        '--port', '8080',
+        '--threads', str(threads),
+        '--parallel', str(parallel),
+    ]
+    if container.config.gpu_percentage:
+        docker_cmd.extend(['--n-gpu-layers', '99'])
+
+    print(f"[SERVER] Starting container: {container.container_name} cmd={docker_cmd[-8:]}", flush=True)
+
+    proc = await asyncio.create_subprocess_exec(
+        *docker_cmd,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await proc.communicate()
+    if proc.returncode != 0:
+        print(f"[SERVER] Container start failed: {stderr.decode()}", flush=True)
+        return False
+
+    # Wait for health (non-blocking)
+    for _ in range(60):  # 60 * 2s = 120s
+        try:
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=5)
+            ) as session:
+                async with session.get(f"http://localhost:{container.port}/health") as resp:
+                    if resp.status == 200:
+                        container.is_ready = True
+                        print(f"[SERVER] Container ready: {container.container_name}", flush=True)
+                        return True
+        except Exception:
+            pass
+        await asyncio.sleep(2)
+
+    print(f"[SERVER] Container health timeout: {container.container_name}", flush=True)
+    return False
 
 
-@app.get("/v1/models")
-async def list_models():
-    return {"models": list(autoscaler.containers.keys())}
+async def _async_container_stop(container: Container) -> None:
+    """Non-blocking container stop."""
+    print(f"[SERVER] Stopping container: {container.container_name}", flush=True)
+    proc = await asyncio.create_subprocess_exec(
+        'docker', 'stop', container.container_name,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    await proc.wait()
+    container.is_ready = False
 
 
-@app.post("/v1/chat/completions")
-async def chat_completions(request: ChatCompletionRequest):
-    container = await autoscaler.get_container(request.model)
-    if not container:
-        raise HTTPException(404, f"Model '{request.model}' not found or not ready")
+async def _background_scaling_loop() -> None:
+    """Background task that checks scaling periodically without blocking requests."""
+    global scaling_in_progress
+    while True:
+        await asyncio.sleep(SCALING_CHECK_INTERVAL)
+        if scaling_in_progress:
+            continue
 
-    async with container.lock:
-        container.active_requests += 1
-        container.total_requests += 1
+        for model_name in list(autoscaler.containers.keys()):
+            new_config = autoscaler.check_scaling(model_name)
+            if new_config is None:
+                continue
 
-    try:
-        return await _non_stream_completion(request, container)
-    finally:
-        async with container.lock:
-            container.active_requests = max(0, container.active_requests - 1)
+            old_config = autoscaler.current_config.get(model_name)
+            old_config_id = old_config.config_id() if old_config else "?"
+            new_config_id = new_config.config_id()
+            demand = autoscaler.demand_tracker.get_demand(model_name)
+
+            print(f"[SCALING_START] {json.dumps({
+                'event': 'scaling_start',
+                'timestamp': time.time(),
+                'elapsed': round(time.time() - server_start_time, 3),
+                'model': model_name,
+                'from_config': old_config_id,
+                'to_config': new_config_id,
+                'demand_tps': round(demand, 4),
+                'from_hourly_cost': old_config.hourly_cost if old_config else 0,
+                'to_hourly_cost': new_config.hourly_cost,
+                'from_throughput': MEASURED_THROUGHPUT.get(old_config_id, 0),
+                'to_throughput': MEASURED_THROUGHPUT.get(new_config_id, 0),
+            })}", flush=True)
+
+            scaling_in_progress = True
+            try:
+                old_container = autoscaler.containers.get(model_name)
+                model_path = old_container.model_path if old_container else autoscaler.get_model_path(model_name)
+
+                port = autoscaler._get_port()
+                new_container = Container(model_name, model_path, new_config, port)
+
+                scale_start = time.time()
+                if await _async_container_start(new_container):
+                    # Swap
+                    autoscaler.containers[model_name] = new_container
+                    autoscaler.current_config[model_name] = new_config
+                    autoscaler.last_scale_time[model_name] = autoscaler.clock()
+                    scale_duration = time.time() - scale_start
+
+                    print(f"[SCALING_DONE] {json.dumps({
+                        'event': 'scaling_done',
+                        'timestamp': time.time(),
+                        'elapsed': round(time.time() - server_start_time, 3),
+                        'model': model_name,
+                        'from_config': old_config_id,
+                        'to_config': new_config_id,
+                        'scale_duration_s': round(scale_duration, 1),
+                        'new_container': _container_info(new_container),
+                    })}", flush=True)
+
+                    # Stop old container in background
+                    if old_container:
+                        await _async_container_stop(old_container)
+                else:
+                    print(f"[SCALING_FAIL] Failed to start {new_config_id}, keeping {old_config_id}", flush=True)
+            finally:
+                scaling_in_progress = False
 
 
-async def _non_stream_completion(request, container):
-    payload = {
-        "messages": [{"role": m.role, "content": m.content} for m in request.messages],
-        "max_tokens": request.max_tokens,
-        "temperature": request.temperature,
-        "stream": False,
-    }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            f"{container.get_endpoint()}/v1/chat/completions",
-            json=payload,
-            timeout=aiohttp.ClientTimeout(total=300),
-        ) as resp:
-            if resp.status != 200:
-                raise HTTPException(resp.status, "Container error")
-
-            result = await resp.json()
-
-            choices = []
-            for i, choice in enumerate(result.get("choices", [])):
-                msg = choice.get("message", {})
-                choices.append(ChatCompletionChoice(
-                    index=i,
-                    message={
-                        "role": msg.get("role", "assistant"),
-                        "content": msg.get("content", ""),
-                    },
-                    finish_reason=choice.get("finish_reason"),
-                ))
-
-            usage = result.get("usage", {})
-            total_tokens = usage.get("total_tokens", 0)
-            if total_tokens > 0:
-                autoscaler.demand_tracker.record_tokens(request.model, total_tokens)
-
-            return ChatCompletionResponse(
-                id=str(uuid.uuid4()),
-                created=int(time.time()),
-                model=request.model,
-                choices=choices,
-                usage=usage,
-            )

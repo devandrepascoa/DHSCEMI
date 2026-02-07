@@ -1,0 +1,51 @@
+{
+  "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M",
+  "max_tokens": 256,
+  "batch_sizes": [
+    1,
+    4,
+    16
+  ],
+  "results": {
+    "gpu_25": {
+      "1": {
+        "tokens_per_second": 27.25796369901987,
+        "total_tokens": 738,
+        "successful": 3,
+        "failed": 0
+      },
+      "4": {
+        "tokens_per_second": 67.40394180665017,
+        "total_tokens": 2952,
+        "successful": 12,
+        "failed": 0
+      },
+      "16": {
+        "tokens_per_second": 87.56497176195866,
+        "total_tokens": 11808,
+        "successful": 48,
+        "failed": 0
+      }
+    },
+    "gpu_100": {
+      "1": {
+        "tokens_per_second": 155.4940397638188,
+        "total_tokens": 738,
+        "successful": 3,
+        "failed": 0
+      },
+      "4": {
+        "tokens_per_second": 321.08262432095876,
+        "total_tokens": 2952,
+        "successful": 12,
+        "failed": 0
+      },
+      "16": {
+        "tokens_per_second": 900.9382946901474,
+        "total_tokens": 11808,
+        "successful": 48,
+        "failed": 0
+      }
+    }
+  }
+}

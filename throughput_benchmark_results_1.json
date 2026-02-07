@@ -1,0 +1,26 @@
+{
+  "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M",
+  "max_tokens": 256,
+  "results": {
+    "cpu_4": {
+      "tokens_per_second": 9.045697945408484,
+      "avg_latency_ms": 28300.746005999827
+    },
+    "cpu_8": {
+      "tokens_per_second": 19.94153863389821,
+      "avg_latency_ms": 12837.524962333191
+    },
+    "cpu_14": {
+      "tokens_per_second": 17.875560792907578,
+      "avg_latency_ms": 14321.229021333542
+    },
+    "gpu_25": {
+      "tokens_per_second": 24.57266588869261,
+      "avg_latency_ms": 10418.08003899981
+    },
+    "gpu_100": {
+      "tokens_per_second": 155.27815339450387,
+      "avg_latency_ms": 1648.6543303332535
+    }
+  }
+}

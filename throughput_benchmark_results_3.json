@@ -1,0 +1,64 @@
+{
+  "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M",
+  "max_tokens": 256,
+  "batch_sizes": [
+    1,
+    4,
+    16,
+    32
+  ],
+  "results": {
+    "gpu_25": {
+      "1": {
+        "tokens_per_second": 13.294308459430619,
+        "total_tokens": 738,
+        "successful": 3,
+        "failed": 0
+      },
+      "4": {
+        "tokens_per_second": 39.75442380911608,
+        "total_tokens": 2952,
+        "successful": 12,
+        "failed": 0
+      },
+      "16": {
+        "tokens_per_second": 58.42527770001927,
+        "total_tokens": 11715,
+        "successful": 48,
+        "failed": 0
+      },
+      "32": {
+        "tokens_per_second": 146.54008093239062,
+        "total_tokens": 23616,
+        "successful": 96,
+        "failed": 0
+      }
+    },
+    "gpu_100": {
+      "1": {
+        "tokens_per_second": 152.91229919839517,
+        "total_tokens": 738,
+        "successful": 3,
+        "failed": 0
+      },
+      "4": {
+        "tokens_per_second": 295.8606846825797,
+        "total_tokens": 2952,
+        "successful": 12,
+        "failed": 0
+      },
+      "16": {
+        "tokens_per_second": 846.111025861438,
+        "total_tokens": 11808,
+        "successful": 48,
+        "failed": 0
+      },
+      "32": {
+        "tokens_per_second": 1064.1990251483276,
+        "total_tokens": 23616,
+        "successful": 96,
+        "failed": 0
+      }
+    }
+  }
+}

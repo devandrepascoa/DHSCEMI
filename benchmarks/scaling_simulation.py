@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Simulate the scaling demo benchmark using the real DemandTracker (EMA)
+Simulate the scaling benchmark using the real DemandTracker (EMA)
 and CostAwareAutoscaler with a fake clock. No Docker, no inference —
 just models the demand curve and scaling decisions to validate parameters
-before running the real ~33 min benchmark.
+before running the real benchmark.
 
 Runs multiple scenarios with varying noise levels, request duration
 jitter, and token count variance to ensure the staircase pattern
-(cpu_4 → cpu_8 → cpu_12 → cpu_8 → cpu_4) is robust.
+(cpu_4 → gpu_25 → gpu_100 → gpu_25 → cpu_4) is robust.
 
 Usage:
     uv run python benchmarks/scaling_simulation.py
@@ -25,37 +25,95 @@ from main_cost_aware import (
     DEFAULT_THROUGHPUT,
 )
 
-# Same configs as scaling_demo_server.py
+# ---------------------------------------------------------------------------
+# Hardware configs: cpu_4, cpu_12, gpu_25, gpu_100
+# Measured throughput from benchmarks (--parallel 32, max_tokens=256)
+# ---------------------------------------------------------------------------
+# Hourly costs chosen so cost-per-token ordering is:
+#   cpu_4 < cpu_12 < gpu_25 < gpu_100
+# This ensures the autoscaler picks the cheapest viable config at each demand
+# level, producing the staircase:
+#   cpu_4 → cpu_12 → gpu_25 → gpu_100 → gpu_25 → cpu_12 → cpu_4
+#
+# cost/tok: cpu_4=0.43μ$, cpu_12=0.71μ$, gpu_25=0.94μ$, gpu_100=1.04μ$
 CONFIGS = [
-    HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.40),
-    HardwareConfig(cpu_cores=8, memory="16g", hourly_cost=0.80),
-    HardwareConfig(cpu_cores=12, memory="24g", hourly_cost=1.20),
-]
-DEFAULT_THROUGHPUT["cpu_12"] = 22.0
-
-MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
-COOLDOWN = 300
-DEMAND_WINDOW = 60
-TOKENS_PER_REQUEST = 140
-
-PHASES = [
-    ("warm-up",      120, 1, 2),
-    ("medium load",  420, 2, 4),
-    ("high load",    420, 3, 9),
-    ("sustain",      120, 3, 9),
-    ("ramp-down 1",  420, 2, 4),
-    ("ramp-down 2",  420, 1, 2),
-    ("low load",      60, 1, 2),
+    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
+    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
+    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
+    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
 ]
 
-# Base request durations per config (seconds)
-BASE_DURATION = {
-    "cpu_4": 20.0,
-    "cpu_8": 10.0,
-    "cpu_12": 8.0,
+MEASURED_THROUGHPUT = {
+    "cpu_4":   32.0,
+    "cpu_12":  47.0,
+    "gpu_25":  147.0,
+    "gpu_100": 1064.0,
 }
 
-EXPECTED_SEQUENCE = ["cpu_4", "cpu_8", "cpu_12", "cpu_8", "cpu_4"]
+for k, v in MEASURED_THROUGHPUT.items():
+    DEFAULT_THROUGHPUT[k] = v
+
+MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
+COOLDOWN = 300        # 5 min cooldown between scaling events
+DEMAND_WINDOW = 180   # 3 min EMA window
+TOKENS_PER_REQUEST = 140
+HEADROOM = 0.25       # 25% headroom multiplier to widen threshold gaps
+
+# ---------------------------------------------------------------------------
+# Workload phases: (name, duration_s, concurrency, rpm)
+#
+# Each phase is long enough (~15 min) for the 3-min EMA to fully converge
+# and the 5-min cooldown to expire before the next scaling decision.
+#
+# Single-request throughput (batch=1):
+#   cpu_4=9.0, cpu_12=15.4, gpu_25=13.3, gpu_100=152.9 tok/s
+# So N saturated workers on config X → N × single_tps tok/s demand.
+#
+# Thresholds (max aggregate throughput):
+#   cpu_4=32, cpu_12=47, gpu_25=147, gpu_100=1064
+#
+# rpm=0 means saturated (workers fire as fast as they finish).
+#
+# Key challenge: gpu_100 is so fast (152.9 tok/s per request) that even
+# 1 saturated worker produces demand > 147. Ramp-down phases use RPM
+# limiting to control demand precisely.
+#
+# RPM-limited demand: rpm × TOKENS_PER_REQUEST / 60 = rpm × 2.33 tok/s
+#   For demand ~100 tok/s: rpm ≈ 43
+#   For demand ~35 tok/s:  rpm ≈ 15
+#   For demand ~7 tok/s:   rpm ≈ 3
+#
+# With HEADROOM=0.25 + stickiness (asymmetric hysteresis):
+#   Scale UP when demand × (1+headroom) exceeds current throughput
+#   Stay on current config as long as raw demand < current throughput
+#   Effective thresholds for scale-up:
+#     cpu_4:  32/1.25 = 25.6 tok/s → triggers cpu_12
+#     cpu_12: 47/1.25 = 37.6 tok/s → triggers gpu_25
+#     gpu_25: 147/1.25 = 117.6 tok/s → triggers gpu_100
+#   Scale-down only when demand drops enough for a cheaper config to be
+#   viable WITH headroom (i.e., cheaper config throughput >= demand × 1.25)
+# ---------------------------------------------------------------------------
+PHASES = [
+    ("low load",       900,  1,   3),    # ~7 tok/s EMA, stays on cpu_4
+    ("medium load",    900,  4,  15),    # ~35 tok/s (rpm-limited), triggers cpu_12
+    ("high load",      900,  8,   0),    # ~123 tok/s on cpu_12→gpu_25, stays gpu_25
+    ("peak load",      900, 30,   0),    # ~400 tok/s on gpu_25, triggers gpu_100
+    ("sustain gpu",    600, 30,   0),    # sustain on gpu_100
+    ("ramp-down 1",    900,  4,  43),    # ~100 tok/s (rpm-limited), triggers gpu_25
+    ("ramp-down 2",    900,  4,  15),    # ~35 tok/s (rpm-limited), triggers cpu_12
+    ("ramp-down 3",    900,  1,   3),    # ~7 tok/s, triggers cpu_4
+    ("low load",       600,  1,   3),    # settle on cpu_4
+]
+
+# Single-request duration = TOKENS_PER_REQUEST / single_request_throughput (batch=1)
+BASE_DURATION = {
+    "cpu_4":   15.6,   # 140 / 9.0 tok/s
+    "cpu_12":  9.1,    # 140 / 15.4 tok/s
+    "gpu_25":  10.5,   # 140 / 13.3 tok/s
+    "gpu_100": 0.9,    # 140 / 152.9 tok/s
+}
+
+EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "gpu_100", "gpu_25", "cpu_12", "cpu_4"]
 
 
 def simulate(
@@ -84,6 +142,7 @@ def simulate(
     tracker = DemandTracker(window_seconds=DEMAND_WINDOW, clock=clock)
     scaler = CostAwareAutoscaler(
         configs=CONFIGS, cooldown_seconds=COOLDOWN, clock=clock,
+        headroom=HEADROOM,
     )
     scaler.demand_tracker = tracker
 
@@ -95,48 +154,47 @@ def simulate(
     total_elapsed = 0.0
 
     for phase_name, duration, concurrency, rpm in PHASES:
-        # Apply rpm jitter
         effective_rpm = rpm
         if rpm_jitter > 0 and rpm > 0:
             effective_rpm = rpm * (1.0 + rng.uniform(-rpm_jitter, rpm_jitter))
             effective_rpm = max(1.0, effective_rpm)
 
+        # rpm=0 means saturated: workers fire as fast as they finish (no spacing)
         if concurrency > 0 and effective_rpm > 0:
             worker_interval = 60.0 * concurrency / effective_rpm
         else:
-            worker_interval = 0
+            worker_interval = 0  # no delay between requests
 
-        workers = []
-        for _ in range(concurrency):
-            workers.append({"next_start": total_elapsed, "busy_until": total_elapsed})
+        workers = [{"next_start": total_elapsed, "busy_until": 0}
+                   for _ in range(concurrency)]
 
         t = total_elapsed
         end_t = total_elapsed + duration
 
         while t < end_t:
+            # Check for completed requests and record their tokens at current time
+            fake_time[0] = t
             for w in workers:
-                if t >= w["busy_until"] and t >= w["next_start"]:
-                    config_id = current_config.config_id()
-                    base_dur = BASE_DURATION.get(config_id, 15.0)
-                    if duration_jitter > 0:
-                        dur = base_dur * (1.0 + rng.uniform(-duration_jitter, duration_jitter))
-                    else:
-                        dur = base_dur
-
+                if w["busy_until"] > 0 and t >= w["busy_until"]:
+                    # Request completed — record tokens at current simulation time
                     tokens = TOKENS_PER_REQUEST
                     if token_jitter > 0:
                         tokens = int(tokens * (1.0 + rng.uniform(-token_jitter, token_jitter)))
                         tokens = max(10, tokens)
+                    tracker.record_tokens(MODEL, tokens)
+                    w["busy_until"] = 0  # mark as idle
 
+            # Start new requests for idle workers
+            for w in workers:
+                if w["busy_until"] == 0 and t >= w["next_start"]:
+                    config_id = current_config.config_id()
+                    base_dur = BASE_DURATION.get(config_id, 10.0)
+                    if duration_jitter > 0:
+                        dur = base_dur * (1.0 + rng.uniform(-duration_jitter, duration_jitter))
+                    else:
+                        dur = base_dur
                     w["busy_until"] = t + dur
                     w["next_start"] = t + worker_interval
-
-                    completion_time = t + dur
-                    if completion_time < end_t + 60:
-                        saved = fake_time[0]
-                        fake_time[0] = completion_time
-                        tracker.record_tokens(MODEL, tokens)
-                        fake_time[0] = saved
 
             if int(t) % 5 == 0:
                 fake_time[0] = t
@@ -160,7 +218,6 @@ def simulate(
 
         total_elapsed = end_t
 
-    # Extract config sequence
     configs_seen = [CONFIGS[0].config_id()]
     for _, _, _, action in scaling_events:
         new_cfg = action.split("→")[-1].strip()
@@ -174,7 +231,6 @@ def simulate(
 # ---------------------------------------------------------------------------
 
 SCENARIOS = [
-    # (name, kwargs)
     ("Baseline (no noise)", dict(seed=42)),
     ("Seed 123", dict(seed=123)),
     ("Seed 999", dict(seed=999)),
@@ -204,18 +260,14 @@ SCENARIOS = [
      dict(seed=2025, duration_jitter=0.40, token_jitter=0.30, rpm_jitter=0.25)),
     ("All noise high seed=55555",
      dict(seed=55555, duration_jitter=0.40, token_jitter=0.30, rpm_jitter=0.25)),
-    # Extreme: very slow cpu_4 (25s per request)
-    ("Slow cpu_4 + noise",
-     dict(seed=42, duration_jitter=0.30, token_jitter=0.20, rpm_jitter=0.15)),
-    # Fast cpu_12 scenario
-    ("Fast cpu_12 + noise",
-     dict(seed=42, duration_jitter=0.30, token_jitter=0.20, rpm_jitter=0.15)),
 ]
 
 
 def main():
     print("=" * 72)
     print("SCALING SIMULATION — ROBUSTNESS TEST")
+    print(f"Configs: {' → '.join(c.config_id() for c in CONFIGS)}")
+    print(f"Throughput: {', '.join(f'{k}={v}' for k, v in MEASURED_THROUGHPUT.items())} tok/s")
     print(f"Expected sequence: {' → '.join(EXPECTED_SEQUENCE)}")
     print("=" * 72)
 
@@ -250,7 +302,7 @@ def main():
         for f in failures:
             print(f"  - {f}")
 
-    # Run a Monte Carlo batch with random seeds and high noise
+    # Monte Carlo: realistic noise
     print()
     print("-" * 72)
     print("MONTE CARLO: 100 runs with REALISTIC noise (dur±20%, tok±15%)")
@@ -275,7 +327,7 @@ def main():
         if len(mc_fail_seeds) > 10:
             print(f"    ... and {len(mc_fail_seeds) - 10} more")
 
-    # Moderate noise MC
+    # Monte Carlo: moderate noise
     print()
     print("-" * 72)
     print("MONTE CARLO: 100 runs with MODERATE noise (dur±30%, tok±20%, rpm±10%)")
@@ -300,7 +352,7 @@ def main():
         if len(mc2_fail_seeds) > 10:
             print(f"    ... and {len(mc2_fail_seeds) - 10} more")
 
-    # Extreme noise MC
+    # Monte Carlo: extreme noise
     print()
     print("-" * 72)
     print("MONTE CARLO: 100 runs with EXTREME noise (dur±40%, tok±30%, rpm±25%)")

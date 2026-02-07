@@ -180,11 +180,13 @@ class CostAwareAutoscaler:
         cooldown_seconds: float = COOLDOWN_SECONDS,
         clock: Optional[Callable[[], float]] = None,
         models_dir: str = "./models",
+        headroom: float = 0.0,
     ):
         self.configs = configs
         self.cooldown_seconds = cooldown_seconds
         self.clock = clock or time.time
         self.models_dir = Path(models_dir).resolve()
+        self.headroom = headroom
 
         self.demand_tracker = DemandTracker(clock=self.clock)
         self.current_config: Dict[str, HardwareConfig] = {}
@@ -213,13 +215,45 @@ class CostAwareAutoscaler:
                 return f
         return None
 
-    def select_optimal_config(self, model: str, demand: float) -> HardwareConfig:
-        """Select config with lowest cost_per_token that can handle demand."""
-        viable = [c for c in self.configs if get_throughput(model, c) >= demand]
-        if not viable:
-            # Fall back to highest throughput config
+    def select_optimal_config(self, model: str, demand: float,
+                              current: Optional[HardwareConfig] = None) -> HardwareConfig:
+        """Select config with lowest cost_per_token that can handle demand.
+
+        Uses asymmetric hysteresis to prevent oscillation:
+        - Scale UP requires headroom: demand * (1 + headroom) must fit
+        - Scale DOWN uses raw demand: cheaper config just needs to handle demand
+        - Current config stays if it can handle demand with headroom
+
+        This means it's harder to scale up (need extra capacity margin)
+        but easy to scale down when demand genuinely drops.
+        """
+        required_with_headroom = demand * (1.0 + self.headroom)
+
+        # Find configs viable with headroom (for staying or scaling up)
+        viable_headroom = [c for c in self.configs
+                           if get_throughput(model, c) >= required_with_headroom]
+
+        # Find configs viable with raw demand (for scaling down)
+        viable_raw = [c for c in self.configs
+                      if get_throughput(model, c) >= demand]
+
+        if not viable_raw:
             return max(self.configs, key=lambda c: get_throughput(model, c))
-        return min(viable, key=lambda c: get_cost_per_token(model, c))
+
+        # If current config is viable with headroom, only consider configs
+        # that are also viable with headroom AND cheaper (prevents oscillation)
+        if current is not None and current in viable_headroom:
+            # Current is comfortably handling load. Only switch to something
+            # cheaper that can also handle load with headroom.
+            cheaper_viable = [c for c in viable_headroom
+                              if get_cost_per_token(model, c) < get_cost_per_token(model, current)]
+            if cheaper_viable:
+                return min(cheaper_viable, key=lambda c: get_cost_per_token(model, c))
+            return current
+
+        # Current config can't handle load with headroom (or no current).
+        # Pick cheapest that can handle raw demand.
+        return min(viable_raw, key=lambda c: get_cost_per_token(model, c))
 
     def check_scaling(self, model: str) -> Optional[HardwareConfig]:
         """Check if scaling is needed, respecting cooldown."""
@@ -230,7 +264,7 @@ class CostAwareAutoscaler:
 
         current = self.current_config.get(model)
         demand = self.demand_tracker.get_demand(model)
-        optimal = self.select_optimal_config(model, demand)
+        optimal = self.select_optimal_config(model, demand, current=current)
 
         if current is None or optimal.config_id() != current.config_id():
             return optimal

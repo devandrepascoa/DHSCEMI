@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
 """
-Scaling demo benchmark for thesis.
+4-config scaling demo benchmark for thesis.
 
-Starts a CPU-only scaling demo server (cpu_4 → cpu_8 → cpu_12),
+Starts a scaling demo server (cpu_4 → cpu_12 → gpu_25 → gpu_100),
 sends real inference requests in phases with controlled request rates
 to trigger vertical scaling up and down, collects metrics, and
-generates a thesis-quality 3-panel plot.
+generates a thesis-quality 4-panel plot.
 
-Server config: cooldown=300s (5 min), demand_window=60s
-Configs: cpu_4 (12 tok/s), cpu_8 (18 tok/s), cpu_12 (22 tok/s)
+All output goes to stdout — redirect to a file when running:
+    uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
 
-Rate control: Each phase specifies concurrency AND requests-per-minute
-(rpm). Workers pace themselves so the aggregate rate matches the target.
-Demand (tok/s) ≈ rpm * ~140 tokens / 60 ≈ rpm * 2.33.
+Server config: cooldown=300s, demand_window=180s, headroom=0.25
+Configs (measured throughput):
+  cpu_4:   32 tok/s  ($0.05/hr, 0.43 μ$/tok)
+  cpu_12:  47 tok/s  ($0.12/hr, 0.71 μ$/tok)
+  gpu_25:  147 tok/s ($0.50/hr, 0.94 μ$/tok)
+  gpu_100: 1064 tok/s ($4.00/hr, 1.04 μ$/tok)
 
-Phases (~33 min total):
-  1. Warm-up      (2 min):  1 worker, rpm=2   → ~5 tok/s   (cpu_4 holds)
-  2. Medium load  (7 min):  2 workers, rpm=4  → ~13 tok/s  (>12 → scale to cpu_8)
-  3. High load    (7 min):  3 workers, rpm=9  → ~28 tok/s  (>18 → scale to cpu_12)
-  4. Sustain      (2 min):  3 workers, rpm=9  → stable on cpu_12
-  5. Ramp-down 1  (7 min):  2 workers, rpm=4  → ~13 tok/s  (after cooldown → cpu_8)
-  6. Ramp-down 2  (7 min):  1 worker, rpm=2   → ~5 tok/s   (after cooldown → cpu_4)
-  7. Low load     (1 min):  1 worker, rpm=2   → confirm cpu_4
+Phases (~2h total, matching simulation):
+  1. low load     (15 min): 1 worker, rpm=3   → ~7 tok/s   (cpu_4)
+  2. medium load  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  3. high load    (15 min): 8 workers, saturated → ~123 tok/s (→ gpu_25)
+  4. peak load    (15 min): 30 workers, saturated → ~400 tok/s (→ gpu_100)
+  5. sustain gpu  (10 min): 30 workers, saturated → sustain gpu_100
+  6. ramp-down 1  (15 min): 4 workers, rpm=43  → ~100 tok/s (→ gpu_25)
+  7. ramp-down 2  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  8. ramp-down 3  (15 min): 1 worker, rpm=3   → ~7 tok/s   (→ cpu_4)
+  9. low load     (10 min): 1 worker, rpm=3   → settle cpu_4
 
 Usage:
-    uv run python benchmarks/scaling_demo.py
+    uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
 """
 from __future__ import annotations
 
@@ -42,14 +47,63 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import aiohttp
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import numpy as np
 
 MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
-MAX_TOKENS = 128
+MAX_TOKENS = 256
 SERVER_STARTUP_TIMEOUT = 180
 OUT_DIR = Path(__file__).parent / "thesis_figures"
 OUT_DIR.mkdir(exist_ok=True)
+
+CONFIG_ORDER = ["cpu_4", "cpu_12", "gpu_25", "gpu_100"]
+CONFIG_COLORS = {
+    "cpu_4":   "#4e79a7",
+    "cpu_12":  "#f28e2b",
+    "gpu_25":  "#e15759",
+    "gpu_100": "#b07aa1",
+}
+MEASURED_THROUGHPUT = {
+    "cpu_4":   32.0,
+    "cpu_12":  47.0,
+    "gpu_25":  147.0,
+    "gpu_100": 1064.0,
+}
+HOURLY_COSTS = {
+    "cpu_4":   0.05,
+    "cpu_12":  0.12,
+    "gpu_25":  0.50,
+    "gpu_100": 4.00,
+}
+
+PHASE_COLORS = {
+    "low load":     "#e8f4f8",
+    "medium load":  "#fff3e0",
+    "high load":    "#fce4ec",
+    "peak load":    "#f8d7da",
+    "sustain gpu":  "#f3e5f5",
+    "ramp-down 1":  "#e8f5e9",
+    "ramp-down 2":  "#e0f2f1",
+    "ramp-down 3":  "#ede7f6",
+}
+
+# Phases matching the simulation (benchmarks/scaling_simulation.py)
+PHASES = [
+    ("low load",       900,  1,   3),    # ~7 tok/s, stays on cpu_4
+    ("medium load",    900,  4,  15),    # ~35 tok/s, triggers cpu_12
+    ("high load",      900,  8,   0),    # saturated ~123 tok/s, triggers gpu_25
+    ("peak load",      900, 30,   0),    # saturated ~400 tok/s, triggers gpu_100
+    ("sustain gpu",    600, 30,   0),    # sustain on gpu_100
+    ("ramp-down 1",    900,  4,  43),    # ~100 tok/s, triggers gpu_25
+    ("ramp-down 2",    900,  4,  15),    # ~35 tok/s, triggers cpu_12
+    ("ramp-down 3",    900,  1,   3),    # ~7 tok/s, triggers cpu_4
+    ("low load",       600,  1,   3),    # settle on cpu_4
+]
+
+EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "gpu_100", "gpu_25", "cpu_12", "cpu_4"]
 
 
 @dataclass
@@ -65,9 +119,27 @@ class Sample:
 
 
 @dataclass
+class RequestResult:
+    elapsed: float
+    phase: str
+    success: bool
+    prompt_tokens: int
+    completion_tokens: int
+    wall_ms: float
+    prompt_eval_ms: float
+    generation_ms: float
+    prompt_tps: float
+    generation_tps: float
+    config_id: str
+    error: str = ""
+
+
+@dataclass
 class Collector:
     start_time: float = field(default_factory=time.time)
     samples: List[Sample] = field(default_factory=list)
+    requests: List[RequestResult] = field(default_factory=list)
+    scaling_events: List[Dict] = field(default_factory=list)
 
 
 def _free_port() -> int:
@@ -77,7 +149,11 @@ def _free_port() -> int:
 
 
 def log(msg: str) -> None:
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
+def log_json(tag: str, data: Dict) -> None:
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] [{tag}] {json.dumps(data)}", flush=True)
 
 
 async def _poll_status(base_url: str) -> Optional[Dict]:
@@ -93,41 +169,163 @@ async def _poll_status(base_url: str) -> Optional[Dict]:
     return None
 
 
-async def _send_request(session: aiohttp.ClientSession, base_url: str) -> bool:
+async def _send_request(
+    session: aiohttp.ClientSession, base_url: str, collector: Collector, phase: str
+) -> bool:
+    """Send a request and log every detail of the response."""
     payload = {
         "model": MODEL,
         "messages": [{"role": "user", "content": "Explain vertical scaling in one paragraph."}],
         "max_tokens": MAX_TOKENS,
         "temperature": 0.7,
     }
+
+    req_start = time.time()
+    elapsed = req_start - collector.start_time
+
     try:
         async with session.post(
             f"{base_url}/v1/chat/completions",
             json=payload,
             timeout=aiohttp.ClientTimeout(total=300),
         ) as resp:
-            if resp.status == 200:
-                await resp.json()
-                return True
-    except Exception:
-        pass
-    return False
+            raw = await resp.json()
+            req_end = time.time()
+            wall_ms = (req_end - req_start) * 1000
+
+            if resp.status != 200:
+                rr = RequestResult(
+                    elapsed=elapsed, phase=phase, success=False,
+                    prompt_tokens=0, completion_tokens=0,
+                    wall_ms=wall_ms, prompt_eval_ms=0, generation_ms=0,
+                    prompt_tps=0, generation_tps=0, config_id="?",
+                    error=f"HTTP {resp.status}: {raw}",
+                )
+                collector.requests.append(rr)
+                log_json("REQ_FAIL", {
+                    "phase": phase, "elapsed": round(elapsed, 1),
+                    "status": resp.status, "wall_ms": round(wall_ms, 1),
+                    "error": str(raw)[:200],
+                })
+                return False
+
+            usage = raw.get("usage", {})
+            timings = raw.get("timings", {})
+
+            prompt_tokens = timings.get("prompt_n", usage.get("prompt_tokens", 0))
+            completion_tokens = timings.get("predicted_n", usage.get("completion_tokens", 0))
+            prompt_ms = timings.get("prompt_ms", 0)
+            predicted_ms = timings.get("predicted_ms", 0)
+            prompt_per_second = timings.get("prompt_per_second", 0)
+            predicted_per_second = timings.get("predicted_per_second", 0)
+            prompt_per_token_ms = timings.get("prompt_per_token_ms", 0)
+            predicted_per_token_ms = timings.get("predicted_per_token_ms", 0)
+
+            rr = RequestResult(
+                elapsed=elapsed, phase=phase, success=True,
+                prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+                wall_ms=wall_ms, prompt_eval_ms=prompt_ms, generation_ms=predicted_ms,
+                prompt_tps=prompt_per_second, generation_tps=predicted_per_second,
+                config_id="",  # filled from status polls
+            )
+            collector.requests.append(rr)
+
+            log_json("REQ_OK", {
+                "phase": phase,
+                "elapsed_s": round(elapsed, 1),
+                "wall_ms": round(wall_ms, 1),
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": prompt_tokens + completion_tokens,
+                "prompt_eval_ms": round(prompt_ms, 1),
+                "generation_ms": round(predicted_ms, 1),
+                "prompt_ms_per_token": round(prompt_per_token_ms, 3),
+                "generation_ms_per_token": round(predicted_per_token_ms, 3),
+                "prompt_tps": round(prompt_per_second, 1),
+                "generation_tps": round(predicted_per_second, 1),
+                "ttft_ms": round(prompt_ms, 1),
+                "raw_usage": usage,
+                "raw_timings": timings,
+            })
+            return True
+
+    except Exception as e:
+        req_end = time.time()
+        wall_ms = (req_end - req_start) * 1000
+        rr = RequestResult(
+            elapsed=elapsed, phase=phase, success=False,
+            prompt_tokens=0, completion_tokens=0,
+            wall_ms=wall_ms, prompt_eval_ms=0, generation_ms=0,
+            prompt_tps=0, generation_tps=0, config_id="?",
+            error=str(e),
+        )
+        collector.requests.append(rr)
+        log_json("REQ_ERR", {
+            "phase": phase, "elapsed": round(elapsed, 1),
+            "wall_ms": round(wall_ms, 1), "error": str(e)[:200],
+        })
+        return False
 
 
 def _record(collector: Collector, status: Dict, phase: str) -> None:
     model_info = status.get("models", {}).get(MODEL, {})
     if not model_info:
         return
-    collector.samples.append(Sample(
+
+    config_id = model_info.get("config_id", "?")
+    demand = model_info.get("demand_tps", 0)
+    throughput = model_info.get("throughput_tps", 0)
+    cost = model_info.get("hourly_cost", 0)
+    active = model_info.get("active_requests", 0)
+    total = model_info.get("total_requests", 0)
+
+    sample = Sample(
         elapsed=time.time() - collector.start_time,
         phase=phase,
-        config_id=model_info.get("config_id", "?"),
-        demand_tps=model_info.get("demand_tps", 0),
-        throughput_tps=model_info.get("throughput_tps", 0),
-        hourly_cost=model_info.get("hourly_cost", 0),
-        active_requests=model_info.get("active_requests", 0),
-        total_requests=model_info.get("total_requests", 0),
-    ))
+        config_id=config_id,
+        demand_tps=demand,
+        throughput_tps=throughput,
+        hourly_cost=cost,
+        active_requests=active,
+        total_requests=total,
+    )
+    collector.samples.append(sample)
+
+    # Detect scaling events
+    if len(collector.samples) >= 2:
+        prev = collector.samples[-2]
+        if prev.config_id != config_id:
+            event = {
+                "elapsed": round(sample.elapsed, 1),
+                "phase": phase,
+                "from": prev.config_id,
+                "to": config_id,
+                "demand_tps": round(demand, 2),
+                "from_cost": HOURLY_COSTS.get(prev.config_id, 0),
+                "to_cost": HOURLY_COSTS.get(config_id, 0),
+                "from_throughput": MEASURED_THROUGHPUT.get(prev.config_id, 0),
+                "to_throughput": MEASURED_THROUGHPUT.get(config_id, 0),
+            }
+            collector.scaling_events.append(event)
+            log_json("SCALE_EVENT", event)
+
+    log_json("STATUS", {
+        "phase": phase,
+        "elapsed_s": round(sample.elapsed, 1),
+        "config_id": config_id,
+        "demand_tps": round(demand, 4),
+        "throughput_tps": throughput,
+        "hourly_cost": cost,
+        "active_requests": active,
+        "total_requests": total,
+        "cost_per_token": model_info.get("cost_per_token", 0),
+        "cpu_cores": model_info.get("cpu_cores"),
+        "gpu_percentage": model_info.get("gpu_percentage"),
+        "memory": model_info.get("memory"),
+        "port": model_info.get("port"),
+        "is_ready": model_info.get("is_ready"),
+        "server_uptime": status.get("server_uptime_seconds", 0),
+    })
 
 
 async def _run_phase(
@@ -138,26 +336,20 @@ async def _run_phase(
     concurrency: int = 0,
     rpm: float = 0,
 ) -> None:
-    """Run a benchmark phase with controlled request rate.
-
-    Args:
-        base_url: Server URL.
-        collector: Metrics collector.
-        phase_name: Name for logging/plotting.
-        duration: Phase duration in seconds.
-        concurrency: Number of parallel workers sending requests.
-        rpm: Target aggregate requests per minute. Each worker paces
-             itself to send at most rpm/concurrency requests per minute.
-             If 0 and concurrency > 0, workers send as fast as possible.
-    """
+    """Run a benchmark phase with controlled request rate."""
     if concurrency > 0 and rpm > 0:
-        # Interval between request *starts* per worker
         worker_interval = 60.0 * concurrency / rpm
     else:
         worker_interval = 0.0
 
-    log(f"PHASE: {phase_name} ({duration}s, workers={concurrency}, "
-        f"rpm={rpm}, interval={worker_interval:.1f}s/worker)")
+    log_json("PHASE_START", {
+        "phase": phase_name,
+        "duration_s": duration,
+        "concurrency": concurrency,
+        "rpm": rpm,
+        "worker_interval_s": round(worker_interval, 2),
+        "elapsed_s": round(time.time() - collector.start_time, 1),
+    })
 
     deadline = time.time() + duration
     stop = asyncio.Event()
@@ -165,10 +357,7 @@ async def _run_phase(
     async def worker(session: aiohttp.ClientSession) -> None:
         while not stop.is_set() and time.time() < deadline:
             req_start = time.time()
-            await _send_request(session, base_url)
-            # Pace: wait until at least worker_interval has passed since
-            # this request started, so we control the *rate* not just the
-            # gap after completion.
+            await _send_request(session, base_url, collector, phase_name)
             if worker_interval > 0:
                 elapsed_req = time.time() - req_start
                 wait = max(0, worker_interval - elapsed_req)
@@ -182,11 +371,6 @@ async def _run_phase(
             status = await _poll_status(base_url)
             if status:
                 _record(collector, status, phase_name)
-                mi = status.get("models", {}).get(MODEL, {})
-                log(f"  [{phase_name}] config={mi.get('config_id')} "
-                    f"demand={mi.get('demand_tps', 0):.1f} tok/s "
-                    f"cost=${mi.get('hourly_cost', 0):.2f}/hr "
-                    f"active={mi.get('active_requests', 0)}")
             await asyncio.sleep(5)
 
     tasks = [asyncio.create_task(monitor())]
@@ -209,26 +393,43 @@ async def _run_phase(
     if session:
         await session.close()
 
+    # Phase summary
+    phase_reqs = [r for r in collector.requests if r.phase == phase_name]
+    ok = sum(1 for r in phase_reqs if r.success)
+    fail = sum(1 for r in phase_reqs if not r.success)
+    avg_wall = (sum(r.wall_ms for r in phase_reqs if r.success) / ok) if ok else 0
+    avg_gen_tps = (sum(r.generation_tps for r in phase_reqs if r.success) / ok) if ok else 0
+    total_prompt = sum(r.prompt_tokens for r in phase_reqs if r.success)
+    total_completion = sum(r.completion_tokens for r in phase_reqs if r.success)
+
+    log_json("PHASE_END", {
+        "phase": phase_name,
+        "elapsed_s": round(time.time() - collector.start_time, 1),
+        "requests_ok": ok,
+        "requests_fail": fail,
+        "avg_wall_ms": round(avg_wall, 1),
+        "avg_generation_tps": round(avg_gen_tps, 1),
+        "total_prompt_tokens": total_prompt,
+        "total_completion_tokens": total_completion,
+        "total_tokens": total_prompt + total_completion,
+    })
+
 
 # ---------------------------------------------------------------------------
-# Plot
+# Plot generation
 # ---------------------------------------------------------------------------
-CONFIG_COLORS = {
-    "cpu_4": "#4e79a7",
-    "cpu_8": "#59a14f",
-    "cpu_12": "#f28e2b",
-}
-CONFIG_ORDER = ["cpu_4", "cpu_8", "cpu_12"]
 
-PHASE_COLORS = {
-    "warm-up": "#e8f4f8",
-    "medium load": "#fff3e0",
-    "high load": "#fce4ec",
-    "sustain": "#fce4ec",
-    "ramp-down 1": "#e8f5e9",
-    "ramp-down 2": "#ede7f6",
-    "low load": "#e8f4f8",
-}
+def _phase_spans(samples: List[Sample]) -> List[tuple]:
+    spans = []
+    prev = samples[0].phase
+    start = samples[0].elapsed / 60
+    for s in samples[1:]:
+        if s.phase != prev:
+            spans.append((start, s.elapsed / 60, prev))
+            start = s.elapsed / 60
+            prev = s.phase
+    spans.append((start, samples[-1].elapsed / 60, prev))
+    return spans
 
 
 def generate_plot(collector: Collector) -> None:
@@ -236,95 +437,124 @@ def generate_plot(collector: Collector) -> None:
         log("No samples, skipping plot")
         return
 
-    elapsed = [s.elapsed for s in collector.samples]
-    demand = [s.demand_tps for s in collector.samples]
-    configs = [s.config_id for s in collector.samples]
-    costs = [s.hourly_cost for s in collector.samples]
-    phases = [s.phase for s in collector.samples]
+    samples = collector.samples
+    t = np.array([s.elapsed / 60 for s in samples])
+    demand = np.array([s.demand_tps for s in samples])
+    configs = [s.config_id for s in samples]
+    costs = np.array([s.hourly_cost for s in samples])
+    config_idx = np.array([CONFIG_ORDER.index(c) if c in CONFIG_ORDER else -1
+                           for c in configs])
 
-    elapsed_min = [e / 60 for e in elapsed]
-    config_idx = [CONFIG_ORDER.index(c) if c in CONFIG_ORDER else -1 for c in configs]
+    phase_spans = _phase_spans(samples)
+
+    scale_times = []
+    for i in range(1, len(configs)):
+        if configs[i] != configs[i - 1]:
+            scale_times.append(t[i])
 
     plt.rcParams.update({
         "figure.dpi": 150, "savefig.dpi": 300,
         "font.size": 11, "axes.titlesize": 13, "axes.labelsize": 12,
         "xtick.labelsize": 10, "ytick.labelsize": 10, "legend.fontsize": 10,
-        "axes.grid": True, "grid.alpha": 0.2,
+        "axes.grid": True, "grid.alpha": 0.25,
         "axes.spines.top": False, "axes.spines.right": False,
     })
 
-    fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True,
-                              gridspec_kw={"height_ratios": [2, 2, 1.2]})
-
-    # Phase backgrounds
-    prev_phase = phases[0]
-    start_e = elapsed_min[0]
-    phase_spans = []
-    for i in range(1, len(phases)):
-        if phases[i] != prev_phase or i == len(phases) - 1:
-            end_e = elapsed_min[i]
-            phase_spans.append((start_e, end_e, prev_phase))
-            start_e = end_e
-            prev_phase = phases[i]
+    fig, axes = plt.subplots(4, 1, figsize=(14, 12), sharex=True,
+                              gridspec_kw={"height_ratios": [2.5, 2, 1.5, 1.5]})
 
     for s, e, p in phase_spans:
         color = PHASE_COLORS.get(p, "#f5f5f5")
         for ax in axes:
-            ax.axvspan(s, e, alpha=0.2, color=color, zorder=0)
+            ax.axvspan(s, e, alpha=0.12, color=color, zorder=0)
 
-    # --- Panel 1: Demand ---
+    for st in scale_times:
+        for ax in axes:
+            ax.axvline(st, color="red", linestyle="--", alpha=0.3,
+                       linewidth=1, zorder=1)
+
+    # Panel 1: Config + Demand
     ax1 = axes[0]
-    ax1.plot(elapsed_min, demand, color="#333", linewidth=1.5, zorder=3)
-    ax1.fill_between(elapsed_min, demand, alpha=0.12, color="#4e79a7", zorder=2)
-    ax1.set_ylabel("Demand (tok/s)")
-    ax1.set_title("Cost-Aware Autoscaler: Vertical Scaling Under Varying Workload")
+    for i in range(len(t) - 1):
+        c = configs[i]
+        ax1.fill_between([t[i], t[i + 1]], [config_idx[i], config_idx[i + 1]],
+                         alpha=0.35, color=CONFIG_COLORS.get(c, "gray"),
+                         step="post", zorder=2)
+    ax1.step(t, config_idx, where="post", color="#333", linewidth=1.8, zorder=3)
 
-    thresholds = {"cpu_4": 12, "cpu_8": 18, "cpu_12": 22}
-    for label, thr in thresholds.items():
-        ax1.axhline(thr, linestyle=":", color=CONFIG_COLORS.get(label, "gray"),
-                     alpha=0.6, linewidth=1)
-        ax1.text(elapsed_min[-1] * 1.01, thr, f"{label} cap",
-                 fontsize=7, va="center", color=CONFIG_COLORS.get(label, "gray"))
+    ax1b = ax1.twinx()
+    ax1b.plot(t, demand, color="#e15759", linewidth=1.4, alpha=0.85, zorder=4)
+    ax1b.fill_between(t, demand, alpha=0.06, color="#e15759")
+    ax1b.set_ylabel("Demand (tok/s)", color="#e15759")
+    ax1b.tick_params(axis="y", labelcolor="#e15759")
+    ax1b.spines["right"].set_visible(True)
 
+    for cid, thr in MEASURED_THROUGHPUT.items():
+        if thr < 200:
+            ax1b.axhline(thr, linestyle=":", color=CONFIG_COLORS[cid],
+                         alpha=0.5, linewidth=1)
+            ax1b.text(t[-1] * 1.01, thr, f"{thr:.0f}", fontsize=7,
+                      va="center", color=CONFIG_COLORS[cid])
+
+    ymax_demand = max(demand) if len(demand) > 0 and max(demand) > 0 else 1
     for s, e, p in phase_spans:
         mid = (s + e) / 2
-        ymax = max(demand) if max(demand) > 0 else 1
-        ax1.text(mid, ymax * 1.08, p, ha="center", va="bottom",
-                 fontsize=8, fontstyle="italic", color="#555")
+        ax1b.text(mid, ymax_demand * 1.08, p, ha="center", va="bottom",
+                  fontsize=7, fontstyle="italic", color="#555")
 
-    # --- Panel 2: Active config ---
-    ax2 = axes[1]
-    for i in range(len(elapsed_min) - 1):
-        c = configs[i]
-        color = CONFIG_COLORS.get(c, "gray")
-        ax2.fill_between(
-            [elapsed_min[i], elapsed_min[i + 1]],
-            [config_idx[i], config_idx[i + 1]],
-            alpha=0.4, color=color, step="post", zorder=2,
-        )
-    ax2.step(elapsed_min, config_idx, where="post", color="#333", linewidth=1.5, zorder=3)
-    ax2.set_ylabel("Hardware Config")
-    ax2.set_yticks(range(len(CONFIG_ORDER)))
-    ax2.set_yticklabels(CONFIG_ORDER)
-    ax2.set_ylim(-0.5, len(CONFIG_ORDER) - 0.5)
+    ax1.set_ylabel("Hardware Configuration")
+    ax1.set_yticks(range(len(CONFIG_ORDER)))
+    ax1.set_yticklabels(CONFIG_ORDER)
+    ax1.set_ylim(-0.5, len(CONFIG_ORDER) - 0.5)
+    ax1.set_title("Cost-Aware Vertical Scaling — Real Hardware Demo")
 
-    patches = [mpatches.Patch(color=CONFIG_COLORS[c], label=c, alpha=0.6)
+    patches = [mpatches.Patch(color=CONFIG_COLORS[c], label=c, alpha=0.5)
                for c in CONFIG_ORDER]
-    ax2.legend(handles=patches, loc="upper left", fontsize=8, ncol=3)
+    ax1.legend(handles=patches, loc="upper left", fontsize=8, ncol=len(CONFIG_ORDER))
 
-    # Scaling event lines
-    for i in range(1, len(configs)):
-        if configs[i] != configs[i - 1]:
-            for ax in axes:
-                ax.axvline(elapsed_min[i], color="red", linestyle="--",
-                           alpha=0.4, linewidth=1, zorder=1)
+    # Panel 2: Demand
+    ax2 = axes[1]
+    ax2.plot(t, demand, color="#333", linewidth=1.5, zorder=3)
+    ax2.fill_between(t, demand, alpha=0.12, color="#4e79a7", zorder=2)
+    ax2.set_ylabel("Demand (tok/s)")
 
-    # --- Panel 3: Hourly cost ---
+    for cid, thr in MEASURED_THROUGHPUT.items():
+        if thr < 200:
+            ax2.axhline(thr, linestyle=":", color=CONFIG_COLORS[cid],
+                        alpha=0.6, linewidth=1)
+            ax2.text(t[-1] * 1.01, thr, f"{cid} cap",
+                     fontsize=7, va="center", color=CONFIG_COLORS[cid])
+
+    # Panel 3: Hourly cost
     ax3 = axes[2]
-    ax3.fill_between(elapsed_min, costs, alpha=0.25, color="#59a14f", step="post")
-    ax3.step(elapsed_min, costs, where="post", color="#59a14f", linewidth=1.5)
+    for i in range(len(t) - 1):
+        c = configs[i]
+        ax3.fill_between([t[i], t[i + 1]], [costs[i], costs[i + 1]],
+                         alpha=0.3, color=CONFIG_COLORS.get(c, "gray"),
+                         step="post", zorder=2)
+    ax3.step(t, costs, where="post", color="#333", linewidth=1.8, zorder=3)
+
+    static_cost = HOURLY_COSTS["gpu_100"]
+    ax3.axhline(static_cost, linestyle="--", color="#b07aa1", alpha=0.6,
+                linewidth=1.5, label=f"Static gpu_100 (${static_cost:.2f}/hr)")
     ax3.set_ylabel("Hourly Cost ($)")
-    ax3.set_xlabel("Time (minutes)")
+    ax3.set_ylim(0, static_cost * 1.4)
+    ax3.legend(loc="upper left", fontsize=8)
+
+    # Panel 4: Cost per token
+    cpt = np.array([
+        s.hourly_cost / (MEASURED_THROUGHPUT.get(s.config_id, 1.0) * 3600)
+        for s in samples
+    ]) * 1e6
+    ax4 = axes[3]
+    for i in range(len(t) - 1):
+        c = configs[i]
+        ax4.fill_between([t[i], t[i + 1]], [cpt[i], cpt[i + 1]],
+                         alpha=0.3, color=CONFIG_COLORS.get(c, "gray"),
+                         step="post", zorder=2)
+    ax4.step(t, cpt, where="post", color="#333", linewidth=1.8, zorder=3)
+    ax4.set_ylabel("Cost/Token (μ$)")
+    ax4.set_xlabel("Time (minutes)")
 
     fig.tight_layout()
 
@@ -333,6 +563,7 @@ def generate_plot(collector: Collector) -> None:
     plt.close(fig)
     log(f"Plot saved to {OUT_DIR}/scaling_demo.pdf and .png")
 
+    # Save raw data
     data_path = OUT_DIR / "scaling_demo_data.json"
     with open(data_path, "w") as f:
         json.dump([{
@@ -342,6 +573,19 @@ def generate_plot(collector: Collector) -> None:
             "total_requests": s.total_requests,
         } for s in collector.samples], f, indent=2)
     log(f"Raw data saved to {data_path}")
+
+    # Check scaling sequence
+    seen = [samples[0].config_id]
+    for i in range(1, len(samples)):
+        if samples[i].config_id != samples[i - 1].config_id:
+            seen.append(samples[i].config_id)
+
+    log(f"Observed sequence: {' → '.join(seen)}")
+    log(f"Expected sequence: {' → '.join(EXPECTED_SEQUENCE)}")
+    if seen == EXPECTED_SEQUENCE:
+        log("✓ PASS — perfect staircase achieved")
+    else:
+        log("✗ FAIL — sequence mismatch")
 
 
 # ---------------------------------------------------------------------------
@@ -355,13 +599,35 @@ async def main() -> None:
     env["E2E_MODEL_NAME"] = MODEL
     env["E2E_MODELS_DIR"] = str(Path("models").resolve())
 
-    log(f"Starting scaling demo server on port {port}...")
+    total_duration = sum(p[1] for p in PHASES)
+
+    log_json("BENCHMARK_START", {
+        "model": MODEL,
+        "max_tokens": MAX_TOKENS,
+        "port": port,
+        "total_duration_min": round(total_duration / 60, 1),
+        "phases": [{
+            "name": p[0], "duration_s": p[1],
+            "concurrency": p[2], "rpm": p[3],
+        } for p in PHASES],
+        "expected_sequence": EXPECTED_SEQUENCE,
+        "configs": {
+            cid: {"throughput_tps": t, "hourly_cost": HOURLY_COSTS[cid]}
+            for cid, t in MEASURED_THROUGHPUT.items()
+        },
+        "headroom": 0.25,
+        "cooldown_s": 300,
+        "demand_window_s": 180,
+    })
+
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn",
          "benchmarks.scaling_demo_server:app",
          "--host", "0.0.0.0", "--port", str(port)],
         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
+
+    log(f"Server PID={proc.pid}, waiting for health...")
 
     deadline = time.time() + SERVER_STARTUP_TIMEOUT
     healthy = False
@@ -379,7 +645,7 @@ async def main() -> None:
             pass
         if proc.poll() is not None:
             stdout = proc.stdout.read().decode() if proc.stdout else ""
-            print(f"Server died:\n{stdout}")
+            log(f"Server died:\n{stdout}")
             return
         await asyncio.sleep(3)
 
@@ -387,42 +653,22 @@ async def main() -> None:
         stdout = proc.stdout.read().decode() if proc.stdout else ""
         proc.kill()
         proc.wait()
-        print(f"Server not healthy in {SERVER_STARTUP_TIMEOUT}s:\n{stdout}")
+        log(f"Server not healthy in {SERVER_STARTUP_TIMEOUT}s:\n{stdout}")
         return
 
     log(f"Server healthy at {base_url}")
+
+    # Log initial status
+    status = await _poll_status(base_url)
+    if status:
+        log_json("INITIAL_STATUS", status)
+
     collector = Collector(start_time=time.time())
 
     try:
-        # Phase 1: warm-up — 1 worker, rpm=2 → ~5 tok/s on cpu_4 (2 min)
-        await _run_phase(base_url, collector, "warm-up",
-                         duration=120, concurrency=1, rpm=2)
-
-        # Phase 2: medium load — 2 workers, rpm=4 → ~13 tok/s → scale to cpu_8 (7 min)
-        await _run_phase(base_url, collector, "medium load",
-                         duration=420, concurrency=2, rpm=4)
-
-        # Phase 3: high load — 3 workers, rpm=9 → ~28 tok/s → scale to cpu_12 (7 min)
-        await _run_phase(base_url, collector, "high load",
-                         duration=420, concurrency=3, rpm=9)
-
-        # Phase 4: sustain on cpu_12 (2 min)
-        await _run_phase(base_url, collector, "sustain",
-                         duration=120, concurrency=3, rpm=9)
-
-        # Phase 5: ramp-down 1 — 2 workers, rpm=4 → ~13 tok/s
-        # After cooldown (300s), demand < cpu_12 threshold → scale to cpu_8 (7 min)
-        await _run_phase(base_url, collector, "ramp-down 1",
-                         duration=420, concurrency=2, rpm=4)
-
-        # Phase 6: ramp-down 2 — 1 worker, rpm=2 → ~5 tok/s
-        # After cooldown (300s), demand < cpu_8 threshold → scale to cpu_4 (7 min)
-        await _run_phase(base_url, collector, "ramp-down 2",
-                         duration=420, concurrency=1, rpm=2)
-
-        # Phase 7: low load — confirm stable on cpu_4 (1 min)
-        await _run_phase(base_url, collector, "low load",
-                         duration=60, concurrency=1, rpm=2)
+        for phase_name, duration, concurrency, rpm in PHASES:
+            await _run_phase(base_url, collector, phase_name,
+                             duration=duration, concurrency=concurrency, rpm=rpm)
 
     except KeyboardInterrupt:
         log("Interrupted")
@@ -435,6 +681,7 @@ async def main() -> None:
             proc.kill()
             proc.wait()
 
+        # Clean up leftover containers
         result = subprocess.run(
             ["docker", "ps", "-a", "--filter", "name=llama-", "--format", "{{.Names}}"],
             capture_output=True, text=True,
@@ -442,7 +689,26 @@ async def main() -> None:
         for name in [n.strip() for n in result.stdout.splitlines() if n.strip()]:
             subprocess.run(["docker", "rm", "-f", name], capture_output=True, check=False)
 
-    log(f"Collected {len(collector.samples)} samples")
+    # Final summary
+    total_reqs = len(collector.requests)
+    ok_reqs = sum(1 for r in collector.requests if r.success)
+    fail_reqs = total_reqs - ok_reqs
+    total_prompt_tok = sum(r.prompt_tokens for r in collector.requests if r.success)
+    total_completion_tok = sum(r.completion_tokens for r in collector.requests if r.success)
+
+    log_json("BENCHMARK_END", {
+        "total_samples": len(collector.samples),
+        "total_requests": total_reqs,
+        "successful_requests": ok_reqs,
+        "failed_requests": fail_reqs,
+        "total_prompt_tokens": total_prompt_tok,
+        "total_completion_tokens": total_completion_tok,
+        "total_tokens": total_prompt_tok + total_completion_tok,
+        "scaling_events": collector.scaling_events,
+        "scaling_event_count": len(collector.scaling_events),
+        "duration_minutes": round((time.time() - collector.start_time) / 60, 1),
+    })
+
     generate_plot(collector)
     log("Done")
 

@@ -1,18 +1,54 @@
 {
   "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M",
   "max_tokens": 256,
+  "batch_sizes": [
+    1,
+    4,
+    16,
+    32
+  ],
+  "batch_timeout_seconds": 120,
+  "rounds_per_batch": 3,
+  "warmup_requests": 1,
+  "prompt": "Explain what machine learning is.",
   "results": {
-    "cpu_1": {
-      "tokens_per_second": 8.18373133288393,
-      "avg_latency_ms": 31281.574331666885
-    },
-    "cpu_4": {
-      "tokens_per_second": 16.667407286960348,
-      "avg_latency_ms": 15359.317474666872
-    },
-    "cpu_8": {
-      "tokens_per_second": 18.125361489935962,
-      "avg_latency_ms": 14123.85624099928
+    "cpu_12": {
+      "1": {
+        "tokens_per_second": 15.422420862721461,
+        "total_output_tokens": 768,
+        "total_input_tokens": 30,
+        "wall_time_seconds": 50.51,
+        "successful": 3,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "4": {
+        "tokens_per_second": 39.52959405617714,
+        "total_output_tokens": 3072,
+        "total_input_tokens": 120,
+        "wall_time_seconds": 79.15,
+        "successful": 12,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "16": {
+        "tokens_per_second": 40.997703786322845,
+        "total_output_tokens": 4096,
+        "total_input_tokens": 160,
+        "wall_time_seconds": 120.01,
+        "successful": 16,
+        "failed": 0,
+        "timed_out": 1
+      },
+      "32": {
+        "tokens_per_second": 0,
+        "total_output_tokens": 0,
+        "total_input_tokens": 0,
+        "wall_time_seconds": 120.11,
+        "successful": 0,
+        "failed": 0,
+        "timed_out": 1
+      }
     }
   }
 }
