@@ -26,14 +26,14 @@ from main_cost_aware import (
 # Helpers
 # ---------------------------------------------------------------------------
 
-# Reusable test configs (subset of HARDWARE_CONFIGS)
-CPU_1 = HardwareConfig(cpu_cores=1, memory="4g", hourly_cost=0.10)
+# Reusable test configs (matching HARDWARE_CONFIGS in main_cost_aware.py)
 CPU_4 = HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.40)
 CPU_8 = HardwareConfig(cpu_cores=8, memory="16g", hourly_cost=0.80)
+CPU_12 = HardwareConfig(cpu_cores=12, memory="24g", hourly_cost=1.20)
 GPU_50 = HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=50, hourly_cost=1.00)
 GPU_100 = HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=2.00)
 
-ALL_CONFIGS = [CPU_1, CPU_4, CPU_8, GPU_50, GPU_100]
+ALL_CONFIGS = [CPU_4, CPU_8, CPU_12, GPU_50, GPU_100]
 
 TEST_MODEL = "test-model"
 
@@ -48,7 +48,7 @@ class TestHardwareConfigImage:
 
     def test_cpu_config_returns_cpu_image(self):
         """CPU configs (no gpu_percentage) return the CPU image."""
-        for cfg in [CPU_1, CPU_4, CPU_8]:
+        for cfg in [CPU_4, CPU_8, CPU_12]:
             assert cfg.image == "ghcr.io/ggml-org/llama.cpp:full"
 
     def test_gpu_config_returns_cuda_image(self):
@@ -57,7 +57,7 @@ class TestHardwareConfigImage:
             assert cfg.image == "ghcr.io/ggml-org/llama.cpp:full-cuda"
 
     def test_container_type_cpu(self):
-        assert CPU_1.container_type == "cpu"
+        assert CPU_4.container_type == "cpu"
 
     def test_container_type_gpu(self):
         assert GPU_50.container_type == "gpu"
@@ -66,13 +66,13 @@ class TestHardwareConfigImage:
 class TestCostPerToken:
     """6.2 – Property 2: cost_per_token = hourly_cost / (throughput * 3600)."""
 
-    def test_cpu_1_cost_per_token(self):
-        expected = 0.10 / (4.0 * 3600)
-        assert get_cost_per_token(TEST_MODEL, CPU_1) == pytest.approx(expected)
-
     def test_cpu_4_cost_per_token(self):
         expected = 0.40 / (12.0 * 3600)
         assert get_cost_per_token(TEST_MODEL, CPU_4) == pytest.approx(expected)
+
+    def test_cpu_8_cost_per_token(self):
+        expected = 0.80 / (18.0 * 3600)
+        assert get_cost_per_token(TEST_MODEL, CPU_8) == pytest.approx(expected)
 
     def test_gpu_100_cost_per_token(self):
         expected = 2.00 / (100.0 * 3600)
@@ -87,43 +87,58 @@ class TestCostPerToken:
 
 
 class TestDemandTracker:
-    """6.3 – Property 3: get_demand() = sum(tokens) / window_seconds."""
+    """6.3 – DemandTracker uses an exponential moving average (EMA).
 
-    def test_demand_with_single_event(self):
+    With window_seconds=W, alpha = 2/(W+1).
+    record_tokens adds alpha * token_count to the decayed EMA.
+    get_demand decays the EMA to the current time.
+    """
+
+    def test_demand_increases_after_recording(self):
         fake_time = [0.0]
         clock = lambda: fake_time[0]
         tracker = DemandTracker(window_seconds=60, clock=clock)
 
+        assert tracker.get_demand(TEST_MODEL) == 0.0
         tracker.record_tokens(TEST_MODEL, 120)
-        assert tracker.get_demand(TEST_MODEL) == pytest.approx(120 / 60)
+        demand = tracker.get_demand(TEST_MODEL)
+        assert demand > 0.0
 
-    def test_demand_with_multiple_events(self):
+    def test_demand_grows_with_more_events(self):
         fake_time = [0.0]
         clock = lambda: fake_time[0]
         tracker = DemandTracker(window_seconds=60, clock=clock)
 
         tracker.record_tokens(TEST_MODEL, 100)
+        d1 = tracker.get_demand(TEST_MODEL)
+
         fake_time[0] = 10.0
         tracker.record_tokens(TEST_MODEL, 200)
-        # Both events within window → (100 + 200) / 60
-        assert tracker.get_demand(TEST_MODEL) == pytest.approx(300 / 60)
+        d2 = tracker.get_demand(TEST_MODEL)
+        assert d2 > d1
 
-    def test_demand_evicts_old_events(self):
+    def test_demand_decays_over_time(self):
         fake_time = [0.0]
         clock = lambda: fake_time[0]
         tracker = DemandTracker(window_seconds=60, clock=clock)
 
         tracker.record_tokens(TEST_MODEL, 100)
-        fake_time[0] = 70.0  # first event now older than window
-        tracker.record_tokens(TEST_MODEL, 50)
-        # Only the second event survives → 50 / 60
-        assert tracker.get_demand(TEST_MODEL) == pytest.approx(50 / 60)
+        d_now = tracker.get_demand(TEST_MODEL)
+
+        fake_time[0] = 120.0  # well past the EMA span
+        d_later = tracker.get_demand(TEST_MODEL)
+        assert d_later < d_now * 0.1  # should have decayed significantly
 
     def test_demand_returns_zero_with_no_events(self):
         fake_time = [0.0]
         clock = lambda: fake_time[0]
         tracker = DemandTracker(window_seconds=60, clock=clock)
         assert tracker.get_demand(TEST_MODEL) == 0.0
+
+    def test_ema_alpha_matches_window(self):
+        """alpha = 2 / (window_seconds + 1)."""
+        tracker = DemandTracker(window_seconds=60)
+        assert tracker.alpha == pytest.approx(2.0 / 61)
 
 
 class TestSelectOptimalConfig:
@@ -150,19 +165,19 @@ class TestSelectOptimalConfig:
         # gpu_50 and gpu_100 tie on cost_per_token; min() picks gpu_50 (first in list)
         assert result.config_id() == "gpu_50"
 
-    def test_cpu_only_low_demand_selects_cpu_1(self):
-        """With CPU-only configs at demand=1, cpu_1 is cheapest per token."""
-        cpu_configs = [CPU_1, CPU_4, CPU_8]
+    def test_cpu_only_low_demand_selects_cpu_4(self):
+        """With CPU-only configs at demand=1, cpu_4 is cheapest viable (lowest cost_per_token)."""
+        cpu_configs = [CPU_4, CPU_8, CPU_12]
         scaler = self._make_autoscaler(configs=cpu_configs)
         result = scaler.select_optimal_config(TEST_MODEL, demand=1.0)
-        assert result.config_id() == "cpu_1"
-
-    def test_cpu_only_medium_demand_selects_cpu_4(self):
-        """With CPU-only configs at demand=5, cpu_1 can't handle it; cpu_4 is cheapest viable."""
-        cpu_configs = [CPU_1, CPU_4, CPU_8]
-        scaler = self._make_autoscaler(configs=cpu_configs)
-        result = scaler.select_optimal_config(TEST_MODEL, demand=5.0)
         assert result.config_id() == "cpu_4"
+
+    def test_cpu_only_medium_demand_selects_cpu_8(self):
+        """With CPU-only configs at demand=13, cpu_4 can't handle it; cpu_8 is cheapest viable."""
+        cpu_configs = [CPU_4, CPU_8, CPU_12]
+        scaler = self._make_autoscaler(configs=cpu_configs)
+        result = scaler.select_optimal_config(TEST_MODEL, demand=13.0)
+        assert result.config_id() == "cpu_8"
 
     def test_high_demand_selects_gpu(self):
         """At demand=20 tok/s, only gpu_50 and gpu_100 are viable; gpu_50 is cheaper per token."""
@@ -198,7 +213,7 @@ class TestCheckScalingCooldown:
         scaler = CostAwareAutoscaler(configs=ALL_CONFIGS, cooldown_seconds=10, clock=clock)
 
         # Set current config and last_scale_time to simulate a recent scaling event
-        scaler.current_config[TEST_MODEL] = CPU_1
+        scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
         # Record high demand so optimal != current
@@ -213,7 +228,7 @@ class TestCheckScalingCooldown:
         clock = lambda: fake_time[0]
         scaler = CostAwareAutoscaler(configs=ALL_CONFIGS, cooldown_seconds=10, clock=clock)
 
-        scaler.current_config[TEST_MODEL] = CPU_1
+        scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
         # Record high demand so optimal != current
@@ -223,7 +238,7 @@ class TestCheckScalingCooldown:
         fake_time[0] = 10.0
         result = scaler.check_scaling(TEST_MODEL)
         assert result is not None
-        assert result.config_id() != "cpu_1"
+        assert result.config_id() != "cpu_4"
 
     def test_returns_none_when_optimal_equals_current(self):
         fake_time = [0.0]
@@ -287,30 +302,29 @@ class TestAutoscalerIntegration:
         # gpu_50 has lowest cost_per_token among all viable configs
         assert result.config_id() == "gpu_50"
 
-    def test_selects_cpu_1_at_low_demand_cpu_only(self):
-        """With CPU-only configs, low demand selects cpu_1 (cheapest per token)."""
+    def test_selects_cpu_4_at_low_demand_cpu_only(self):
+        """With CPU-only configs, low demand selects cpu_4 (cheapest per token)."""
         fake_time = [0.0]
         clock = lambda: fake_time[0]
-        cpu_configs = [CPU_1, CPU_4, CPU_8]
+        cpu_configs = [CPU_4, CPU_8, CPU_12]
         scaler = CostAwareAutoscaler(
             configs=cpu_configs, cooldown_seconds=10, clock=clock,
         )
-        scaler.demand_tracker.record_tokens(TEST_MODEL, 60)  # 1 tok/s
+        scaler.demand_tracker.record_tokens(TEST_MODEL, 60)
         demand = scaler.demand_tracker.get_demand(TEST_MODEL)
         result = scaler.select_optimal_config(TEST_MODEL, demand)
-        assert result.config_id() == "cpu_1"
+        assert result.config_id() == "cpu_4"
 
     # 7.2 ---------------------------------------------------------------
     def test_scales_up_when_demand_increases(self):
-        """When demand exceeds cpu_1 capacity, autoscaler should recommend a higher config."""
+        """When demand exceeds cpu_4 capacity, autoscaler should recommend a higher config."""
         scaler, fake_time = self._make_system()
 
-        # Set initial state: running on cpu_1
-        scaler.current_config[TEST_MODEL] = CPU_1
+        # Set initial state: running on cpu_4
+        scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
-        # Simulate high token load within the window
-        # 600 tokens in 60s window = 10 tok/s → exceeds cpu_1 (4 tok/s)
+        # Simulate high token load — many events to build up EMA
         for i in range(6):
             fake_time[0] = float(i * 5)
             scaler.demand_tracker.record_tokens(TEST_MODEL, 100)
@@ -319,44 +333,44 @@ class TestAutoscalerIntegration:
         fake_time[0] = 30.0
         new_config = scaler.check_scaling(TEST_MODEL)
         assert new_config is not None
-        # Should pick something bigger than cpu_1
+        # Should pick something bigger than cpu_4
         throughput = get_throughput(TEST_MODEL, new_config)
-        assert throughput > get_throughput(TEST_MODEL, CPU_1)
+        assert throughput > get_throughput(TEST_MODEL, CPU_4)
 
     # 7.3 ---------------------------------------------------------------
     def test_scales_down_when_demand_drops(self):
         """After demand drops, autoscaler should recommend scaling back to a cheaper config.
 
-        Uses CPU-only configs so the cost_per_token ordering is cpu_1 < cpu_4 < cpu_8,
+        Uses CPU-only configs so the cost_per_token ordering is cpu_4 < cpu_8 < cpu_12,
         making scale-down behavior clear.
         """
         fake_time = [0.0]
         clock = lambda: fake_time[0]
-        cpu_configs = [CPU_1, CPU_4, CPU_8]
+        cpu_configs = [CPU_4, CPU_8, CPU_12]
         scaler = CostAwareAutoscaler(
             configs=cpu_configs, cooldown_seconds=10, clock=clock,
         )
 
-        # Start on cpu_8
-        scaler.current_config[TEST_MODEL] = CPU_8
+        # Start on cpu_12
+        scaler.current_config[TEST_MODEL] = CPU_12
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
-        # Record very low demand: 30 tokens in 60s = 0.5 tok/s
+        # Record very low demand
         scaler.demand_tracker.record_tokens(TEST_MODEL, 30)
 
         # Advance past cooldown
         fake_time[0] = 15.0
         new_config = scaler.check_scaling(TEST_MODEL)
         assert new_config is not None
-        assert new_config.config_id() == "cpu_1"
+        assert new_config.config_id() == "cpu_4"
 
     # 7.4 ---------------------------------------------------------------
     def test_cooldown_prevents_rapid_oscillation(self):
         """Even if demand changes, scaling should not happen during cooldown."""
         scaler, fake_time = self._make_system(cooldown=10.0)
 
-        # Initial state: cpu_1, just scaled at t=0
-        scaler.current_config[TEST_MODEL] = CPU_1
+        # Initial state: cpu_4, just scaled at t=0
+        scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
         # High demand that would normally trigger scale-up
@@ -374,4 +388,4 @@ class TestAutoscalerIntegration:
         fake_time[0] = 10.0
         result = scaler.check_scaling(TEST_MODEL)
         assert result is not None
-        assert result.config_id() != "cpu_1"
+        assert result.config_id() != "cpu_4"

@@ -3,19 +3,25 @@
 Scaling demo benchmark for thesis.
 
 Starts a CPU-only scaling demo server (cpu_4 → cpu_8 → cpu_12),
-sends real inference requests in phases to trigger vertical scaling
-up and down, collects metrics, and generates a thesis-quality plot.
+sends real inference requests in phases with controlled request rates
+to trigger vertical scaling up and down, collects metrics, and
+generates a thesis-quality 3-panel plot.
 
 Server config: cooldown=300s (5 min), demand_window=60s
 Configs: cpu_4 (12 tok/s), cpu_8 (18 tok/s), cpu_12 (22 tok/s)
 
-Phases (~25 min total):
-  1. Warm-up (2 min): 1 sequential → ~5-9 tok/s on cpu_4
-  2. Medium load (6 min): 2 concurrent → ~13-15 tok/s → scale to cpu_8
-  3. High load (6 min): 4 concurrent → ~25-30 tok/s → scale to cpu_12
-  4. Sustain (2 min): 4 concurrent → stable on cpu_12
-  5. Cool-down (6.5 min): idle → demand drops, cooldown expires
-  6. Low load (2 min): 1 sequential → triggers scale-down to cpu_4
+Rate control: Each phase specifies concurrency AND requests-per-minute
+(rpm). Workers pace themselves so the aggregate rate matches the target.
+Demand (tok/s) ≈ rpm * ~140 tokens / 60 ≈ rpm * 2.33.
+
+Phases (~33 min total):
+  1. Warm-up      (2 min):  1 worker, rpm=2   → ~5 tok/s   (cpu_4 holds)
+  2. Medium load  (7 min):  2 workers, rpm=4  → ~13 tok/s  (>12 → scale to cpu_8)
+  3. High load    (7 min):  3 workers, rpm=9  → ~28 tok/s  (>18 → scale to cpu_12)
+  4. Sustain      (2 min):  3 workers, rpm=9  → stable on cpu_12
+  5. Ramp-down 1  (7 min):  2 workers, rpm=4  → ~13 tok/s  (after cooldown → cpu_8)
+  6. Ramp-down 2  (7 min):  1 worker, rpm=2   → ~5 tok/s   (after cooldown → cpu_4)
+  7. Low load     (1 min):  1 worker, rpm=2   → confirm cpu_4
 
 Usage:
     uv run python benchmarks/scaling_demo.py
@@ -130,15 +136,46 @@ async def _run_phase(
     phase_name: str,
     duration: int,
     concurrency: int = 0,
+    rpm: float = 0,
 ) -> None:
-    log(f"PHASE: {phase_name} ({duration}s, concurrency={concurrency})")
+    """Run a benchmark phase with controlled request rate.
+
+    Args:
+        base_url: Server URL.
+        collector: Metrics collector.
+        phase_name: Name for logging/plotting.
+        duration: Phase duration in seconds.
+        concurrency: Number of parallel workers sending requests.
+        rpm: Target aggregate requests per minute. Each worker paces
+             itself to send at most rpm/concurrency requests per minute.
+             If 0 and concurrency > 0, workers send as fast as possible.
+    """
+    if concurrency > 0 and rpm > 0:
+        # Interval between request *starts* per worker
+        worker_interval = 60.0 * concurrency / rpm
+    else:
+        worker_interval = 0.0
+
+    log(f"PHASE: {phase_name} ({duration}s, workers={concurrency}, "
+        f"rpm={rpm}, interval={worker_interval:.1f}s/worker)")
+
     deadline = time.time() + duration
     stop = asyncio.Event()
 
     async def worker(session: aiohttp.ClientSession) -> None:
         while not stop.is_set() and time.time() < deadline:
+            req_start = time.time()
             await _send_request(session, base_url)
-            await asyncio.sleep(0.1)
+            # Pace: wait until at least worker_interval has passed since
+            # this request started, so we control the *rate* not just the
+            # gap after completion.
+            if worker_interval > 0:
+                elapsed_req = time.time() - req_start
+                wait = max(0, worker_interval - elapsed_req)
+                if wait > 0:
+                    await asyncio.sleep(wait)
+            else:
+                await asyncio.sleep(0.1)
 
     async def monitor() -> None:
         while not stop.is_set() and time.time() < deadline:
@@ -188,8 +225,9 @@ PHASE_COLORS = {
     "medium load": "#fff3e0",
     "high load": "#fce4ec",
     "sustain": "#fce4ec",
-    "cool-down": "#e8f5e9",
-    "scale-down": "#ede7f6",
+    "ramp-down 1": "#e8f5e9",
+    "ramp-down 2": "#ede7f6",
+    "low load": "#e8f4f8",
 }
 
 
@@ -356,30 +394,35 @@ async def main() -> None:
     collector = Collector(start_time=time.time())
 
     try:
-        # Phase 1: warm-up — 1 sequential on cpu_4 (2 min)
+        # Phase 1: warm-up — 1 worker, rpm=2 → ~5 tok/s on cpu_4 (2 min)
         await _run_phase(base_url, collector, "warm-up",
-                         duration=120, concurrency=1)
+                         duration=120, concurrency=1, rpm=2)
 
-        # Phase 2: medium load — 2 concurrent → ~13-15 tok/s → scale to cpu_8 (6 min)
+        # Phase 2: medium load — 2 workers, rpm=4 → ~13 tok/s → scale to cpu_8 (7 min)
         await _run_phase(base_url, collector, "medium load",
-                         duration=360, concurrency=2)
+                         duration=420, concurrency=2, rpm=4)
 
-        # Phase 3: high load — 4 concurrent → ~25-30 tok/s → scale to cpu_12 (6 min)
+        # Phase 3: high load — 3 workers, rpm=9 → ~28 tok/s → scale to cpu_12 (7 min)
         await _run_phase(base_url, collector, "high load",
-                         duration=360, concurrency=4)
+                         duration=420, concurrency=3, rpm=9)
 
         # Phase 4: sustain on cpu_12 (2 min)
         await _run_phase(base_url, collector, "sustain",
-                         duration=120, concurrency=4)
+                         duration=120, concurrency=3, rpm=9)
 
-        # Phase 5: cool-down — no requests (6.5 min = 390s)
-        # demand drains in 60s, then wait 300s cooldown + 30s buffer
-        await _run_phase(base_url, collector, "cool-down",
-                         duration=390, concurrency=0)
+        # Phase 5: ramp-down 1 — 2 workers, rpm=4 → ~13 tok/s
+        # After cooldown (300s), demand < cpu_12 threshold → scale to cpu_8 (7 min)
+        await _run_phase(base_url, collector, "ramp-down 1",
+                         duration=420, concurrency=2, rpm=4)
 
-        # Phase 6: low load — 1 sequential triggers scale-down to cpu_4 (2 min)
-        await _run_phase(base_url, collector, "scale-down",
-                         duration=120, concurrency=1)
+        # Phase 6: ramp-down 2 — 1 worker, rpm=2 → ~5 tok/s
+        # After cooldown (300s), demand < cpu_8 threshold → scale to cpu_4 (7 min)
+        await _run_phase(base_url, collector, "ramp-down 2",
+                         duration=420, concurrency=1, rpm=2)
+
+        # Phase 7: low load — confirm stable on cpu_4 (1 min)
+        await _run_phase(base_url, collector, "low load",
+                         duration=60, concurrency=1, rpm=2)
 
     except KeyboardInterrupt:
         log("Interrupted")

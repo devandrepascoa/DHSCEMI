@@ -105,42 +105,62 @@ def get_cost_per_token(model: str, config: HardwareConfig) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Task 3: DemandTracker Class
+# Task 3: DemandTracker Class (Exponential Moving Average)
 # ---------------------------------------------------------------------------
 
-DEMAND_WINDOW_SECONDS = 60  # 1-minute sliding window for demand
+DEMAND_WINDOW_SECONDS = 300  # 5-minute EMA span
 
 
 class DemandTracker:
-    """Tracks recent token usage to estimate current demand (tokens/second)."""
+    """Tracks demand (tokens/second) using an exponential moving average.
+
+    Each call to record_tokens first decays the current EMA to the
+    present time, then blends in the instantaneous rate implied by the
+    new token batch.  get_demand decays to "now" before returning.
+
+    The ``window_seconds`` parameter controls the EMA span: the half-life
+    is ``window_seconds * ln(2)`` and ``alpha = 2 / (window_seconds + 1)``.
+    A 300 s span gives a smooth 5-minute moving average.
+    """
 
     def __init__(self, window_seconds: int = DEMAND_WINDOW_SECONDS,
                  clock: Optional[Callable[[], float]] = None):
         self.window_seconds = window_seconds
         self.clock = clock or time.time
-        self.token_events: Dict[str, deque] = defaultdict(deque)
+        # alpha controls how fast the EMA reacts.  Smaller alpha → smoother.
+        self.alpha: float = 2.0 / (window_seconds + 1)
+        # Per-model EMA state: (ema_value, last_update_time)
+        self._ema: Dict[str, float] = {}
+        self._last_time: Dict[str, float] = {}
+
+    def _decay(self, model: str, now: float) -> float:
+        """Decay the stored EMA to *now* and return the decayed value."""
+        if model not in self._ema:
+            return 0.0
+        dt = now - self._last_time[model]
+        if dt <= 0:
+            return self._ema[model]
+        # Continuous-time EMA decay: value * (1 - alpha)^dt
+        decay = (1.0 - self.alpha) ** dt
+        val = self._ema[model] * decay
+        self._ema[model] = val
+        self._last_time[model] = now
+        return val
 
     def record_tokens(self, model: str, token_count: int) -> None:
-        """Record a token usage event."""
+        """Record a token usage event and update the EMA."""
         now = self.clock()
-        self.token_events[model].append((now, token_count))
-        self._cleanup_old_events(model)
+        # Decay existing EMA to now
+        current = self._decay(model, now)
+        # Instantaneous rate contribution: tokens arrive as a burst,
+        # so we treat them as token_count tok/s for one "tick".
+        self._ema[model] = current + self.alpha * token_count
+        self._last_time[model] = now
 
     def get_demand(self, model: str) -> float:
-        """Return estimated tokens/second demand for a model."""
-        self._cleanup_old_events(model)
-        events = self.token_events.get(model, [])
-        if not events:
-            return 0.0
-        total_tokens = sum(tokens for _, tokens in events)
-        return total_tokens / self.window_seconds
-
-    def _cleanup_old_events(self, model: str) -> None:
-        """Evict events older than the sliding window."""
-        cutoff = self.clock() - self.window_seconds
-        events = self.token_events[model]
-        while events and events[0][0] < cutoff:
-            events.popleft()
+        """Return the current EMA demand estimate (tokens/second)."""
+        now = self.clock()
+        return self._decay(model, now)
 
 
 # ---------------------------------------------------------------------------
