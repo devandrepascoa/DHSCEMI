@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scaling Demo - Live Plot</title>
+    <meta http-equiv="refresh" content="10">
+    <style>
+        body {
+            margin: 0; padding: 20px;
+            background: #1a1a2e; color: #eee;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        h1 { color: #e94560; margin-bottom: 5px; }
+        .meta { color: #888; font-size: 14px; margin-bottom: 15px; }
+        img {
+            max-width: 100%; border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .footer { color: #555; font-size: 12px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Scaling Demo - Live</h1>
+    <div class="meta">Auto-refreshes every 10 seconds. Last update: <span id="ts"></span></div>
+    <img src="scaling_demo_live.png?t=1770509493" alt="Live Plot">
+    <div class="footer">
+        Expected: cpu_4 → cpu_12 → gpu_25 → gpu_100 → gpu_25 → cpu_12 → cpu_4
+    </div>
+    <script>document.getElementById('ts').textContent = new Date().toLocaleTimeString();</script>
+</body>
+</html>

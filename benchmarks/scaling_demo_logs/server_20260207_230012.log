@@ -1,0 +1,84 @@
+INFO:     Started server process [180631]
+INFO:     Waiting for application startup.
+[SERVER] [INIT] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "model_path": "/home/andrepascoa/IST/Tese/thesis/proxy/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "initial_config": "cpu_4", "configs": ["cpu_4", "cpu_12", "gpu_25", "gpu_100"], "throughputs": {"cpu_4": 32.0, "cpu_12": 47.0, "gpu_25": 147.0, "gpu_100": 1064.0}, "headroom": 0.25, "cooldown_s": 300, "demand_window_s": 180}
+[SERVER] [CONTAINER_START_CMD] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "config_id": "cpu_4", "cmd_tail": "/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf --host 0.0.0.0 --port 8080 --threads 4 --parallel 32 --slots", "full_cmd": ["docker", "run", "--rm", "-d", "--name", "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "-v", "/home/andrepascoa/IST/Tese/thesis/proxy/models:/models:ro", "-p", "49279:8080", "--cpus", "4", "--memory", "8g", "ghcr.io/ggml-org/llama.cpp:full", "--server", "-m", "/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8080", "--threads", "4", "--parallel", "32", "--slots"]}
+[SERVER] [CONTAINER_STARTED] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "docker_id": "fcbf8ed8ec3f"}
+[SERVER] [CONTAINER_READY] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "config_id": "cpu_4", "wait_seconds": 2}
+[SERVER] [INIT_OK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "config": "cpu_4", "container": {"container_name": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "config_id": "cpu_4", "container_type": "cpu", "cpu_cores": 4, "memory": "8g", "gpu_percentage": null, "hourly_cost": 0.05, "image": "ghcr.io/ggml-org/llama.cpp:full", "port": 49279, "parallel": 4, "threads": 4, "n_gpu_layers": 0, "docker_flags": ["--cpus", "4", "--memory", "8g"], "measured_throughput_tps": 32.0, "cost_per_token_micro": 0.434}}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:53163 (Press CTRL+C to quit)
+INFO:     127.0.0.1:36460 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36476 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36486 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36504 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 12.488, "config_id": "cpu_4", "completed_ema_tps": 0.0, "slots_tps": 1.0, "effective_demand_tps": 0.1105, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:51756 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51764 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 22.511, "config_id": "cpu_4", "completed_ema_tps": 0.0, "slots_tps": 1.0, "effective_demand_tps": 0.2093, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:60750 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60764 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 32.649, "config_id": "cpu_4", "completed_ema_tps": 0.0, "slots_tps": 1.0, "effective_demand_tps": 0.2975, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:37910 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37918 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 42.712, "config_id": "cpu_4", "completed_ema_tps": 0.0, "slots_tps": 1.0, "effective_demand_tps": 0.3766, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:45698 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "d1ee72e4", "elapsed_s": 48.3, "config_id": "cpu_4", "wall_ms": 43245.6, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 556.7, "generation_ms": 42684.3, "prompt_ms_per_token": 55.666, "generation_ms_per_token": 166.735, "prompt_tps": 18.0, "generation_tps": 6.0, "ttft_ms": 556.7, "demand_tps": 2.9392, "cost_per_token_micro": 0.434, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "port": 49279, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "raw_timings": {"prompt_n": 10, "prompt_ms": 556.657, "prompt_per_token_ms": 55.6657, "prompt_per_second": 17.964383812653033, "predicted_n": 256, "predicted_ms": 42684.271, "predicted_per_token_ms": 166.73543359375, "predicted_per_second": 5.997525411644022}}
+INFO:     127.0.0.1:36502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45700 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 52.811, "config_id": "cpu_4", "completed_ema_tps": 2.7998, "slots_tps": 1.0, "effective_demand_tps": 0.646, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:53104 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53110 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 62.913, "config_id": "cpu_4", "completed_ema_tps": 2.5027, "slots_tps": 1.0, "effective_demand_tps": 0.8539, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+[SERVER] [REQ_OK] {"req_id": "e4922283", "elapsed_s": 64.9, "config_id": "cpu_4", "wall_ms": 16596.5, "prompt_tokens": 10, "completion_tokens": 98, "total_tokens": 108, "prompt_eval_ms": 491.5, "generation_ms": 16095.8, "prompt_ms_per_token": 49.147, "generation_ms_per_token": 164.243, "prompt_tps": 20.3, "generation_tps": 6.1, "ttft_ms": 491.5, "demand_tps": 3.6375, "cost_per_token_micro": 0.434, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "port": 49279, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "raw_timings": {"prompt_n": 10, "prompt_ms": 491.467, "prompt_per_token_ms": 49.146699999999996, "prompt_per_second": 20.34724610197633, "predicted_n": 98, "predicted_ms": 16095.821, "predicted_per_token_ms": 164.24307142857143, "predicted_per_second": 6.0885368941416536}}
+INFO:     127.0.0.1:36502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38630 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38638 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 72.931, "config_id": "cpu_4", "completed_ema_tps": 3.3291, "slots_tps": 1.0, "effective_demand_tps": 1.1318, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:36006 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36022 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 82.993, "config_id": "cpu_4", "completed_ema_tps": 2.9784, "slots_tps": 1.0, "effective_demand_tps": 1.3412, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:47866 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47882 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 93.141, "config_id": "cpu_4", "completed_ema_tps": 2.6634, "slots_tps": 1.0, "effective_demand_tps": 1.4925, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:43460 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43470 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 103.222, "config_id": "cpu_4", "completed_ema_tps": 2.3793, "slots_tps": 1.0, "effective_demand_tps": 1.5972, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:58470 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "1ef08323", "elapsed_s": 110.2, "config_id": "cpu_4", "wall_ms": 41895.5, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 590.8, "generation_ms": 41300.6, "prompt_ms_per_token": 59.082, "generation_ms_per_token": 161.33, "prompt_tps": 16.9, "generation_tps": 6.2, "ttft_ms": 590.8, "demand_tps": 5.1381, "cost_per_token_micro": 0.434, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "port": 49279, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "raw_timings": {"prompt_n": 10, "prompt_ms": 590.824, "prompt_per_token_ms": 59.08239999999999, "prompt_per_second": 16.92551419712131, "predicted_n": 256, "predicted_ms": 41300.601, "predicted_per_token_ms": 161.33047265625, "predicted_per_second": 6.198457015189682}}
+INFO:     127.0.0.1:36502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58484 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 113.361, "config_id": "cpu_4", "completed_ema_tps": 4.9707, "slots_tps": 1.0, "effective_demand_tps": 1.9763, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:60384 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60400 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 123.423, "config_id": "cpu_4", "completed_ema_tps": 4.4412, "slots_tps": 1.0, "effective_demand_tps": 2.258, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:39220 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39228 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 133.5, "config_id": "cpu_4", "completed_ema_tps": 3.9714, "slots_tps": 1.0, "effective_demand_tps": 2.4576, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:37054 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "d712a6f2", "elapsed_s": 140.4, "config_id": "cpu_4", "wall_ms": 30164.7, "prompt_tokens": 10, "completion_tokens": 172, "total_tokens": 182, "prompt_eval_ms": 469.7, "generation_ms": 29691.1, "prompt_ms_per_token": 46.972, "generation_ms_per_token": 172.623, "prompt_tps": 21.3, "generation_tps": 5.8, "ttft_ms": 469.7, "demand_tps": 5.6858, "cost_per_token_micro": 0.434, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "port": 49279, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "raw_timings": {"prompt_n": 10, "prompt_ms": 469.722, "prompt_per_token_ms": 46.9722, "prompt_per_second": 21.289188072945272, "predicted_n": 172, "predicted_ms": 29691.083, "predicted_per_token_ms": 172.62257558139535, "predicted_per_second": 5.792985052111438}}
+INFO:     127.0.0.1:36502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37060 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 143.523, "config_id": "cpu_4", "completed_ema_tps": 5.4938, "slots_tps": 1.0, "effective_demand_tps": 2.8057, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:50868 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50882 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 153.694, "config_id": "cpu_4", "completed_ema_tps": 4.9149, "slots_tps": 1.0, "effective_demand_tps": 3.049, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:36352 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36360 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 163.766, "config_id": "cpu_4", "completed_ema_tps": 4.3897, "slots_tps": 1.0, "effective_demand_tps": 3.2112, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:60170 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60178 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 173.776, "config_id": "cpu_4", "completed_ema_tps": 3.925, "slots_tps": 1.0, "effective_demand_tps": 3.3069, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:57756 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57766 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "6aca2fae", "elapsed_s": 183.6, "config_id": "cpu_4", "wall_ms": 43199.6, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 448.8, "generation_ms": 42744.4, "prompt_ms_per_token": 44.88, "generation_ms_per_token": 166.97, "prompt_tps": 22.3, "generation_tps": 6.0, "ttft_ms": 448.8, "demand_tps": 6.4573, "cost_per_token_micro": 0.434, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-49279", "port": 49279, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "raw_timings": {"prompt_n": 10, "prompt_ms": 448.802, "prompt_per_token_ms": 44.8802, "prompt_per_second": 22.281540634845655, "predicted_n": 256, "predicted_ms": 42744.389, "predicted_per_token_ms": 166.97026953125, "predicted_per_second": 5.9890901704080965}}
+INFO:     127.0.0.1:36502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 184.084, "config_id": "cpu_4", "completed_ema_tps": 6.4458, "slots_tps": 1.0, "effective_demand_tps": 3.6613, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:36588 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 194.208, "config_id": "cpu_4", "completed_ema_tps": 5.7482, "slots_tps": 1.0, "effective_demand_tps": 3.9069, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:42290 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42302 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 204.268, "config_id": "cpu_4", "completed_ema_tps": 5.1366, "slots_tps": 1.0, "effective_demand_tps": 4.0613, "processing_slots": 1, "total_slots": 32, "active_requests": 1}
+INFO:     127.0.0.1:40028 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40038 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 214.344, "config_id": "cpu_4", "completed_ema_tps": 4.5934, "slots_tps": 1.0, "effective_demand_tps": 4.1387, "processing_slots": 1, "total_slots": 32, "active_requests": 1}

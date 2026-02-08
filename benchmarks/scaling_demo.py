@@ -620,11 +620,19 @@ async def main() -> None:
         "demand_window_s": 180,
     })
 
+    # Write server output to a separate log file instead of a pipe.
+    # Piping stdout causes the server to freeze once the 64KB buffer fills
+    # because nobody drains it during the run.
+    server_log_path = OUT_DIR.parent / "scaling_demo_logs" / f"server_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    server_log_path.parent.mkdir(parents=True, exist_ok=True)
+    server_log_file = open(server_log_path, "w")
+    log(f"Server log → {server_log_path}")
+
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn",
          "benchmarks.scaling_demo_server:app",
          "--host", "0.0.0.0", "--port", str(port)],
-        env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        env=env, stdout=server_log_file, stderr=subprocess.STDOUT,
     )
 
     log(f"Server PID={proc.pid}, waiting for health...")
@@ -644,16 +652,20 @@ async def main() -> None:
         except Exception:
             pass
         if proc.poll() is not None:
-            stdout = proc.stdout.read().decode() if proc.stdout else ""
-            log(f"Server died:\n{stdout}")
+            server_log_file.flush()
+            tail = Path(server_log_path).read_text()[-2000:]
+            log(f"Server died (see {server_log_path}):\n{tail}")
+            server_log_file.close()
             return
         await asyncio.sleep(3)
 
     if not healthy:
-        stdout = proc.stdout.read().decode() if proc.stdout else ""
+        server_log_file.flush()
+        tail = Path(server_log_path).read_text()[-2000:]
         proc.kill()
         proc.wait()
-        log(f"Server not healthy in {SERVER_STARTUP_TIMEOUT}s:\n{stdout}")
+        log(f"Server not healthy in {SERVER_STARTUP_TIMEOUT}s (see {server_log_path}):\n{tail}")
+        server_log_file.close()
         return
 
     log(f"Server healthy at {base_url}")
@@ -680,6 +692,9 @@ async def main() -> None:
         except subprocess.TimeoutExpired:
             proc.kill()
             proc.wait()
+
+        server_log_file.close()
+        log(f"Server log saved to {server_log_path}")
 
         # Clean up leftover containers
         result = subprocess.run(
