@@ -17,16 +17,13 @@ Configs (measured throughput):
   gpu_25:  147 tok/s ($0.50/hr, 0.94 μ$/tok)
   gpu_100: 1064 tok/s ($4.00/hr, 1.04 μ$/tok)
 
-Phases (~2h total, matching simulation):
+Phases (~1.5h total):
   1. low load     (15 min): 1 worker, rpm=3   → ~7 tok/s   (cpu_4)
   2. medium load  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
   3. high load    (15 min): 8 workers, saturated → ~123 tok/s (→ gpu_25)
-  4. peak load    (15 min): 30 workers, saturated → ~400 tok/s (→ gpu_100)
-  5. sustain gpu  (10 min): 30 workers, saturated → sustain gpu_100
-  6. ramp-down 1  (15 min): 4 workers, rpm=43  → ~100 tok/s (→ gpu_25)
-  7. ramp-down 2  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
-  8. ramp-down 3  (15 min): 1 worker, rpm=3   → ~7 tok/s   (→ cpu_4)
-  9. low load     (10 min): 1 worker, rpm=3   → settle cpu_4
+  4. ramp-down 1  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  5. ramp-down 2  (15 min): 1 worker, rpm=3   → ~7 tok/s   (→ cpu_4)
+  6. low load     (10 min): 1 worker, rpm=3   → settle cpu_4
 
 Usage:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
@@ -92,15 +89,13 @@ PHASE_COLORS = {
 
 # Phases matching the simulation (benchmarks/scaling_simulation.py)
 PHASES = [
-    ("low load",       900,  1,   3),    # ~7 tok/s, stays on cpu_4
-    ("medium load",    900,  4,  15),    # ~35 tok/s, triggers cpu_12
-    ("high load",      900,  8,   0),    # saturated ~123 tok/s, triggers gpu_25
-    ("peak load",      900, 30,   0),    # saturated ~400 tok/s, triggers gpu_100
-    ("sustain gpu",    600, 30,   0),    # sustain on gpu_100
-    ("ramp-down 1",    900,  4,  43),    # ~100 tok/s, triggers gpu_25
-    ("ramp-down 2",    900,  4,  15),    # ~35 tok/s, triggers cpu_12
-    ("ramp-down 3",    900,  1,   3),    # ~7 tok/s, triggers cpu_4
-    ("low load",       600,  1,   3),    # settle on cpu_4
+    ("low load",       900,  1,   3),
+    ("medium load",    900,  2,  15),
+    ("medium load",    900,  4,  15),
+    ("high load",      900,  8,   0),
+    ("ramp-down 1",    900,  4,  15),
+    ("ramp-down 2",    900,  2,  15),
+    ("ramp-down 3",    900,  1,   3),
 ]
 
 EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "gpu_100", "gpu_25", "cpu_12", "cpu_4"]
@@ -274,7 +269,7 @@ def _record(collector: Collector, status: Dict, phase: str) -> None:
 
     config_id = model_info.get("config_id", "?")
     demand = model_info.get("demand_tps", 0)
-    throughput = model_info.get("throughput_tps", 0)
+    throughput = model_info.get("throughput_ema", model_info.get("throughput_tps", 0))
     cost = model_info.get("hourly_cost", 0)
     active = model_info.get("active_requests", 0)
     total = model_info.get("total_requests", 0)
@@ -314,7 +309,7 @@ def _record(collector: Collector, status: Dict, phase: str) -> None:
         "elapsed_s": round(sample.elapsed, 1),
         "config_id": config_id,
         "demand_tps": round(demand, 4),
-        "throughput_tps": throughput,
+        "throughput_ema": throughput,
         "hourly_cost": cost,
         "active_requests": active,
         "total_requests": total,
@@ -324,6 +319,8 @@ def _record(collector: Collector, status: Dict, phase: str) -> None:
         "memory": model_info.get("memory"),
         "port": model_info.get("port"),
         "is_ready": model_info.get("is_ready"),
+        "capacity": model_info.get("capacity", 0),
+        "ema_pct": model_info.get("ema_pct", 0),
         "server_uptime": status.get("server_uptime_seconds", 0),
     })
 
@@ -598,6 +595,7 @@ async def main() -> None:
     env = os.environ.copy()
     env["E2E_MODEL_NAME"] = MODEL
     env["E2E_MODELS_DIR"] = str(Path("models").resolve())
+    env["E2E_INITIAL_CONFIG"] = "cpu_4"
 
     total_duration = sum(p[1] for p in PHASES)
 

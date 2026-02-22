@@ -69,39 +69,19 @@ HARDWARE_CONFIGS: List[HardwareConfig] = [
     HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=2.00),
 ]
 
-# Default throughput by config_id (tokens/second)
-DEFAULT_THROUGHPUT: Dict[str, float] = {
-    "cpu_4": 12.0,
-    "cpu_8": 18.0,
-    "cpu_12": 22.0,
-    "gpu_50": 50.0,
-    "gpu_100": 100.0,
-}
-
 
 # ---------------------------------------------------------------------------
-# Task 2: Throughput and Cost Functions
+# Task 2: Cost Functions (No Hardcoded Throughputs)
 # ---------------------------------------------------------------------------
-
-# Optional per-model overrides (model_name -> config_id -> throughput)
-MODEL_THROUGHPUT_OVERRIDES: Dict[str, Dict[str, float]] = {}
-
-
-def get_throughput(model: str, config: HardwareConfig) -> float:
-    """Get tokens/second. Checks model-specific overrides first, then defaults."""
-    config_id = config.config_id()
-    if model in MODEL_THROUGHPUT_OVERRIDES:
-        if config_id in MODEL_THROUGHPUT_OVERRIDES[model]:
-            return MODEL_THROUGHPUT_OVERRIDES[model][config_id]
-    return DEFAULT_THROUGHPUT.get(config_id, 1.0)
 
 
 def get_cost_per_token(model: str, config: HardwareConfig) -> float:
-    """Cost per token = hourly_cost / (throughput * 3600). Returns inf if throughput <= 0."""
-    throughput = get_throughput(model, config)
-    if throughput <= 0:
-        return float('inf')
-    return config.hourly_cost / (throughput * 3600)
+    """Cost per token based purely on hourly cost. 
+    
+    Since we don't know throughput capacity, we use hourly cost as a proxy.
+    Lower cost configs are preferred when they can handle the load.
+    """
+    return config.hourly_cost
 
 
 # ---------------------------------------------------------------------------
@@ -216,44 +196,42 @@ class CostAwareAutoscaler:
         return None
 
     def select_optimal_config(self, model: str, demand: float,
-                              current: Optional[HardwareConfig] = None) -> HardwareConfig:
-        """Select config with lowest cost_per_token that can handle demand.
+                              current: Optional[HardwareConfig] = None,
+                              is_saturated: bool = False) -> HardwareConfig:
+        """Select config based on cost and saturation, without hardcoded throughputs.
 
-        Uses asymmetric hysteresis to prevent oscillation:
-        - Scale UP requires headroom: demand * (1 + headroom) must fit
-        - Scale DOWN uses raw demand: cheaper config just needs to handle demand
-        - Current config stays if it can handle demand with headroom
-
-        This means it's harder to scale up (need extra capacity margin)
-        but easy to scale down when demand genuinely drops.
+        Logic:
+        - If saturated: try next more expensive config (scale up)
+        - If not saturated: try cheaper configs (scale down)
+        - Configs are ordered by hourly cost (cheapest first)
         """
-        required_with_headroom = demand * (1.0 + self.headroom)
-
-        # Find configs viable with headroom (for staying or scaling up)
-        viable_headroom = [c for c in self.configs
-                           if get_throughput(model, c) >= required_with_headroom]
-
-        # Find configs viable with raw demand (for scaling down)
-        viable_raw = [c for c in self.configs
-                      if get_throughput(model, c) >= demand]
-
-        if not viable_raw:
-            return max(self.configs, key=lambda c: get_throughput(model, c))
-
-        # If current config is viable with headroom, only consider configs
-        # that are also viable with headroom AND cheaper (prevents oscillation)
-        if current is not None and current in viable_headroom:
-            # Current is comfortably handling load. Only switch to something
-            # cheaper that can also handle load with headroom.
-            cheaper_viable = [c for c in viable_headroom
-                              if get_cost_per_token(model, c) < get_cost_per_token(model, current)]
-            if cheaper_viable:
-                return min(cheaper_viable, key=lambda c: get_cost_per_token(model, c))
-            return current
-
-        # Current config can't handle load with headroom (or no current).
-        # Pick cheapest that can handle raw demand.
-        return min(viable_raw, key=lambda c: get_cost_per_token(model, c))
+        # Sort configs by cost (cheapest first)
+        configs_by_cost = sorted(self.configs, key=lambda c: c.hourly_cost)
+        
+        if current is None:
+            # No current config, start with cheapest
+            return configs_by_cost[0]
+        
+        try:
+            current_idx = configs_by_cost.index(current)
+        except ValueError:
+            # Current config not in list, start with cheapest
+            return configs_by_cost[0]
+        
+        if is_saturated:
+            # Scale up: try next more expensive config
+            if current_idx + 1 < len(configs_by_cost):
+                return configs_by_cost[current_idx + 1]
+            else:
+                # Already on most expensive config, stay there
+                return current
+        else:
+            # Not saturated: try cheaper config (scale down)
+            if current_idx > 0:
+                return configs_by_cost[current_idx - 1]
+            else:
+                # Already on cheapest config, stay there
+                return current
 
     def check_scaling(self, model: str) -> Optional[HardwareConfig]:
         """Check if scaling is needed, respecting cooldown."""
@@ -365,7 +343,6 @@ class CostAwareAutoscaler:
             cost_per_tok = (
                 get_cost_per_token(name, config) if config else 0.0
             )
-            throughput = get_throughput(name, config) if config else 0.0
 
             models_status[name] = {
                 "config_id": config.config_id() if config else "unknown",
@@ -375,7 +352,6 @@ class CostAwareAutoscaler:
                 "memory": config.memory if config else None,
                 "hourly_cost": config.hourly_cost if config else 0.0,
                 "image": config.image if config else "unknown",
-                "throughput_tps": round(throughput, 2),
                 "demand_tps": round(demand, 4),
                 "cost_per_token": round(cost_per_tok, 10),
                 "active_requests": container.active_requests,
