@@ -1,0 +1,38 @@
+INFO:     Started server process [208869]
+INFO:     Waiting for application startup.
+[SERVER] [INIT] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "model_path": "/home/andrepascoa/IST/Tese/thesis/proxy/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "initial_config": "cpu_12", "configs": ["cpu_4", "cpu_12", "gpu_25", "gpu_100"], "scale_up_mult": 0.8, "scale_down_mult": 0.3, "ema_alpha": 0.008299, "cooldown_s": 300, "measured_throughput": {"cpu_4": 32.0, "cpu_12": 47.0, "gpu_25": 147.0, "gpu_100": 1064.0}}
+[SERVER] [CONTAINER_START_CMD] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-44373", "config_id": "cpu_12", "full_cmd": ["docker", "run", "--rm", "-d", "--name", "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-44373", "-v", "/home/andrepascoa/IST/Tese/thesis/proxy/models:/models:ro", "-p", "44373:8080", "--cpus", "12", "--memory", "8g", "ghcr.io/ggml-org/llama.cpp:full", "--server", "-m", "/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8080", "--threads", "12", "--parallel", "32", "--metrics"]}
+[SERVER] [CONTAINER_STARTED] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-44373", "docker_id": "6ceaf4377bf9"}
+[SERVER] [CONTAINER_READY] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-44373", "config_id": "cpu_12", "wait_seconds": 20}
+[SERVER] [INIT_OK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "config": "cpu_12", "container": {"container_name": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-44373", "config_id": "cpu_12", "container_type": "cpu", "cpu_cores": 12, "memory": "8g", "gpu_percentage": null, "hourly_cost": 0.12, "image": "ghcr.io/ggml-org/llama.cpp:full", "port": 44373, "parallel": 32, "threads": 12, "n_gpu_layers": 0, "docker_flags": ["--cpus", "12", "--memory", "8g"], "measured_throughput_tps": 47.0, "cost_per_token_micro": 120000.0}}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:50463 (Press CTRL+C to quit)
+ERROR:    Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 701, in lifespan
+    await receive()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+  File "/usr/lib/python3.10/asyncio/queues.py", line 159, in get
+    await getter
+asyncio.exceptions.CancelledError
+

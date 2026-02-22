@@ -1,0 +1,614 @@
+INFO:     Started server process [209163]
+INFO:     Waiting for application startup.
+[SERVER] [INIT] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "model_path": "/home/andrepascoa/IST/Tese/thesis/proxy/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "initial_config": "cpu_12", "configs": ["cpu_4", "cpu_12", "gpu_25", "gpu_100"], "scale_up_mult": 0.8, "scale_down_mult": 0.3, "ema_alpha": 0.008299, "cooldown_s": 300, "measured_throughput": {"cpu_4": 32.0, "cpu_12": 47.0, "gpu_25": 147.0, "gpu_100": 1064.0}}
+[SERVER] [CONTAINER_START_CMD] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "config_id": "cpu_12", "full_cmd": ["docker", "run", "--rm", "-d", "--name", "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "-v", "/home/andrepascoa/IST/Tese/thesis/proxy/models:/models:ro", "-p", "51241:8080", "--cpus", "12", "--memory", "8g", "ghcr.io/ggml-org/llama.cpp:full", "--server", "-m", "/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8080", "--threads", "12", "--parallel", "32", "--metrics"]}
+[SERVER] [CONTAINER_STARTED] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "docker_id": "e8bc00504096"}
+[SERVER] [CONTAINER_READY] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "config_id": "cpu_12", "wait_seconds": 14}
+[SERVER] [INIT_OK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "config": "cpu_12", "container": {"container_name": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "config_id": "cpu_12", "container_type": "cpu", "cpu_cores": 12, "memory": "8g", "gpu_percentage": null, "hourly_cost": 0.12, "image": "ghcr.io/ggml-org/llama.cpp:full", "port": 51241, "parallel": 32, "threads": 12, "n_gpu_layers": 0, "docker_flags": ["--cpus", "12", "--memory", "8g"], "measured_throughput_tps": 47.0, "cost_per_token_micro": 120000.0}}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:35575 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33008 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33010 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33082 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48350 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 24.449, "config_id": "cpu_12", "throughput_ema": 0.0, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:48366 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:36158 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 34.45, "config_id": "cpu_12", "throughput_ema": 0.0, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:36160 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:52314 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 44.45, "config_id": "cpu_12", "throughput_ema": 0.0159, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:52322 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:35286 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 54.45, "config_id": "cpu_12", "throughput_ema": 0.0146, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:35300 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:48298 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 64.451, "config_id": "cpu_12", "throughput_ema": 0.0135, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:48300 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:32986 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 74.451, "config_id": "cpu_12", "throughput_ema": 0.0124, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:33000 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:45684 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 84.451, "config_id": "cpu_12", "throughput_ema": 0.0114, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.0, "scale_up_threshold": 37.6, "active_requests": 8}
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:45688 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45158 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 94.451, "config_id": "cpu_12", "throughput_ema": 0.0747, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.2, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:45166 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:41052 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 104.452, "config_id": "cpu_12", "throughput_ema": 0.1308, "streaming_tps": 0.0, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.3, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:41064 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [METRICS_POLL_EXCEPTION] {"port": 51241, "error": ""}
+INFO:     127.0.0.1:52786 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 114.452, "config_id": "cpu_12", "throughput_ema": 0.2484, "streaming_tps": 7.9935, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 0.5, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:52792 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46660 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 124.452, "config_id": "cpu_12", "throughput_ema": 3.0999, "streaming_tps": 15.986, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 6.6, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:46666 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42812 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "88829d22", "elapsed_s": 133.8, "config_id": "cpu_12", "wall_ms": 116741.7, "prompt_tokens": 10, "completion_tokens": 101, "total_tokens": 111, "prompt_eval_ms": 50846.6, "generation_ms": 44953.6, "prompt_ms_per_token": 5084.657, "generation_ms_per_token": 445.085, "prompt_tps": 0.2, "generation_tps": 2.2, "ttft_ms": 50846.6, "throughput_ema": 6.1026, "cost_per_token_micro": 120000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "port": 51241, "raw_timings": {"prompt_n": 10, "prompt_ms": 50846.57, "prompt_per_token_ms": 5084.657, "prompt_per_second": 0.19667009987104342, "predicted_n": 101, "predicted_ms": 44953.554, "predicted_per_token_ms": 445.0846930693069, "predicted_per_second": 2.246763403845667}}
+INFO:     127.0.0.1:33070 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 134.452, "config_id": "cpu_12", "throughput_ema": 6.1026, "streaming_tps": 31.9826, "predicted_tps_gauge": 0.0, "capacity": 47.0, "ema_pct_of_capacity": 13.0, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:42824 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38838 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 144.453, "config_id": "cpu_12", "throughput_ema": 7.4628, "streaming_tps": 15.996, "predicted_tps_gauge": 2.2468, "capacity": 47.0, "ema_pct_of_capacity": 15.9, "scale_up_threshold": 37.6, "active_requests": 8}
+[SERVER] [REQ_OK] {"req_id": "7a93630f", "elapsed_s": 145.2, "config_id": "cpu_12", "wall_ms": 128160.0, "prompt_tokens": 10, "completion_tokens": 135, "total_tokens": 145, "prompt_eval_ms": 50847.7, "generation_ms": 56365.7, "prompt_ms_per_token": 5084.767, "generation_ms_per_token": 417.524, "prompt_tps": 0.2, "generation_tps": 2.4, "ttft_ms": 50847.7, "throughput_ema": 7.6001, "cost_per_token_micro": 120000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_12-51241", "port": 51241, "raw_timings": {"prompt_n": 10, "prompt_ms": 50847.673, "prompt_per_token_ms": 5084.7673, "prompt_per_second": 0.19666583365575058, "predicted_n": 135, "predicted_ms": 56365.729, "predicted_per_token_ms": 417.52391851851854, "predicted_per_second": 2.3950723674664087}}
+INFO:     127.0.0.1:33028 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38840 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45620 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 154.454, "config_id": "cpu_12", "throughput_ema": 9.8084, "streaming_tps": 39.9815, "predicted_tps_gauge": 2.3293, "capacity": 47.0, "ema_pct_of_capacity": 20.9, "scale_up_threshold": 37.6, "active_requests": 8}
+INFO:     127.0.0.1:45636 - "GET /status HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for connections to close. (CTRL+C to force quit)
+INFO:     Finished server process [209163]
+ERROR:    Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 701, in lifespan
+    await receive()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+  File "/usr/lib/python3.10/asyncio/queues.py", line 159, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33020 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33060 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33048 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33084 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33070 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33028 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33052 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+  File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 70, in serve
+    with self.capture_signals():
+  File "/usr/lib/python3.10/contextlib.py", line 142, in __exit__
+    next(self.gen)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/server.py", line 331, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/fastapi/routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/benchmarks/scaling_demo_server.py", line 766, in chat_completions
+    async for raw_line in resp.content:
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 52, in __anext__
+    rv = await self.read_func()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 352, in readline
+    return await self.readuntil()
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 386, in readuntil
+    await self._wait("readuntil")
+  File "/home/andrepascoa/IST/Tese/thesis/proxy/.venv/lib/python3.10/site-packages/aiohttp/streams.py", line 347, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+INFO:     127.0.0.1:33034 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
