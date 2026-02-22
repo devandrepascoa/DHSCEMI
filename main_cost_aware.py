@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import subprocess
 import time
 import uuid
@@ -62,85 +63,112 @@ class HardwareConfig:
 
 # Available hardware configurations (ordered from cheapest to most expensive)
 HARDWARE_CONFIGS: List[HardwareConfig] = [
-    HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.40),
-    HardwareConfig(cpu_cores=8, memory="16g", hourly_cost=0.80),
-    HardwareConfig(cpu_cores=12, memory="24g", hourly_cost=1.20),
-    HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=50, hourly_cost=1.00),
-    HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=2.00),
+    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
+    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
+    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
+    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
 ]
 
 
 # ---------------------------------------------------------------------------
-# Task 2: Cost Functions (No Hardcoded Throughputs)
+# Task 2: Measured Throughputs and Cost Functions
 # ---------------------------------------------------------------------------
+
+# Measured aggregate throughput per config (from RTX 3060 benchmarks)
+MEASURED_THROUGHPUT: Dict[str, float] = {
+    "cpu_4":   32.0,
+    "cpu_12":  47.0,
+    "gpu_25":  147.0,
+    "gpu_100": 1064.0,
+}
+
+# Scaling thresholds
+SCALE_UP_MULT = 0.8           # scale up at 80% of current capacity
+SCALE_DOWN_MULT = 0.3         # scale down when <= 30% of current capacity
+METRICS_POLL_INTERVAL = 1.0   # poll /metrics every 1s
+SCALING_CHECK_INTERVAL = 10   # check scaling every 10s
+EMA_ALPHA = 2.0 / (240 + 1)  # ~4min EMA window
+
+# Regex patterns for prometheus metrics from llama.cpp /metrics endpoint
+_RE_PREDICTED = re.compile(
+    r'^llamacpp:tokens_predicted_total\s+(\d+(?:\.\d+)?)', re.MULTILINE
+)
+_RE_PROMPT = re.compile(
+    r'^llamacpp:prompt_tokens_total\s+(\d+(?:\.\d+)?)', re.MULTILINE
+)
 
 
 def get_cost_per_token(model: str, config: HardwareConfig) -> float:
-    """Cost per token based purely on hourly cost. 
-    
-    Since we don't know throughput capacity, we use hourly cost as a proxy.
-    Lower cost configs are preferred when they can handle the load.
-    """
-    return config.hourly_cost
+    """Cost per token = hourly_cost / (throughput * 3600). Returns inf if throughput <= 0."""
+    throughput = MEASURED_THROUGHPUT.get(config.config_id(), 1.0)
+    if throughput <= 0:
+        return float('inf')
+    return config.hourly_cost / (throughput * 3600)
 
 
 # ---------------------------------------------------------------------------
-# Task 3: DemandTracker Class (Exponential Moving Average)
+# Task 3: Throughput EMA Tracker (from /metrics polling)
 # ---------------------------------------------------------------------------
 
-DEMAND_WINDOW_SECONDS = 300  # 5-minute EMA span
 
+class ThroughputTracker:
+    """Tracks throughput (tokens/second) using an exponential moving average
+    fed by polling llama.cpp's /metrics endpoint.
 
-class DemandTracker:
-    """Tracks demand (tokens/second) using an exponential moving average.
-
-    Each call to record_tokens first decays the current EMA to the
-    present time, then blends in the instantaneous rate implied by the
-    new token batch.  get_demand decays to "now" before returning.
-
-    The ``window_seconds`` parameter controls the EMA span: the half-life
-    is ``window_seconds * ln(2)`` and ``alpha = 2 / (window_seconds + 1)``.
-    A 300 s span gives a smooth 5-minute moving average.
+    The EMA uses time-corrected decay: value * (1 - alpha)^dt, where
+    alpha = 2 / (window + 1) with a ~4min window.
     """
 
-    def __init__(self, window_seconds: int = DEMAND_WINDOW_SECONDS,
-                 clock: Optional[Callable[[], float]] = None):
-        self.window_seconds = window_seconds
-        self.clock = clock or time.time
-        # alpha controls how fast the EMA reacts.  Smaller alpha → smoother.
-        self.alpha: float = 2.0 / (window_seconds + 1)
-        # Per-model EMA state: (ema_value, last_update_time)
+    def __init__(self, alpha: float = EMA_ALPHA):
+        self.alpha = alpha
         self._ema: Dict[str, float] = {}
         self._last_time: Dict[str, float] = {}
+        # /metrics polling state
+        self._prev_total_tokens: Dict[str, float] = {}
+        self._prev_metrics_time: Dict[str, float] = {}
+        # Streaming token counter (incremented in real-time as tokens arrive)
+        self._streaming_count: Dict[str, int] = {}
+        self._prev_streaming_count: Dict[str, int] = {}
+        self._prev_streaming_time: Dict[str, float] = {}
+        # After scaling, wait for first token before resuming EMA
+        self._waiting_for_first_token: Dict[str, bool] = {}
 
-    def _decay(self, model: str, now: float) -> float:
-        """Decay the stored EMA to *now* and return the decayed value."""
+    def update_ema(self, model: str, tps: float, now: float) -> float:
+        """Update throughput EMA and return current value."""
         if model not in self._ema:
-            return 0.0
-        dt = now - self._last_time[model]
+            self._ema[model] = tps
+            self._last_time[model] = now
+            return tps
+
+        dt = now - self._last_time.get(model, now)
         if dt <= 0:
-            return self._ema[model]
-        # Continuous-time EMA decay: value * (1 - alpha)^dt
+            return self._ema.get(model, 0.0)
+
         decay = (1.0 - self.alpha) ** dt
-        val = self._ema[model] * decay
-        self._ema[model] = val
+        self._ema[model] = self._ema[model] * decay + (1.0 - decay) * tps
         self._last_time[model] = now
-        return val
+        return self._ema[model]
 
-    def record_tokens(self, model: str, token_count: int) -> None:
-        """Record a token usage event and update the EMA."""
-        now = self.clock()
-        # Decay existing EMA to now
-        current = self._decay(model, now)
-        # Instantaneous rate contribution: tokens arrive as a burst,
-        # so we treat them as token_count tok/s for one "tick".
-        self._ema[model] = current + self.alpha * token_count
-        self._last_time[model] = now
+    def get_ema(self, model: str) -> float:
+        """Return the current EMA value."""
+        return self._ema.get(model, 0.0)
 
-    def get_demand(self, model: str) -> float:
-        """Return the current EMA demand estimate (tokens/second)."""
-        now = self.clock()
-        return self._decay(model, now)
+    def record_streaming_tokens(self, model: str, count: int) -> None:
+        """Increment the streaming token counter."""
+        if model not in self._streaming_count:
+            self._streaming_count[model] = 0
+        self._streaming_count[model] += count
+
+    def reset_model(self, model: str) -> None:
+        """Reset all tracking state for a model (after scaling)."""
+        self._ema.pop(model, None)
+        self._last_time.pop(model, None)
+        self._prev_total_tokens.pop(model, None)
+        self._prev_metrics_time.pop(model, None)
+        self._streaming_count.pop(model, None)
+        self._prev_streaming_count.pop(model, None)
+        self._prev_streaming_time.pop(model, None)
+        self._waiting_for_first_token[model] = True
 
 
 # ---------------------------------------------------------------------------
@@ -151,8 +179,41 @@ COOLDOWN_SECONDS = 300          # 5 minutes between scaling actions
 MAX_DRAIN_TIMEOUT_SECONDS = 60  # Max wait for in-flight requests during scaling
 
 
+def select_config(
+    current_config: HardwareConfig,
+    throughput_ema: float,
+    configs_by_cost: List[HardwareConfig],
+) -> HardwareConfig:
+    """Select config based on throughput EMA vs measured capacity thresholds.
+
+    Scale UP:   throughput_ema >= SCALE_UP_MULT * capacity[current]
+    Scale DOWN: throughput_ema <= SCALE_DOWN_MULT * capacity[current]
+                AND throughput_ema <= 0.75 * capacity[cheaper]
+    """
+    current_id = current_config.config_id()
+    current_idx = next(
+        i for i, c in enumerate(configs_by_cost) if c.config_id() == current_id
+    )
+    current_capacity = MEASURED_THROUGHPUT.get(current_id, 1.0)
+
+    # Check scale UP
+    if throughput_ema >= SCALE_UP_MULT * current_capacity:
+        if current_idx + 1 < len(configs_by_cost):
+            return configs_by_cost[current_idx + 1]
+
+    # Check scale DOWN: only if underusing current AND cheaper can handle it
+    if current_idx > 0:
+        cheaper = configs_by_cost[current_idx - 1]
+        cheaper_capacity = MEASURED_THROUGHPUT.get(cheaper.config_id(), 1.0)
+        if (throughput_ema <= SCALE_DOWN_MULT * current_capacity
+                and throughput_ema <= 0.75 * cheaper_capacity):
+            return cheaper
+
+    return current_config
+
+
 class CostAwareAutoscaler:
-    """Makes scaling decisions based on cost-per-token optimization."""
+    """Makes scaling decisions based on throughput EMA vs measured capacity."""
 
     def __init__(
         self,
@@ -163,17 +224,19 @@ class CostAwareAutoscaler:
         headroom: float = 0.0,
     ):
         self.configs = configs
+        self.configs_by_cost = sorted(configs, key=lambda c: c.hourly_cost)
         self.cooldown_seconds = cooldown_seconds
         self.clock = clock or time.time
         self.models_dir = Path(models_dir).resolve()
         self.headroom = headroom
 
-        self.demand_tracker = DemandTracker(clock=self.clock)
+        self.throughput_tracker = ThroughputTracker()
         self.current_config: Dict[str, HardwareConfig] = {}
         self.last_scale_time: Dict[str, float] = {}
         self.containers: Dict[str, Container] = {}
         self.used_ports: set = set()
         self.lock = asyncio.Lock()
+        self.scaling_in_progress: bool = False
 
     def _get_port(self) -> int:
         """Get an available port."""
@@ -195,43 +258,12 @@ class CostAwareAutoscaler:
                 return f
         return None
 
-    def select_optimal_config(self, model: str, demand: float,
-                              current: Optional[HardwareConfig] = None,
-                              is_saturated: bool = False) -> HardwareConfig:
-        """Select config based on cost and saturation, without hardcoded throughputs.
-
-        Logic:
-        - If saturated: try next more expensive config (scale up)
-        - If not saturated: try cheaper configs (scale down)
-        - Configs are ordered by hourly cost (cheapest first)
-        """
-        # Sort configs by cost (cheapest first)
-        configs_by_cost = sorted(self.configs, key=lambda c: c.hourly_cost)
-        
+    def select_optimal_config(self, model: str, ema: float,
+                              current: Optional[HardwareConfig] = None) -> HardwareConfig:
+        """Select config based on throughput EMA vs measured capacity thresholds."""
         if current is None:
-            # No current config, start with cheapest
-            return configs_by_cost[0]
-        
-        try:
-            current_idx = configs_by_cost.index(current)
-        except ValueError:
-            # Current config not in list, start with cheapest
-            return configs_by_cost[0]
-        
-        if is_saturated:
-            # Scale up: try next more expensive config
-            if current_idx + 1 < len(configs_by_cost):
-                return configs_by_cost[current_idx + 1]
-            else:
-                # Already on most expensive config, stay there
-                return current
-        else:
-            # Not saturated: try cheaper config (scale down)
-            if current_idx > 0:
-                return configs_by_cost[current_idx - 1]
-            else:
-                # Already on cheapest config, stay there
-                return current
+            return self.configs_by_cost[0]
+        return select_config(current, ema, self.configs_by_cost)
 
     def check_scaling(self, model: str) -> Optional[HardwareConfig]:
         """Check if scaling is needed, respecting cooldown."""
@@ -240,9 +272,13 @@ class CostAwareAutoscaler:
         if now - last_scale < self.cooldown_seconds:
             return None
 
+        # Don't scale while waiting for first token after previous scale
+        if self.throughput_tracker._waiting_for_first_token.get(model, False):
+            return None
+
         current = self.current_config.get(model)
-        demand = self.demand_tracker.get_demand(model)
-        optimal = self.select_optimal_config(model, demand, current=current)
+        ema = self.throughput_tracker.get_ema(model)
+        optimal = self.select_optimal_config(model, ema, current=current)
 
         if current is None or optimal.config_id() != current.config_id():
             return optimal
@@ -264,31 +300,32 @@ class CostAwareAutoscaler:
             port = self._get_port()
             new_container = Container(model, model_path, new_config, port)
 
+            # Stop old container first, then start new one
+            if old_container:
+                await old_container.stop()
+
             if not await new_container.start():
-                logger.error(f"Failed to start new container for {model}, keeping current")
+                logger.error(f"Failed to start new container for {model}")
+                # Try to rollback
+                if old_container:
+                    rollback_port = self._get_port()
+                    rollback = Container(model, model_path,
+                                         self.current_config.get(model, new_config),
+                                         rollback_port)
+                    if await rollback.start():
+                        self.containers[model] = rollback
                 return False
 
             # Swap references
             self.containers[model] = new_container
             self.current_config[model] = new_config
-            self.last_scale_time[model] = self.clock()
+            # Don't start cooldown yet — wait for first token
+            self.throughput_tracker.reset_model(model)
 
             logger.info(
                 f"Scaled {model} to {new_config.config_id()} "
                 f"(cost=${new_config.hourly_cost}/hr)"
             )
-
-            # Drain and stop old container
-            if old_container:
-                deadline = self.clock() + MAX_DRAIN_TIMEOUT_SECONDS
-                while old_container.active_requests > 0 and self.clock() < deadline:
-                    logger.info(
-                        f"Draining {old_container.container_name}: "
-                        f"{old_container.active_requests} active"
-                    )
-                    await asyncio.sleep(1)
-                await old_container.stop()
-
             return True
 
     async def initialize(self) -> None:
@@ -311,22 +348,11 @@ class CostAwareAutoscaler:
                     )
 
     async def get_container(self, model_name: str) -> Optional[Container]:
-        """Get container for a model, checking scaling first."""
+        """Get container for a model."""
         container = self.containers.get(model_name)
         if not container or not container.is_ready:
             return None
-
-        # Check if scaling is needed
-        new_config = self.check_scaling(model_name)
-        if new_config:
-            logger.info(
-                f"Scaling {model_name} from "
-                f"{self.current_config.get(model_name, HardwareConfig()).config_id()} "
-                f"to {new_config.config_id()}"
-            )
-            await self.scale_to(model_name, new_config)
-
-        return self.containers.get(model_name)
+        return container
 
     async def cleanup(self) -> None:
         """Stop all containers."""
@@ -339,20 +365,25 @@ class CostAwareAutoscaler:
         models_status = {}
         for name, container in self.containers.items():
             config = self.current_config.get(name)
-            demand = self.demand_tracker.get_demand(name)
+            config_id = config.config_id() if config else "unknown"
+            ema = self.throughput_tracker.get_ema(name)
+            capacity = MEASURED_THROUGHPUT.get(config_id, 1.0)
             cost_per_tok = (
                 get_cost_per_token(name, config) if config else 0.0
             )
 
             models_status[name] = {
-                "config_id": config.config_id() if config else "unknown",
+                "config_id": config_id,
                 "container_type": config.container_type if config else "unknown",
                 "cpu_cores": config.cpu_cores if config else None,
                 "gpu_percentage": config.gpu_percentage if config else None,
                 "memory": config.memory if config else None,
                 "hourly_cost": config.hourly_cost if config else 0.0,
                 "image": config.image if config else "unknown",
-                "demand_tps": round(demand, 4),
+                "throughput_ema": round(ema, 4),
+                "capacity": capacity,
+                "ema_pct": round(ema / capacity * 100, 1) if capacity > 0 else 0,
+                "scale_up_threshold": round(SCALE_UP_MULT * capacity, 1),
                 "cost_per_token": round(cost_per_tok, 10),
                 "active_requests": container.active_requests,
                 "total_requests": container.total_requests,
@@ -363,8 +394,9 @@ class CostAwareAutoscaler:
         return {
             "models": models_status,
             "cooldown_seconds": self.cooldown_seconds,
-            "demand_window_seconds": self.demand_tracker.window_seconds,
-            "available_configs": [c.config_id() for c in self.configs],
+            "scaling_in_progress": self.scaling_in_progress,
+            "available_configs": [c.config_id() for c in self.configs_by_cost],
+            "measured_throughput": MEASURED_THROUGHPUT,
         }
 
 
@@ -425,6 +457,7 @@ class Container:
             '--port', '8080',
             '--threads', str(threads),
             '--parallel', str(parallel),
+            '--metrics',
         ]
 
         # Add GPU layers flag for GPU configs
@@ -477,6 +510,128 @@ class Container:
 
 
 # ---------------------------------------------------------------------------
+# Background loops: streaming throughput, metrics polling, scaling
+# ---------------------------------------------------------------------------
+
+async def _poll_metrics(container: Container) -> Optional[Dict]:
+    """Poll /metrics endpoint and parse prometheus counters."""
+    try:
+        url = f"http://localhost:{container.port}/metrics"
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=5)
+        ) as session:
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    return None
+                text = await resp.text()
+
+        predicted = 0.0
+        prompt = 0.0
+        m = _RE_PREDICTED.search(text)
+        if m:
+            predicted = float(m.group(1))
+        m = _RE_PROMPT.search(text)
+        if m:
+            prompt = float(m.group(1))
+
+        return {"total_tokens": predicted, "predicted_total": predicted, "prompt_total": prompt}
+    except Exception:
+        return None
+
+
+async def _streaming_throughput_loop(scaler: CostAwareAutoscaler) -> None:
+    """Compute streaming tok/s every METRICS_POLL_INTERVAL from streaming token counter."""
+    tracker = scaler.throughput_tracker
+    while True:
+        await asyncio.sleep(METRICS_POLL_INTERVAL)
+        now = time.time()
+
+        for model_name in list(scaler.containers.keys()):
+            container = scaler.containers.get(model_name)
+            if not container or not container.is_ready:
+                continue
+
+            current_count = tracker._streaming_count.get(model_name, 0)
+
+            if model_name not in tracker._prev_streaming_count:
+                tracker._prev_streaming_count[model_name] = current_count
+                tracker._prev_streaming_time[model_name] = now
+                continue
+
+            prev_count = tracker._prev_streaming_count[model_name]
+            prev_time = tracker._prev_streaming_time[model_name]
+            dt = now - prev_time
+
+            tracker._prev_streaming_count[model_name] = current_count
+            tracker._prev_streaming_time[model_name] = now
+
+            if dt <= 0:
+                continue
+
+            delta_tokens = current_count - prev_count
+            tps = delta_tokens / dt
+
+            # If waiting for first token after scaling, check streaming counter
+            if tracker._waiting_for_first_token.get(model_name, False):
+                if delta_tokens > 0:
+                    tracker._waiting_for_first_token[model_name] = False
+                    scaler.last_scale_time[model_name] = scaler.clock()
+                    tracker.update_ema(model_name, tps, now)
+                    logger.info(
+                        f"First token after scale for {model_name}, "
+                        f"config={scaler.current_config.get(model_name, HARDWARE_CONFIGS[0]).config_id()}"
+                    )
+                continue
+
+            tracker.update_ema(model_name, tps, now)
+
+
+async def _background_scaling_loop(scaler: CostAwareAutoscaler) -> None:
+    """Check scaling every SCALING_CHECK_INTERVAL using throughput EMA."""
+    while True:
+        await asyncio.sleep(SCALING_CHECK_INTERVAL)
+        if scaler.scaling_in_progress:
+            continue
+
+        for model_name in list(scaler.containers.keys()):
+            container = scaler.containers.get(model_name)
+            current_config = scaler.current_config.get(model_name)
+            if not container or not current_config:
+                continue
+
+            if scaler.throughput_tracker._waiting_for_first_token.get(model_name, False):
+                continue
+
+            ema = scaler.throughput_tracker.get_ema(model_name)
+            current_id = current_config.config_id()
+            capacity = MEASURED_THROUGHPUT.get(current_id, 1.0)
+
+            logger.info(
+                f"[DEMAND_CHECK] {model_name}: config={current_id} "
+                f"ema={ema:.1f} capacity={capacity} "
+                f"ema_pct={ema / capacity * 100:.1f}% "
+                f"scale_up_at={SCALE_UP_MULT * capacity:.1f}"
+            )
+
+            new_config = scaler.check_scaling(model_name)
+            if new_config is None:
+                continue
+
+            old_config_id = current_id
+            new_config_id = new_config.config_id()
+            logger.info(
+                f"[SCALING] {model_name}: {old_config_id} -> {new_config_id} "
+                f"(ema={ema:.1f})"
+            )
+
+            scaler.scaling_in_progress = True
+            try:
+                await scaler.scale_to(model_name, new_config)
+            finally:
+                scaler.scaling_in_progress = False
+
+
+# ---------------------------------------------------------------------------
 # Pydantic models for API
 # ---------------------------------------------------------------------------
 
@@ -520,7 +675,22 @@ async def lifespan(app: FastAPI):
     global autoscaler
     autoscaler = CostAwareAutoscaler(configs=HARDWARE_CONFIGS)
     await autoscaler.initialize()
+
+    streaming_task = asyncio.create_task(_streaming_throughput_loop(autoscaler))
+    scaling_task = asyncio.create_task(_background_scaling_loop(autoscaler))
+
     yield
+
+    streaming_task.cancel()
+    scaling_task.cancel()
+    try:
+        await streaming_task
+    except asyncio.CancelledError:
+        pass
+    try:
+        await scaling_task
+    except asyncio.CancelledError:
+        pass
     await autoscaler.cleanup()
 
 
@@ -608,7 +778,7 @@ async def _non_stream_completion(
             usage = result.get('usage', {})
             total_tokens = usage.get('total_tokens', 0)
             if total_tokens > 0:
-                autoscaler.demand_tracker.record_tokens(
+                autoscaler.throughput_tracker.record_streaming_tokens(
                     request.model, total_tokens
                 )
 
@@ -646,29 +816,25 @@ async def _stream_completion(
                 line = line.decode('utf-8').strip()
                 if line.startswith('data: '):
                     yield f"{line}\n\n"
-                    # Try to count tokens from stream chunks
                     if line != 'data: [DONE]':
                         try:
                             chunk = json.loads(line[6:])
+                            # Count tokens from stream chunks
                             usage = chunk.get('usage', {})
                             if usage.get('total_tokens'):
                                 total_tokens = usage['total_tokens']
+                            # Increment streaming counter for each chunk
+                            choices = chunk.get('choices', [])
+                            for choice in choices:
+                                delta = choice.get('delta', {})
+                                if delta.get('content'):
+                                    autoscaler.throughput_tracker.record_streaming_tokens(
+                                        request.model, 1
+                                    )
                         except (json.JSONDecodeError, KeyError):
                             pass
                     if line == 'data: [DONE]':
                         break
-
-            # Record token usage (estimate if not available from stream)
-            if total_tokens > 0:
-                autoscaler.demand_tracker.record_tokens(
-                    request.model, total_tokens
-                )
-            else:
-                # Estimate based on max_tokens as fallback
-                estimated = request.max_tokens or 100
-                autoscaler.demand_tracker.record_tokens(
-                    request.model, estimated
-                )
 
             yield "data: [DONE]\n\n"
 
