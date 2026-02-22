@@ -2,7 +2,7 @@
 """
 4-config scaling demo benchmark for thesis.
 
-Starts a scaling demo server (cpu_4 → cpu_12 → gpu_25 → gpu_100),
+Starts the main cost-aware server (cpu_4 → cpu_12 → gpu_25 → gpu_100),
 sends real inference requests in phases with controlled request rates
 to trigger vertical scaling up and down, collects metrics, and
 generates a thesis-quality 4-panel plot.
@@ -10,20 +10,21 @@ generates a thesis-quality 4-panel plot.
 All output goes to stdout — redirect to a file when running:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
 
-Server config: cooldown=300s, demand_window=180s, headroom=0.25
+Server config: cooldown=120s, EMA ~2min window
 Configs (measured throughput):
   cpu_4:   32 tok/s  ($0.05/hr, 0.43 μ$/tok)
   cpu_12:  47 tok/s  ($0.12/hr, 0.71 μ$/tok)
   gpu_25:  147 tok/s ($0.50/hr, 0.94 μ$/tok)
   gpu_100: 1064 tok/s ($4.00/hr, 1.04 μ$/tok)
 
-Phases (~1.5h total):
-  1. low load     (15 min): 1 worker, rpm=3   → ~7 tok/s   (cpu_4)
-  2. medium load  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
-  3. high load    (15 min): 8 workers, saturated → ~123 tok/s (→ gpu_25)
-  4. ramp-down 1  (15 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
-  5. ramp-down 2  (15 min): 1 worker, rpm=3   → ~7 tok/s   (→ cpu_4)
-  6. low load     (10 min): 1 worker, rpm=3   → settle cpu_4
+Phases (~21 min total):
+  1. low load     (3 min): 1 worker, rpm=3   → ~7 tok/s   (cpu_4)
+  2. medium load  (3 min): 2 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  3. medium load  (3 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  4. high load    (3 min): 8 workers, saturated → ~123 tok/s (→ gpu_25)
+  5. ramp-down 1  (3 min): 4 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  6. ramp-down 2  (3 min): 2 workers, rpm=15  → ~35 tok/s  (→ cpu_12)
+  7. ramp-down 3  (3 min): 1 worker, rpm=3   → ~7 tok/s   (→ cpu_4)
 
 Usage:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
@@ -628,7 +629,7 @@ async def main() -> None:
 
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn",
-         "benchmarks.scaling_demo_server:app",
+         "main_cost_aware:app",
          "--host", "0.0.0.0", "--port", str(port)],
         env=env, stdout=server_log_file, stderr=subprocess.STDOUT,
     )
