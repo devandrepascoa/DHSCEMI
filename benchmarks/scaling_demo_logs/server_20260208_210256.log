@@ -1,0 +1,54 @@
+INFO:     Started server process [232418]
+INFO:     Waiting for application startup.
+[SERVER] [INIT] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "model_path": "/home/andrepascoa/IST/Tese/thesis/proxy/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "initial_config": "cpu_4", "configs": ["cpu_4", "cpu_12", "gpu_25", "gpu_100"], "scale_up_mult": 0.8, "scale_down_mult": 0.3, "ema_alpha": 0.008299, "cooldown_s": 300, "measured_throughput": {"cpu_4": 32.0, "cpu_12": 47.0, "gpu_25": 147.0, "gpu_100": 1064.0}}
+[SERVER] [CONTAINER_START_CMD] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "config_id": "cpu_4", "full_cmd": ["docker", "run", "--rm", "-d", "--name", "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "-v", "/home/andrepascoa/IST/Tese/thesis/proxy/models:/models:ro", "-p", "44057:8080", "--cpus", "4", "--memory", "8g", "ghcr.io/ggml-org/llama.cpp:full", "--server", "-m", "/models/01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8080", "--threads", "4", "--parallel", "32", "--metrics"]}
+[SERVER] [CONTAINER_STARTED] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "docker_id": "2ed42bb6ffc4"}
+[SERVER] [CONTAINER_READY] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "config_id": "cpu_4", "wait_seconds": 2}
+[SERVER] [INIT_OK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "config": "cpu_4", "container": {"container_name": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "config_id": "cpu_4", "container_type": "cpu", "cpu_cores": 4, "memory": "8g", "gpu_percentage": null, "hourly_cost": 0.05, "image": "ghcr.io/ggml-org/llama.cpp:full", "port": 44057, "parallel": 32, "threads": 4, "n_gpu_layers": 0, "docker_flags": ["--cpus", "4", "--memory", "8g"], "measured_throughput_tps": 32.0, "cost_per_token_micro": 50000.0}}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:42373 (Press CTRL+C to quit)
+INFO:     127.0.0.1:44782 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44798 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44808 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44822 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 12.209, "config_id": "cpu_4", "throughput_ema": 14.9858, "streaming_tps": 16.0056, "predicted_tps_gauge": 0.0, "capacity": 32.0, "ema_pct_of_capacity": 46.8, "scale_up_threshold": 25.6, "active_requests": 1}
+INFO:     127.0.0.1:44834 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44840 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "c7d73aa8", "elapsed_s": 18.3, "config_id": "cpu_4", "wall_ms": 15816.3, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 207.2, "generation_ms": 15606.3, "prompt_ms_per_token": 20.718, "generation_ms_per_token": 60.962, "prompt_tps": 48.3, "generation_tps": 16.4, "ttft_ms": 207.2, "throughput_ema": 15.1494, "cost_per_token_micro": 50000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "port": 44057, "raw_timings": {"prompt_n": 10, "prompt_ms": 207.185, "prompt_per_token_ms": 20.7185, "prompt_per_second": 48.266042425851296, "predicted_n": 256, "predicted_ms": 15606.271, "predicted_per_token_ms": 60.96199609375, "predicted_per_second": 16.403662348295757}}
+INFO:     127.0.0.1:44816 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 22.209, "config_id": "cpu_4", "throughput_ema": 14.7997, "streaming_tps": 0.0, "predicted_tps_gauge": 16.4039, "capacity": 32.0, "ema_pct_of_capacity": 46.2, "scale_up_threshold": 25.6, "active_requests": 0}
+INFO:     127.0.0.1:58808 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58824 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 32.209, "config_id": "cpu_4", "throughput_ema": 15.25, "streaming_tps": 24.9876, "predicted_tps_gauge": 16.4039, "capacity": 32.0, "ema_pct_of_capacity": 47.7, "scale_up_threshold": 25.6, "active_requests": 1}
+INFO:     127.0.0.1:43488 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "d0873f20", "elapsed_s": 33.3, "config_id": "cpu_4", "wall_ms": 10835.7, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 180.1, "generation_ms": 10653.4, "prompt_ms_per_token": 18.01, "generation_ms_per_token": 41.615, "prompt_tps": 55.5, "generation_tps": 24.0, "ttft_ms": 180.1, "throughput_ema": 15.4111, "cost_per_token_micro": 50000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "port": 44057, "raw_timings": {"prompt_n": 10, "prompt_ms": 180.097, "prompt_per_token_ms": 18.009700000000002, "prompt_per_second": 55.525633408663104, "predicted_n": 256, "predicted_ms": 10653.431, "predicted_per_token_ms": 41.61496484375, "predicted_per_second": 24.0298172485465}}
+INFO:     127.0.0.1:44816 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43498 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 42.21, "config_id": "cpu_4", "throughput_ema": 14.4404, "streaming_tps": 0.0, "predicted_tps_gauge": 19.4981, "capacity": 32.0, "ema_pct_of_capacity": 45.1, "scale_up_threshold": 25.6, "active_requests": 0}
+INFO:     127.0.0.1:39008 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39010 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 52.21, "config_id": "cpu_4", "throughput_ema": 14.8943, "streaming_tps": 23.0053, "predicted_tps_gauge": 19.4981, "capacity": 32.0, "ema_pct_of_capacity": 46.5, "scale_up_threshold": 25.6, "active_requests": 1}
+INFO:     127.0.0.1:57606 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "a8d665cd", "elapsed_s": 53.7, "config_id": "cpu_4", "wall_ms": 11151.4, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 177.4, "generation_ms": 10971.6, "prompt_ms_per_token": 17.742, "generation_ms_per_token": 42.858, "prompt_tps": 56.4, "generation_tps": 23.3, "ttft_ms": 177.4, "throughput_ema": 15.0527, "cost_per_token_micro": 50000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "port": 44057, "raw_timings": {"prompt_n": 10, "prompt_ms": 177.418, "prompt_per_token_ms": 17.7418, "prompt_per_second": 56.36406678014632, "predicted_n": 256, "predicted_ms": 10971.589, "predicted_per_token_ms": 42.85776953125, "predicted_per_second": 23.332992149086152}}
+INFO:     127.0.0.1:38998 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57620 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 62.21, "config_id": "cpu_4", "throughput_ema": 14.1366, "streaming_tps": 0.0, "predicted_tps_gauge": 20.6285, "capacity": 32.0, "ema_pct_of_capacity": 44.2, "scale_up_threshold": 25.6, "active_requests": 0}
+INFO:     127.0.0.1:48142 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48152 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 72.21, "config_id": "cpu_4", "throughput_ema": 14.0155, "streaming_tps": 7.9976, "predicted_tps_gauge": 20.6285, "capacity": 32.0, "ema_pct_of_capacity": 43.8, "scale_up_threshold": 25.6, "active_requests": 1}
+INFO:     127.0.0.1:35200 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [REQ_OK] {"req_id": "6dd4ecae", "elapsed_s": 73.3, "config_id": "cpu_4", "wall_ms": 10772.2, "prompt_tokens": 10, "completion_tokens": 149, "total_tokens": 159, "prompt_eval_ms": 168.9, "generation_ms": 10601.1, "prompt_ms_per_token": 16.89, "generation_ms_per_token": 71.149, "prompt_tps": 59.2, "generation_tps": 14.1, "ttft_ms": 168.9, "throughput_ema": 13.9575, "cost_per_token_micro": 50000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "port": 44057, "raw_timings": {"prompt_n": 10, "prompt_ms": 168.899, "prompt_per_token_ms": 16.8899, "prompt_per_second": 59.20698168728056, "predicted_n": 149, "predicted_ms": 10601.129, "predicted_per_token_ms": 71.1485167785235, "predicted_per_second": 14.055106772118327}}
+INFO:     127.0.0.1:48138 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35204 - "GET /status HTTP/1.1" 200 OK
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 82.21, "config_id": "cpu_4", "throughput_ema": 13.0727, "streaming_tps": 0.0, "predicted_tps_gauge": 19.1717, "capacity": 32.0, "ema_pct_of_capacity": 40.9, "scale_up_threshold": 25.6, "active_requests": 0}
+INFO:     127.0.0.1:54722 - "GET /status HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for background tasks to complete. (CTRL+C to force quit)
+[SERVER] [DEMAND_CHECK] {"model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M", "elapsed": 92.211, "config_id": "cpu_4", "throughput_ema": 13.0002, "streaming_tps": 13.9958, "predicted_tps_gauge": 19.1717, "capacity": 32.0, "ema_pct_of_capacity": 40.6, "scale_up_threshold": 25.6, "active_requests": 1}
+[SERVER] [REQ_OK] {"req_id": "60b7e1ab", "elapsed_s": 100.2, "config_id": "cpu_4", "wall_ms": 17653.5, "prompt_tokens": 10, "completion_tokens": 256, "total_tokens": 266, "prompt_eval_ms": 200.0, "generation_ms": 17450.5, "prompt_ms_per_token": 20.003, "generation_ms_per_token": 68.166, "prompt_tps": 50.0, "generation_tps": 14.7, "ttft_ms": 200.0, "throughput_ema": 13.129, "cost_per_token_micro": 50000.0, "container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057", "port": 44057, "raw_timings": {"prompt_n": 10, "prompt_ms": 200.035, "prompt_per_token_ms": 20.0035, "prompt_per_second": 49.99125153098208, "predicted_n": 256, "predicted_ms": 17450.546, "predicted_per_token_ms": 68.1661953125, "predicted_per_second": 14.670028089665506}}
+INFO:     Waiting for application shutdown.
+[SERVER] [CONTAINER_STOP] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057"}
+[SERVER] [CONTAINER_STOPPED] {"container": "llama-01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M-cpu_4-44057"}
+[SERVER] [SHUTDOWN] {"message": "all containers stopped"}
+INFO:     Application shutdown complete.
+INFO:     Finished server process [232418]
