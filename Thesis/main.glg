@@ -1,0 +1,18 @@
+
+
+*** Unable to execute: '"xindy"  -L english -C utf8 -I xindy -M "main" -t "main.glg" -o "main.gls" "main.glo"' ***
+
+Failed with error code 127.
+
+Status report:
+
+sh: 1: xindy: not found
+
+xindy didn't create a transcript.
+Check that xindy has been installed and
+is on your system's PATH.
+Your PATH environment variable is set to: 
+/home/andrepascoa/.bun/bin:/home/andrepascoa/.pyenv/shims:/home/andrepascoa/.pyenv/bin:/home/andrepascoa/.bun/bin:/home/andrepascoa/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+Try manually running:
+"xindy"  -L english -C utf8 -I xindy -M "main" -t "main.glg" -o "main.gls" "main.glo"
+

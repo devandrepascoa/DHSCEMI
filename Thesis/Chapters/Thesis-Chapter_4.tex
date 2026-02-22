@@ -1,0 +1,215 @@
+% #############################################################################
+% This is Chapter 4
+% !TEX root = ../main.tex
+% #############################################################################
+% Change the Name of the Chapter i the following line
+\fancychapter{Solution}
+% The following line allows to ref this chapter
+\label{chap:implement}
+
+\acresetall
+
+\label{solution}
+
+Our solution to improve throughput per unitary cost when doing model inference first starts by being able to dynamically choose between different types of hardware with a variance of unitary cost per hour, for this we show an initial simplified version that only selects between a CPU VM and one type of rented GPU, but this should easily be expanded to a bigger variety of hardware accelerators. When doing inference however, to easily switch between the accelerators without shutting down the microservice running the code, we choose to run the main application code separate from the model inference on the hardware accelerator, and thus we require a way to link the our interface to a possibly local execution in the case of CPU inference, or remote execution for GPU inference.
+
+\subsection{Dynamic Module Selection}
+
+To optimize throughput per unitary cost, we select different hardware accelerators based on current throughput and utilization characteristics.
+
+\subsubsection{High Throughput and High Device Utilization (HDU)}
+
+When the system operates at high throughput and thus high device utilization (HDU), GPUs should generally the optimal choice. GPUs should provide at high device utilization superior throughput per unitary cost and per watt (W) due to their parallel processing capabilities and the inherent parallelizability of deep learning model inference and training.
+This makes them always suitable for training models, where high device utilization is a common scenario.
+
+\subsubsection{Low Throughput and Low Device Utilization (LDU)}
+
+In contrast, low throughput and low device utilization (LDU) may be encountered during inference, especially for rarely accessed models like those hosted on platforms such as Hugging Face. In these scenarios, CPUs emerge as the more cost-effective option. CPUs should offer better throughput per unitary cost in LDU conditions because they consume less power when idle or underutilized, and their energy requirements do not scale as drastically as GPUs.
+
+Considering energy consumption from a holistic perspective\textemdash{}factoring in the energy used by the orchestrator or main CPU server in addition to the GPU\textemdash{}CPUs may also demonstrate higher throughput per watt. This is particularly true in architectures where separate servers are used for orchestration and computation. 
+
+To implement this we obtain throughput per unitary cost profiles of each of the possible hardware types from a historical throughput profiles data source and select the lowest unitary cost for our current inference throughput, we outline the final architecture for this dynamic selection in section \ref{optimized-solution}.
+
+As we discussed in section \ref{solution}, our solution separates the inference hardware accelerators from the main microservice component to prevent it from being shutdown, thus we require a way to link these the main microservice component with the inference hardware accelerator components, to do this we propose an initial solution based on dynamic linking with WebAssembly primitives, and then improve on this initial proposal's performance bottlenecks by using modern WebAssembly component model infrastructure.
+
+\subsection{Remote Module Execution with Dynamic Linking}
+Our initial solution for remote module execution uses WASI v1 and Wasmtime runtime abstractions, such as \textbf{Store}, \textbf{Linker}, and \textbf{Module}, to implement dynamic linking. This involves manually handling shared libraries, memory, and tables.
+
+\subsubsection{Application Compilation}
+To create these modules, we use the WASI SDK compiler toolchain with -fPIC, -shared and -Wl,--export-all flags to compile our shared libraries.
+The -fPIC Flag makes sure the compiler generates position independent WASM code, the -shared flag generates the shared library and the -Wl,--export-all flag makes sure the linker exports all symbols even if unused. After compiling the shared libraries, we use also compile the main module as a shared library.
+
+\subsubsection {Dynamic Linking Approaches}
+There are multiple approaches to dynamic linking, such as shared-nothing dynamic linking, shared-something dynamic linking, and shared-everything dynamic linking.
+
+\subsubsection{Shared-Nothing Dynamic Linking}
+
+Shared-nothing dynamic linking architecture is an approach to dynamic linking that does not allow for the sharing of resources between modules other than with explicit communication. This approach is used in the Component Model, which is a part of the WebAssembly System Interface (WASI) v2 standard.
+
+\subsubsection{Dynamic Linking Implementation}
+
+We base our dynamic linking implementation on existing work \cite{makitalo2021bringing} that was done for the EMScripten compiler toolchain and not the WASI SDK compiler toolchain.
+
+\subsubsection{Remote Module Execution}
+
+This solution for remote module execution, as can be seen in figure \ref{fig:dynamic-linking-arch}, brings significant performance bottlenecks due to shared memory between the servers.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{dynamic-linking-arch.png}
+\caption{Architecture for remote module execution with shared memory.}
+\label{fig:dynamic-linking-arch}
+\end{figure}
+
+\subsection{Remote Module Execution with Component Model and wRPC}
+\label{optimized-solution}
+The second solution represented in Figure \ref{fig:architecture}, builds on the Component Model and wRPC, by enforcing \textbf{shared-nothing} principles and leveraging the immutable high-level WIT interfaces from the component model, this approach eliminates the need of sharing memory between the components.
+
+\begin{itemize}
+\item Components communicate explicitly via immutable WIT interfaces, and each component has it's own linear memory.
+\item Remote execution is enabled through wRPC
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{component-model-arch.png}
+\caption{System architecture for dynamic selection of accelerators based on workload. }
+\label{fig:architecture}
+\end{figure}
+
+By dynamically selecting the appropriate accelerator based on throughput and device utilization, we believe lower costs and possible energy savings can be achieved.
+
+\pagebreak
+\endinput
+% #############################################################################
+\section{Development Process}
+Suspendisse vestibulum dignissim quam. Integer vel augue. Phasellus nulla purus, interdum ac, venenatis non, varius rutrum, leo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis a eros. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Fusce magna mi, porttitor quis, convallis eget, sodales ac, urna. Phasellus luctus venenatis magna. Vivamus eget lacus. Nunc tincidunt convallis tortor. Duis eros mi, dictum vel, fringilla sit amet, fermentum id, sem. Phasellus nunc enim, faucibus ut, laoreet in, consequat id, metus. Vivamus dignissim. Cras lobortis tempor velit. Phasellus nec diam ac nisl lacinia tristique. Nullam nec metus id mi dictum dignissim. Nullam quis wisi non sem lobortis condimentum. Phasellus pulvinar, nulla non aliquam eleifend, tortor wisi scelerisque felis, in sollicitudin arcu ante lacinia leo.:
+
+\begin{itemize}
+\item{Technology Research and Related Works}
+\item{Requirements Gathering and Study}
+\item{Design of the Architecture}
+\item{Implementation Process}
+\item{Testing and Functional Validation}
+\end{itemize}
+
+Pellentesque nibh felis, eleifend id, commodo in, interdum vitae, leo. Praesent eu elit. Ut eu ligula. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Maecenas elementum augue nec nisl. Proin auctor lorem at nibh. Curabitur nulla purus, feugiat id, elementum in, lobortis quis, pede. Vivamus sodales adipiscing sapien. Vestibulum posuere nulla eget wisi. Integer volutpat ligula eget enim. Suspendisse vitae arcu. Quisque pellentesque. Nullam consequat, sem vitae rhoncus tristique, mauris nulla fermentum est, bibendum ullamcorper sapien magna et quam. Sed dapibus vehicula odio. Proin bibendum gravida nisl. Fusce lorem. Phasellus sagittis, nulla in hendrerit laoreet, libero lacus feugiat urna, eget hendrerit pede magna vitae lorem. Praesent mauris.
+% #############################################################################
+\section{Development Environment}
+Cras sed ante. Phasellus in massa. Curabitur dolor eros, gravida et, hendrerit ac, cursus non, massa. Aliquam lorem. In hac habitasse platea dictumst. Cras eu mauris \Cref{time_control_algorithm}\todo[color=cyan!40, author=RC, fancyline]{Notice the reference to the Algorithm construct}{}. Quisque lacus. Donec ipsum. Nullam vitae sem at nunc pharetra ultricies. Vivamus elit eros, ullamcorper a, adipiscing sit amet, porttitor ut, nibh. 
+
+\begin{algorithm}[ht]
+\DontPrintSemicolon
+\Begin{
+$nextBitrate \longleftarrow nextDownloadLevel$\;
+$nextBitrate \longleftarrow GetNextBitrate()$\;
+$cpuLoad \longleftarrow GetCpuLoad()$\;
+$bitrateDelta \longleftarrow getBitrateDelta(currentBitrate, nextBitrate)$\;
+\BlankLine
+\If{$bitrateDelta > maxThreshold$}{
+     $SetBitrate(nextBitrate)$\;
+   }
+\BlankLine
+  \If{$minThreshold < bitrateDelta < maxThreshold$ {\bf and} $numAttemps < 2$}{ 
+       $numAttemps \longleftarrow numAttemps + 1$\;
+       }{
+       \uElseIf{$minThreshold < bitrateDelta < maxThreshold$ {\bf and} $numAttemps = 2$}{
+       $numAttemps \longleftarrow 0$\;
+       }
+       \Else{$SetBitrate(nextBitrate)$}
+      }
+  \If{$0 < bitrateDelta < minThreshold$ {\bf and} $numAttemps < 3$}{
+       $numAttemps \longleftarrow numAttemps + 1$\;
+       }{
+       \uElseIf{$0 < bitrateDelta < minThreshold$ {\bf and} $numAttemps = 3$}{
+       $SetBitrate(nextBitrate)$\;
+       }
+       }
+}
+\caption{Time Control Strategy}
+\label{time_control_algorithm}
+\end{algorithm}
+
+
+Maecenas adipiscing mollis massa. Nunc ut dui eget nulla venenatis aliquet. Sed luctus posuere justo. Cras vehicula varius turpis. Vivamus eros metus, tristique sit amet, molestie dignissim, malesuada et, urna..
+% #############################################################################
+\section{Client Application}
+Cras sed ante. Phasellus in massa. Curabitur dolor eros, gravida et, hendrerit ac, cursus non, massa. Aliquam lorem. In hac habitasse platea dictumst. Cras eu mauris. Quisque lacus. Donec ipsum. Nullam vitae sem at nunc pharetra ultricies. 
+
+Vivamus elit eros, ullamcorper a, adipiscing sit amet, porttitor ut, nibh. Maecenas adipiscing mollis massa. Nunc ut dui eget nulla venenatis aliquet. Sed luctus posuere justo. Cras vehicula varius turpis. Vivamus eros metus, tristique sit amet, molestie dignissim, malesuada et, urna.
+
+Quisque lacus. Donec ipsum. Nullam vitae sem at nunc pharetra ultricies. Cras vehicula varius turpis.
+
+
+
+\begin{minipage}[c]{1.0\textwidth}
+%\begin{center}
+\centering
+\begin{lstlisting}[language = C++, numbers = none, escapechar = !,
+    basicstyle = \ttfamily\bfseries, linewidth = .6\linewidth, frame=tb, caption={A listing with a Tikz picture overlayed}, captionpos=b, label=tikzlist] 
+ int!
+   \tikz[remember picture] \node [] (a) {};
+ !puissance!
+   \tikz[remember picture] \node [] (b) {};
+ !(int x,!
+   \tikz[remember picture] \node [] (c){};
+ !int n) { 
+
+     int i, p = 1; !\tikz[remember picture] \node [] (d){};!           
+
+     for (i = 1; i <= n; i++) 
+       p = p * x; !\tikz[remember picture] \node [inner xsep = 40pt] (e){};! 
+
+     return p; !
+       \tikz[remember picture] \node [] (f){};!  
+ }
+\end{lstlisting}
+
+\begin{tikzpicture}[remember picture, overlay,
+    every edge/.append style = { ->, thick, >=stealth,
+                                  darkgray, dashed, line width = 1pt },
+    every node/.append style = { align = center, minimum height = 10pt,
+                                 font = \bfseries, fill= green!20},
+                  text width = 2.5cm ]
+  \node [above left = .75cm and -.75 cm of a,text width = 2.2cm]
+                             (A) {return value type};
+  \node [right = 0.25cm of A, text width = 1.9cm]
+                             (B) {function name};
+  \node [right = 0.5cm of B] (C) {list of formal parameters};
+  \node [right = 4.cm of d]  (D) {local variables declaration};
+  \node [right = 2.cm of e]  (E) {instructions};
+  \node [right = 5.cm of f]  (F) {instruction \texttt{\bfseries return}};  
+  \draw (A.south) + (0, 0) coordinate(x1) edge (x1|-a.north);
+  \draw (B.south) + (0, 0) coordinate(x2) edge (x2|-b.north);
+  \draw (C.south) + (0, 0) coordinate(x3) edge (x3|-c.north);
+  \draw (D.west) edge (d.east) ;
+  \draw (E.west) edge (e.east) ;  
+  \draw (F.west) edge (f.east) ;
+\end{tikzpicture}
+%\end{center}
+\end{minipage}
+
+\textcolor{violet}{And here another method (\Cref{tikzlist}) for mixing (overlay) a picture with a listing of code.}
+% #############################################################################
+\subsection{User Interface}
+Donec semper turpis sed diam. Sed consequat ligula nec tortor. Integer eget sem. Ut vitae enim eu est vehicula gravida. Morbi ipsum ipsum, porta nec, tempor id, auctor vitae, purus. Pellentesque neque. Nulla luctus erat vitae libero. Integer nec enim. Phasellus aliquam enim et tortor. Quisque aliquet, quam elementum condimentum feugiat, tellus odio consectetuer wisi, vel nonummy sem neque in elit. Curabitur eleifend wisi iaculis ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In non velit non ligula laoreet ultrices. Praesent ultricies facilisis nisl. Vivamus luctus elit sit amet mi. Phasellus pellentesque, erat eget elementum volutpat, dolor nisl porta neque, vitae sodales ipsum nibh in ligula. Maecenas mattis pulvinar diam. Curabitur sed leo..
+
+Cras eu mauris. Quisque lacus. Donec ipsum. Nullam vitae sem at nunc pharetra ultricies. Vivamus elit eros, ullamcorper a, adipiscing sit amet, porttitor ut, nibh. Maecenas adipiscing mollis massa. Nunc ut dui eget nulla venenatis aliquet. Sed luctus posuere justo. Cras vehicula varius turpis. 
+% #############################################################################
+\subsection{Vivamus luctus elit sit amet mi}
+Nulla facilisi. In vel sem. Morbi id urna in diam dignissim feugiat. Proin molestie tortor eu velit. Aliquam erat volutpat. Nullam ultrices, diam tempus vulputate egestas, eros pede varius leo, sed imperdiet lectus est ornare odio. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin consectetuer velit in dui. Phasellus wisi purus, interdum vitae, rutrum accumsan, viverra in, velit. Sed enim risus, congue non, tristique in, commodo eu, metus. Aenean tortor mi, imperdiet id, gravida eu, posuere eu, felis. 
+
+Mauris sollicitudin, turpis in hendrerit sodales, lectus ipsum pellentesque ligula, sit amet scelerisque urna nibh ut arcu. Aliquam in lacus. 
+
+\Cref{fig:ui_playout,fig:ui_loading}\todo[color=cyan!40, author=RC, fancyline]{A figure with Subfigures}{} proin at eros non eros adipiscing mollis.
+
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Media Loading Window]{\label{fig:ui_loading} 		\includegraphics[width=0.3\textwidth]{./Images/ui_loading}} \qquad
+	\subfigure[Play-out Session UI]{\label{fig:ui_playout}
+		\includegraphics[width=0.3\textwidth]{./Images/ui_playout}}
+	\caption{Complete User Interface}
+	\label{fig:user_interface}
+\end{figure}
+
+Vestibulum ante ipsum primis in \ac{UI} faucibus orci luctus et ultrices posuere cubilia Curae; Nulla placerat aliquam wisi. Mauris viverra odio. Quisque fermentum pulvinar odio. Proin posuere est vitae ligula. Etiam euismod. Cras a eros.

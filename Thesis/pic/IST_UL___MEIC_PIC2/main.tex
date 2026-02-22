@@ -1,0 +1,107 @@
+\documentclass[a4paper]{article}
+
+\input{Preamble_commands}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%
+% TITLE & NAME %
+%%%%%%%%%%%%%%%%
+% \selectlanguage{portuguese}  % <-- ACTION: UNCOMMENT for english or portuguese
+\selectlanguage{english}  % <-- ACTION: UNCOMMENT for english or portuguese
+\title{WebAssembly Distributed Dynamic Inference} % <-- ACTION: WRITE your project title here
+\author{André Páscoa} % <-- ACTION: WRITE your complete name here
+\istid{110817} % <-- ACTION: WRITE your student number  here (your student number, not the IST-ID)
+\email{andre.pascoa@tecnico.ulisboa.pt} % <-- ACTION: WRITE your e-mail here
+
+\advisor{Rodrigo Bruno, Rodrigo Rodrigues}
+
+% To make the title
+\maketitle
+\thispagestyle{empty}
+
+%%%%%%%%%%%%
+% ABSTRACT %
+%%%%%%%%%%%%
+% To remove indentation before abstract
+\setlength{\abstitleskip}{-\absparindent}
+\begin{abstract}
+% WebAssembly (Wasm) has emerged as a portable compilation target for multiple programming languages, extending beyond its original focus on web applications to domains like cloud computing. Despite its growing adoption, support for AI model inference in Wasm, particularly on serverless platforms like Cloudflare Workers \cite{cloudflareWorkers}, remains limited. The introduction of the WebAssembly Component Model provides a "shared-nothing" abstraction for modules, enabling interoperability between programming languages through memory encapsulation and standardized type specifications (WIT). Within this framework, interfaces like wasi-nn have been proposed to facilitate AI model inference using common backends such as PyTorch\cite{pytorch} and TensorFlow\cite{tensorflow}. However, existing implementations of wasi-nn overlook cost optimization strategies, particularly those related to GPU rental.
+
+
+
+The widespread adoption of deep learning models has driven significant technological advancements across domains such as healthcare, developer productivity, data analytics, and education. However, executing inference on infrequently accessed models, such as those hosted on platforms like Hugging Face, presents cost-efficiency challenges. Renting high-performance GPUs, like H100 or RTX 4090, for low-throughput tasks is economically impractical. Existing solutions like DynamoLLM reduce costs by scaling GPU frequency and instances but lack support for heterogeneous vertical scaling.
+
+This work addresses these limitations by proposing a runtime capable of dynamically scaling both vertically and horizontally based on cost-benefit analyses. Our approach improves throughput per dollar by renting cheaper resources, such as RTX 4090 GPUs or CPU VMs, for low-demand inference, while seamlessly scaling to meet production throughput requirements. Implementing this adaptive switching between CPU and GPU inference with existing frameworks like PyTorch requires overcoming challenges related to their distinct shared libraries and model weights management.
+
+By incorporating cost-benefit analysis, our runtime will support vertical scaling—switching between GPU types, such as from an RTX 4090 for testing to an H100 for production—alongside horizontal scaling. This approach provides cost-efficient deployment options, from initial testing to production, and seamlessly integrates with existing Wasm applications via the standardized WebAssembly Component Model.
+
+% \keywords{Keyword 1, Keyword 2, Keyword 3} % <--- ACTION: WRITE YOUR KEYWORDS HERE
+\clearpage
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%
+% TABLE OF CONTENTS %
+%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+
+
+%% <-- ACTION: ADD/EDIT/REMOVE/COMMENT SECTIONS IF YOU NEED TO
+%%%%%%%%%%%%%%%%
+% INTRODUCTION %
+%%%%%%%%%%%%%%%%
+\input{Sections/Section1.tex}
+
+%%%%%%%%%%%%%%
+% Background %
+%%%%%%%%%%%%%%
+\input{Sections/Section2.tex}
+
+%%%%%%%%%%%%%%%%
+% Related work %
+%%%%%%%%%%%%%%%%
+\input{Sections/Section3.tex}
+
+%%%%%%%%%%%%
+% Solution %
+%%%%%%%%%%%%
+\input{Sections/Section4.tex}
+
+%%%%%%%%%%%%%%
+% Evaluation %
+%%%%%%%%%%%%%%
+\input{Sections/Section5.tex}
+
+%%%%%%%%%%%%%%%%%
+% Work Schedule %
+%%%%%%%%%%%%%%%%%
+\input{Sections/Section6.tex}
+
+%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY %
+%%%%%%%%%%%%%%%%
+\clearpage
+% add Bibliography to TOC
+\addcontentsline{toc}{section}{\refname}
+% The following command resets the 'emphasis' style for bibliography entries
+\normalem
+% Name of your BiBTeX file
+\bibliography{./Bibliography} % <-- ACTION: Put here your own filename or edit Bibliography.bib to add your references
+% The following command modifies the 'emphasis' style for bibliography entries
+\ULforem
+
+
+%%%%%%%%%%%%
+% APPENDIX %
+%%%%%%%%%%%%
+% \clearpage % <-- ACTION: Comment the following blocks if you dont need appendixes
+% \appendix
+% \input{Sections/AppendixA.tex}
+
+%%%%%%%%%%%%%
+%    END    %
+%%%%%%%%%%%%%
+
+\end{document}

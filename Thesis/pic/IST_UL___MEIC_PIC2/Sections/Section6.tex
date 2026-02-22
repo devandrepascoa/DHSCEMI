@@ -1,0 +1,56 @@
+\section{Work Schedule}
+Our proposed work schedule is available in Figure~\ref{ganttchart}.
+
+\begin{figure}
+\centering
+\rotatebox{90}{
+\tikzset{every picture/.style={xscale=0.8,yscale=0.8,transform shape}}
+\begin{ganttchart}[ y unit chart = 0.7cm,
+                    vgrid, 
+                    bar top shift=-0.1, 
+                    bar height=0.6, 
+                    title height=0.7]{1}{36}
+  \gantttitle{Feb'19}{4}
+  \gantttitle{Mar'19}{4}
+  \gantttitle{Apr'19}{4}
+  \gantttitle{May'19}{4} 
+  \gantttitle{Jun'19}{4} 
+  \gantttitle{Jul'19}{4} 
+  \gantttitle{Aug'19}{4} 
+  \gantttitle{Sep'19}{4} 
+  \gantttitle{Oct'19}{4} \\
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1}
+  \gantttitlelist{1,...,4}{1} \\
+  
+\ganttgroup{Collect data on Heterogenous Hardware}{1}{7} \\
+\ganttbar{Obtain data regarding cost-benefit analysis}{1}{5} \\
+\ganttbar{Select architecture details}{6}{7} \\
+
+\ganttgroup{Implementation}{6}{18} \\
+\ganttbar{Basic Proxy Implementation}{6}{11} \\
+\ganttbar{State Switching Implementation}{12}{18} \\
+
+
+\ganttgroup{Experimental evaluation}{19}{22} \\
+\ganttbar{Run benchmarks and analyze metrics}{19}{20} \\
+\ganttbar{Evaluate Solution}{21}{22} \\
+
+\ganttgroup{Writing dissertation}{4}{36} \\
+\ganttbar{Alpha version}{4}{24} \\
+\ganttbar{Final revision by advisor}{25}{27} \\
+\ganttbar{Beta version}{28}{36} \\
+
+\end{ganttchart}
+}
+
+
+\caption{Planned Schedule}
+\label{ganttchart}
+\end{figure}

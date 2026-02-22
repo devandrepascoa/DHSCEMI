@@ -1,0 +1,141 @@
+% \section{Evaluation}
+
+
+% In this section, we outline our evaluation methodology, describe the metrics used to assess our system, and explain the benchmarks relevant to different aspects of our implementation. The evaluation aims to validate our approach by analyzing cost-performance, energy efficiency, and scalability. Finally, we will discuss the results and draw conclusions about the system's performance.
+
+% \subsection{Evaluation Hypotheses and Expected Outcomes}
+
+
+% We aim to test our implementation with the following metrics.
+
+% \subsection{Maximization Objectives}
+
+% \begin{itemize}
+%     \item \textbf{Throughput per unitary cost:} 
+% We aim to demonstrate that throughput per unitary cost spent is higher with our implementation compared to just doing horizontal scaling of the same hardware type. By varying the number of invocations, inter-arrival time and model size, we can illustrate how our approach achieves a superior cost-performance ratio. 
+%     \item \textbf{Throughput per Watt:} 
+%     This metric is designed to showcase the energy efficiency of our implementation. By conducting a comparative analysis of the throughput per watt between our system and horizontal scaling of the same hardware type, we aim to analyze possible energy savings.
+% \end{itemize}
+
+% \subsection{Minimization Objectives}
+
+% \begin{itemize}
+%     \item \textbf{Latency by Varying Number of Invocations:} 
+% We analyze how latency changes as the number of invocations varies, thereby demonstrating the scalability of our system without compromising response time. 
+%     \item \textbf{Latency by Varying Model Size:} 
+% This metric evaluates how the latency is impacted by the size of the model being used. It helps to analyse how model size affects latency specially when loading it's weights to the GPUs.
+% \end{itemize}
+
+% \subsection{Summary}
+% With these evaluations, we aim to demonstrate that our implementation will provide lower cost, higher energy savings while maintaining latency constraints.
+
+\section{Evaluation}
+
+In this section, we outline our evaluation methodology, describe the evaluation hypotheses, define the metrics used to assess our system and the evaluation environment. 
+
+\subsection{Evaluation Plan}
+
+To validate our implementation, we will use metrics that measure cost-effectiveness, energy efficiency, and latency under various workloads. The experiments will involve varying the number of invocations, inter-arrival times, and model sizes to simulate diverse usage scenarios. 
+
+\subsection{Evaluation Hypotheses and Expected Outcomes}
+
+The evaluation aims to validate the following hypotheses:
+\begin{itemize}
+    \item \textbf{Does our system achieve high throughput per unitary cost compared to only doing horizontal scaling?}
+        \begin{itemize}
+        \item \textbf{Expected Outcome:} Our system is expected to deliver higher throughput per unitary cost by optimizing hardware usage through heterogeneous vertical scaling.
+    \end{itemize}
+    \item \textbf{Does our system achieve high throughput per watt compared to horizontal scaling?}: 
+        \begin{itemize}
+        \item \textbf{Expected Outcome:} We anticipate achieving higher throughput per watt due to the heterogeneous vertical scaling.
+    \end{itemize}
+    \item \textbf{How does the system perform in terms of latency as the number of invocations and model sizes increase?}
+    \begin{itemize}
+        \item \textbf{Expected Outcome:} The system maintains low latency under increased invocation rates and larger model sizes, showcasing scalability without significant degradation in response time.
+    \end{itemize}
+
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+
+We will use the following metrics to assess the performance of our implementation:
+\begin{itemize}
+    \item \textbf{Throughput per Unitary Cost}: This metric measures cost-performance efficiency. By comparing throughput per unitary cost spent between our implementation and horizontal scaling, we aim to demonstrate the cost benefits of our heterogeneous resource allocation mechanism.
+    \item \textbf{Throughput per Watt}: This metric evaluates energy efficiency. By analyzing throughput per watt under different workloads, we aim to highlight the potential energy savings of our system compared to homogeneous scaling.
+    \item \textbf{Latency}: This metric assesses the system’s scalability and responsiveness under varying workloads:
+    \begin{itemize}
+        \item \textbf{Latency by Number of Invocations}: Measures how latency scales with an increasing number of invocations.
+        \item \textbf{Latency by Model Size}: Evaluates how the size of the model impacts latency, particularly during weight loading to GPUs.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Evaluation environment}
+
+For evaluation, we aim to use rented VMs from Vast.AI, which provides an API to rent hosts at an hourly rate with various levels of hardware types, from RTX 4090 to H100's. The hourly rate will be used by the orchestrator to update the throughput per unitary cost profiles in the data source.
+
+\subsection{Evaluation Workload}
+
+We aim to have workloads that reflect real world traces, for this we will create a synthetic dataset with similar inference load distribution over the day compare to the Azure LLM inference trace 2024 open source traces dataset from the DynamoLLM \cite{dynamollm} paper. We will have to create our own synthetic data due to the existing dataset not including the prompt requests due to privacy concerns. Regarding the models we will use various open source LLMs such as the Meta-Llama-3-8B \cite{llama3}.
+
+\subsection{Summary}
+
+With these evaluations, we aim to demonstrate that our implementation will provide lower cost, higher energy savings while maintaining latency constraints.
+
+% For evaluation, we aim to test our implementation with the following metrics:
+
+% and maximize the following:
+
+% throughput per unitary cost with our implementation vs single hardware type scaling
+
+% With this metric, we aim to show that the throughput per unitary cost spent is higher with our implementation compared to scaling smaller hardware such as an RTX 4090.
+% To plot this we increase the number of invocations and the
+
+% throughput per watt with our implementation vs single hardware type scaling
+
+% With this metric, we aim to show that the throughput per watt spent is higher with our implementation compared to scaling smaller hardware such as an RTX 4090.
+
+% We aim to minimize the following:
+
+% latency by varying number of invocations
+% latency by model size
+% latency by inter arrival time
+
+% With this, we aim to show that our implementation does not only take into account the cost benefit and energy saving portion, but also the latency of the invocations via dynamically renting GPU's closest to the users.
+
+
+% \textbf{Important:} scientific work should be reproducible! 
+% When applicable, you are strongly encouraged to create a replication package that follows the open science policies as adopted by SIGSOFT (see \url{https://github.com/acmsigsoft/open-science-policies}).
+
+% \medskip
+
+% \lipsum[2-3]
+
+% Figure \ref{fig:CodeJava} shows a Java code snippet example.
+
+% \begin{figure}
+%     \centering
+%     \begin{lstlisting}[language=Java]
+%         private void adjustRowHeights(Jtable table) {
+%             for(int row = num; row < table.getRowCount(); row++) {
+%                 int rowHeight = table.getRowHeight();
+%                 for(int column = num; column < table.getColumnCount(); column++) {
+%                     component comp = table.prepareenderer(table.getCellenderer(row, column), row, column);
+%                     rowHeight = math.max(rowHeight, comp.getPreferredSize().height);
+%                 }
+%                 table.setRowHeight(row, rowHeight);
+%             }
+%         }
+%     \end{lstlisting}
+%     \caption{Java code snippet.}
+%     \label{fig:CodeJava}
+% \end{figure}
+
+
+% Figure \ref{fig:CodePython} shows an example of a Python code snippet imported from a file.
+
+% \begin{figure}
+%     \centering
+%     \lstinputlisting[language=Python]{Tables_and_code/code.py}
+%     \caption{Python code snippet.}
+%     \label{fig:CodePython}
+% \end{figure}

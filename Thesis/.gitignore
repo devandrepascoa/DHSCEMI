@@ -1,0 +1,26 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.glo
+*.loa
+*.loc
+*.lof
+*.log
+*.lol
+*.lot
+*.maf
+*.mlf*
+*.mlt*
+*.mtc*
+*.out
+*.soc
+*.synctex.gz
+*.toc
+*.xdy
+missfont.log
+
+# Keep the final PDF (remove this line if you don't want to track it)
+# main.pdf
