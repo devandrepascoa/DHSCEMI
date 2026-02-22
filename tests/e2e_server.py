@@ -24,16 +24,14 @@ from typing import List
 from main_cost_aware import (  # noqa: F401
     HardwareConfig,
     CostAwareAutoscaler,
-    DemandTracker,
+    ThroughputTracker,
     Container,
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionChoice,
     Message,
-    get_throughput,
+    MEASURED_THROUGHPUT,
     get_cost_per_token,
-    DEFAULT_THROUGHPUT,
-    MAX_DRAIN_TIMEOUT_SECONDS,
 )
 import main_cost_aware
 
@@ -72,10 +70,8 @@ async def lifespan(app: FastAPI):
         cooldown_seconds=E2E_COOLDOWN_SECONDS,
         models_dir=MODELS_DIR,
     )
-    # Override the demand tracker window
-    autoscaler.demand_tracker = DemandTracker(
-        window_seconds=E2E_DEMAND_WINDOW_SECONDS,
-    )
+    # Override the throughput tracker
+    autoscaler.throughput_tracker = ThroughputTracker()
 
     if SINGLE_MODEL:
         # Only load the specified model
@@ -183,7 +179,7 @@ async def _non_stream_completion(request, container):
             usage = result.get("usage", {})
             total_tokens = usage.get("total_tokens", 0)
             if total_tokens > 0:
-                autoscaler.demand_tracker.record_tokens(
+                autoscaler.throughput_tracker.record_streaming_tokens(
                     request.model, total_tokens
                 )
 

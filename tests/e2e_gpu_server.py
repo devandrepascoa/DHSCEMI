@@ -21,16 +21,14 @@ from contextlib import asynccontextmanager
 from main_cost_aware import (  # noqa: F401
     HardwareConfig,
     CostAwareAutoscaler,
-    DemandTracker,
+    ThroughputTracker,
     Container,
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionChoice,
     Message,
-    get_throughput,
+    MEASURED_THROUGHPUT,
     get_cost_per_token,
-    DEFAULT_THROUGHPUT,
-    MAX_DRAIN_TIMEOUT_SECONDS,
 )
 
 from fastapi import FastAPI, HTTPException
@@ -52,8 +50,8 @@ E2E_HARDWARE_CONFIGS: List[HardwareConfig] = [
     HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=50, hourly_cost=5.00),     # gpu_50
 ]
 
-# Register throughput for cpu_14 (not in DEFAULT_THROUGHPUT)
-DEFAULT_THROUGHPUT["cpu_14"] = 24.0
+# Register throughput for cpu_14 (not in MEASURED_THROUGHPUT)
+MEASURED_THROUGHPUT["cpu_14"] = 24.0
 
 E2E_COOLDOWN_SECONDS = 10
 E2E_DEMAND_WINDOW_SECONDS = 30
@@ -72,7 +70,7 @@ async def lifespan(app: FastAPI):
         cooldown_seconds=E2E_COOLDOWN_SECONDS,
         models_dir=MODELS_DIR,
     )
-    autoscaler.demand_tracker = DemandTracker(window_seconds=E2E_DEMAND_WINDOW_SECONDS)
+    autoscaler.throughput_tracker = ThroughputTracker()
 
     if SINGLE_MODEL:
         model_path = autoscaler.get_model_path(SINGLE_MODEL)
@@ -170,7 +168,7 @@ async def _non_stream_completion(request, container):
             usage = result.get("usage", {})
             total_tokens = usage.get("total_tokens", 0)
             if total_tokens > 0:
-                autoscaler.demand_tracker.record_tokens(request.model, total_tokens)
+                autoscaler.throughput_tracker.record_streaming_tokens(request.model, total_tokens)
 
             return ChatCompletionResponse(
                 id=str(uuid.uuid4()),
@@ -193,9 +191,9 @@ class _InjectDemandRequest(_BM):
 @app.post("/test/inject_demand")
 async def inject_demand(req: _InjectDemandRequest):
     """Inject synthetic token demand for testing."""
-    autoscaler.demand_tracker.record_tokens(req.model, req.tokens)
-    demand = autoscaler.demand_tracker.get_demand(req.model)
-    return {"model": req.model, "injected_tokens": req.tokens, "current_demand_tps": demand}
+    autoscaler.throughput_tracker.record_streaming_tokens(req.model, req.tokens)
+    ema = autoscaler.throughput_tracker.get_ema(req.model)
+    return {"model": req.model, "injected_tokens": req.tokens, "current_demand_tps": ema}
 
 
 @app.post("/test/reset_cooldown")

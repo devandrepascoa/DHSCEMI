@@ -28,7 +28,7 @@ from pathlib import Path
 from main_cost_aware import (
     HardwareConfig,
     CostAwareAutoscaler,
-    DemandTracker,
+    ThroughputTracker,
     Container,
     ChatCompletionRequest,
     Message,
@@ -585,7 +585,7 @@ async def lifespan(app: FastAPI):
         models_dir=models_dir,
         headroom=0.0,
     )
-    autoscaler.demand_tracker = DemandTracker(window_seconds=DEMAND_WINDOW)
+    autoscaler.throughput_tracker = ThroughputTracker()
 
     initial_config_id = os.environ.get("E2E_INITIAL_CONFIG", "")
     initial_config = None
