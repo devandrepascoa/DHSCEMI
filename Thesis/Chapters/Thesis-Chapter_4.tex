@@ -28,56 +28,7 @@ In contrast, low throughput and low device utilization (LDU) may be encountered 
 
 Considering energy consumption from a holistic perspective\textemdash{}factoring in the energy used by the orchestrator or main CPU server in addition to the GPU\textemdash{}CPUs may also demonstrate higher throughput per watt. This is particularly true in architectures where separate servers are used for orchestration and computation. 
 
-To implement this we obtain throughput per unitary cost profiles of each of the possible hardware types from a historical throughput profiles data source and select the lowest unitary cost for our current inference throughput, we outline the final architecture for this dynamic selection in section \ref{optimized-solution}.
-
-As we discussed in section \ref{solution}, our solution separates the inference hardware accelerators from the main microservice component to prevent it from being shutdown, thus we require a way to link these the main microservice component with the inference hardware accelerator components, to do this we propose an initial solution based on dynamic linking with WebAssembly primitives, and then improve on this initial proposal's performance bottlenecks by using modern WebAssembly component model infrastructure.
-
-\subsection{Remote Module Execution with Dynamic Linking}
-Our initial solution for remote module execution uses WASI v1 and Wasmtime runtime abstractions, such as \textbf{Store}, \textbf{Linker}, and \textbf{Module}, to implement dynamic linking. This involves manually handling shared libraries, memory, and tables.
-
-\subsubsection{Application Compilation}
-To create these modules, we use the WASI SDK compiler toolchain with -fPIC, -shared and -Wl,--export-all flags to compile our shared libraries.
-The -fPIC Flag makes sure the compiler generates position independent WASM code, the -shared flag generates the shared library and the -Wl,--export-all flag makes sure the linker exports all symbols even if unused. After compiling the shared libraries, we use also compile the main module as a shared library.
-
-\subsubsection {Dynamic Linking Approaches}
-There are multiple approaches to dynamic linking, such as shared-nothing dynamic linking, shared-something dynamic linking, and shared-everything dynamic linking.
-
-\subsubsection{Shared-Nothing Dynamic Linking}
-
-Shared-nothing dynamic linking architecture is an approach to dynamic linking that does not allow for the sharing of resources between modules other than with explicit communication. This approach is used in the Component Model, which is a part of the WebAssembly System Interface (WASI) v2 standard.
-
-\subsubsection{Dynamic Linking Implementation}
-
-We base our dynamic linking implementation on existing work \cite{makitalo2021bringing} that was done for the EMScripten compiler toolchain and not the WASI SDK compiler toolchain.
-
-\subsubsection{Remote Module Execution}
-
-This solution for remote module execution, as can be seen in figure \ref{fig:dynamic-linking-arch}, brings significant performance bottlenecks due to shared memory between the servers.
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=1.0\textwidth]{dynamic-linking-arch.png}
-\caption{Architecture for remote module execution with shared memory.}
-\label{fig:dynamic-linking-arch}
-\end{figure}
-
-\subsection{Remote Module Execution with Component Model and wRPC}
-\label{optimized-solution}
-The second solution represented in Figure \ref{fig:architecture}, builds on the Component Model and wRPC, by enforcing \textbf{shared-nothing} principles and leveraging the immutable high-level WIT interfaces from the component model, this approach eliminates the need of sharing memory between the components.
-
-\begin{itemize}
-\item Components communicate explicitly via immutable WIT interfaces, and each component has it's own linear memory.
-\item Remote execution is enabled through wRPC
-\end{itemize}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=1.0\textwidth]{component-model-arch.png}
-\caption{System architecture for dynamic selection of accelerators based on workload. }
-\label{fig:architecture}
-\end{figure}
-
-By dynamically selecting the appropriate accelerator based on throughput and device utilization, we believe lower costs and possible energy savings can be achieved.
+To implement this we obtain throughput per unitary cost profiles of each of the possible hardware types from a historical throughput profiles data source and select the lowest unitary cost for our current inference throughput.
 
 \pagebreak
 \endinput
