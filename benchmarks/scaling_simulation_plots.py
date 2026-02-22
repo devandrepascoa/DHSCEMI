@@ -3,7 +3,12 @@
 Generate thesis-quality plots from a full scaling simulation
 (cpu_4 → cpu_12 → gpu_25 → gpu_100).
 
-Throughput values are grounded in real benchmark measurements.
+Uses the same /metrics-based throughput threshold model as
+scaling_simulation.py and scaling_demo_server.py.
+
+Scaling logic:
+  - Scale UP:   throughput_ema >= SCALE_UP_MULT * measured_throughput[current]
+  - Scale DOWN: throughput_ema <= SCALE_DOWN_MULT * measured_throughput[cheaper]
 
 Plot 1: Hardware config + demand (tok/s) vs time
 Plot 2: Cost/hour vs time
@@ -19,32 +24,35 @@ import sys
 sys.path.insert(0, ".")
 
 from pathlib import Path
-from main_cost_aware import (
-    DemandTracker,
-    HardwareConfig,
-    CostAwareAutoscaler,
-    DEFAULT_THROUGHPUT,
-)
+from main_cost_aware import HardwareConfig
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# Measured throughput from benchmarks (--parallel 32, max_tokens=256)
-#
-# MAX AGGREGATE throughput = autoscaler ceiling (total tok/s under load)
-#   cpu_4:   32.0 tok/s  (batch=4)
-#   cpu_12:  47.0 tok/s  (batch=4 peak)
-#   gpu_25:  146.5 tok/s (batch=32, throughput_benchmark_results_3.json)
-#   gpu_100: 1064.2 tok/s (batch=32, throughput_benchmark_results_3.json)
-#
-# SINGLE-REQUEST throughput = used for per-request duration (BASE_DURATION)
-#   cpu_4:   9.0 tok/s   (batch=1)
-#   cpu_12:  15.4 tok/s  (batch=1)
-#   gpu_25:  13.3 tok/s  (batch=1, throughput_benchmark_results_3.json)
-#   gpu_100: 152.9 tok/s (batch=1, throughput_benchmark_results_3.json)
+# Hardware configs — ordered by cost (cheapest first)
 # ---------------------------------------------------------------------------
+CONFIGS = [
+    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
+    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
+    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
+    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
+]
+CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: c.hourly_cost)
+
+MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
+COOLDOWN = 300
+SCALING_CHECK_INTERVAL = 10
+
+# ---------------------------------------------------------------------------
+# Metrics-based scaling parameters (must match scaling_simulation.py)
+# ---------------------------------------------------------------------------
+SCALE_UP_MULT = 0.8
+SCALE_DOWN_MULT = 0.3
+EMA_ALPHA = 2.0 / (60 + 1)  # ~60s EMA window
+
+# Measured aggregate throughput per config (from benchmarks)
 MEASURED_THROUGHPUT = {
     "cpu_4":   32.0,
     "cpu_12":  47.0,
@@ -52,55 +60,30 @@ MEASURED_THROUGHPUT = {
     "gpu_100": 1064.0,
 }
 
-for k, v in MEASURED_THROUGHPUT.items():
-    DEFAULT_THROUGHPUT[k] = v
+# Single-request throughput (batch=1) — for simulation duration calc
+SINGLE_REQUEST_TPS = {
+    "cpu_4":   9.0,
+    "cpu_12":  15.4,
+    "gpu_25":  13.3,
+    "gpu_100": 152.9,
+}
 
-# Hourly costs chosen so cost-per-token ordering is:
-#   cpu_4 < cpu_12 < gpu_25 < gpu_100
-# cost/tok: cpu_4=0.43μ$, cpu_12=0.71μ$, gpu_25=0.94μ$, gpu_100=1.04μ$
-CONFIGS = [
-    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
-    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
-    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
-    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
-]
-
-MODEL = "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M"
-COOLDOWN = 300        # 5 min cooldown between scaling events
-DEMAND_WINDOW = 180   # 3 min EMA window for demand tracking
 TOKENS_PER_REQUEST = 140
-HEADROOM = 0.25       # 25% headroom multiplier for asymmetric hysteresis
 
 # ---------------------------------------------------------------------------
 # Workload phases: (name, duration_s, concurrency, rpm)
-#
-# Designed to drive demand through all 4 config tiers and back down:
-#   cpu_4(32) → cpu_12(47) → gpu_25(147) → gpu_100(1064)
-#
-# Single-request throughput (batch=1):
-#   cpu_4=9.0, cpu_12=15.4, gpu_25=13.3, gpu_100=152.9 tok/s
-# N workers on config X → N × single_tps tok/s demand.
-# rpm=0 means saturated (workers fire as fast as they finish).
 # ---------------------------------------------------------------------------
 PHASES = [
-    ("low load",       900,  1,   3),    # ~7 tok/s EMA, stays on cpu_4
-    ("medium load",    900,  4,  15),    # ~35 tok/s (rpm-limited), triggers cpu_12
-    ("high load",      900,  8,   0),    # ~123 tok/s on cpu_12→gpu_25, stays gpu_25
-    ("peak load",      900, 30,   0),    # ~400 tok/s on gpu_25, triggers gpu_100
-    ("sustain gpu",    600, 30,   0),    # sustain on gpu_100
-    ("ramp-down 1",    900,  4,  43),    # ~100 tok/s (rpm-limited), triggers gpu_25
-    ("ramp-down 2",    900,  4,  15),    # ~35 tok/s (rpm-limited), triggers cpu_12
-    ("ramp-down 3",    900,  1,   3),    # ~7 tok/s, triggers cpu_4
-    ("low load",       600,  1,   3),    # settle on cpu_4
+    ("low load",       900,  1,   3),
+    ("medium load",    900,  4,  15),
+    ("high load",      900,  8,   0),
+    ("peak load",      900, 30,   0),
+    ("sustain gpu",    600, 30,   0),
+    ("ramp-down 1",    900,  4,  43),
+    ("ramp-down 2",    900,  4,  15),
+    ("ramp-down 3",    900,  1,   3),
+    ("low load",       600,  1,   3),
 ]
-
-# Single-request duration = TOKENS_PER_REQUEST / single_request_throughput (batch=1)
-BASE_DURATION = {
-    "cpu_4":   15.6,   # 140 / 9.0 tok/s
-    "cpu_12":  9.1,    # 140 / 15.4 tok/s
-    "gpu_25":  10.5,   # 140 / 13.3 tok/s
-    "gpu_100": 0.9,    # 140 / 152.9 tok/s
-}
 
 CONFIG_ORDER = ["cpu_4", "cpu_12", "gpu_25", "gpu_100"]
 CONFIG_COLORS = {
@@ -125,76 +108,117 @@ OUT_DIR = Path(__file__).parent / "thesis_figures"
 OUT_DIR.mkdir(exist_ok=True)
 
 
-def simulate_timeseries() -> list[dict]:
-    fake_time = [0.0]
-    clock = lambda: fake_time[0]
+# ---------------------------------------------------------------------------
+# Scaling decision (same as scaling_simulation.py)
+# ---------------------------------------------------------------------------
 
-    tracker = DemandTracker(window_seconds=DEMAND_WINDOW, clock=clock)
-    scaler = CostAwareAutoscaler(
-        configs=CONFIGS, cooldown_seconds=COOLDOWN, clock=clock,
-        headroom=HEADROOM,
+def select_config(
+    current_config: HardwareConfig,
+    throughput_ema: float,
+) -> HardwareConfig:
+    current_id = current_config.config_id()
+    current_idx = next(
+        i for i, c in enumerate(CONFIGS_BY_COST) if c.config_id() == current_id
     )
-    scaler.demand_tracker = tracker
-    current_config = CONFIGS[0]
-    scaler.current_config[MODEL] = current_config
-    scaler.last_scale_time[MODEL] = 0.0
+    current_capacity = MEASURED_THROUGHPUT[current_id]
+
+    if throughput_ema >= SCALE_UP_MULT * current_capacity:
+        if current_idx + 1 < len(CONFIGS_BY_COST):
+            return CONFIGS_BY_COST[current_idx + 1]
+
+    if current_idx > 0:
+        cheaper = CONFIGS_BY_COST[current_idx - 1]
+        cheaper_capacity = MEASURED_THROUGHPUT[cheaper.config_id()]
+        if throughput_ema <= SCALE_DOWN_MULT * cheaper_capacity:
+            return cheaper
+
+    return current_config
+
+
+# ---------------------------------------------------------------------------
+# Simulation (same model as scaling_simulation.py)
+# ---------------------------------------------------------------------------
+
+def simulate_timeseries() -> list:
+    current_config = CONFIGS_BY_COST[0]
+    last_scale_time = 0.0
+    throughput_ema = 0.0
+    last_ema_time = 0.0
 
     samples = []
     total_elapsed = 0.0
 
     for phase_name, duration, concurrency, rpm in PHASES:
-        interval = 60.0 * concurrency / rpm if concurrency > 0 and rpm > 0 else 0
-        workers = [{"next_start": total_elapsed, "busy_until": 0}
+        if concurrency > 0 and rpm > 0:
+            worker_interval = 60.0 * concurrency / rpm
+        else:
+            worker_interval = 0
+
+        workers = [{"next_start": total_elapsed, "busy_until": 0.0}
                    for _ in range(concurrency)]
 
         t = total_elapsed
         end_t = total_elapsed + duration
 
         while t < end_t:
-            # Check for completed requests and record tokens at current time
-            fake_time[0] = t
+            config_id = current_config.config_id()
+            single_tps = SINGLE_REQUEST_TPS.get(config_id, 9.0)
+
+            active_count = 0
             for w in workers:
                 if w["busy_until"] > 0 and t >= w["busy_until"]:
-                    tracker.record_tokens(MODEL, TOKENS_PER_REQUEST)
-                    w["busy_until"] = 0  # mark idle
+                    w["busy_until"] = 0.0
 
-            # Start new requests for idle workers
-            for w in workers:
                 if w["busy_until"] == 0 and t >= w["next_start"]:
-                    cid = current_config.config_id()
-                    dur = BASE_DURATION.get(cid, 10.0)
-                    w["busy_until"] = t + dur
-                    w["next_start"] = t + interval
+                    base_dur = TOKENS_PER_REQUEST / single_tps
+                    w["busy_until"] = t + base_dur
+                    if worker_interval > 0:
+                        w["next_start"] = t + worker_interval
+                    else:
+                        w["next_start"] = t
+
+                if w["busy_until"] > t:
+                    active_count += 1
+
+            aggregate_tps = single_tps * active_count if active_count > 0 else 0.0
+
+            dt = t - last_ema_time
+            if dt > 0:
+                decay = (1.0 - EMA_ALPHA) ** dt
+                throughput_ema = throughput_ema * decay + EMA_ALPHA * aggregate_tps
+                last_ema_time = t
+
+            if int(t) % SCALING_CHECK_INTERVAL == 0 and t > total_elapsed:
+                if t - last_scale_time >= COOLDOWN:
+                    optimal = select_config(current_config, throughput_ema)
+                    if optimal.config_id() != current_config.config_id():
+                        current_config = optimal
+                        last_scale_time = t
 
             if int(t) % 5 == 0:
-                fake_time[0] = t
-                demand = tracker.get_demand(MODEL)
-                new_config = scaler.check_scaling(MODEL)
-                if new_config and new_config.config_id() != current_config.config_id():
-                    current_config = new_config
-                    scaler.current_config[MODEL] = new_config
-                    scaler.last_scale_time[MODEL] = t
-
-                throughput = MEASURED_THROUGHPUT.get(current_config.config_id(), 1.0)
-                cost_per_token = (current_config.hourly_cost / (throughput * 3600)
-                                  if throughput > 0 else float('inf'))
-
+                cid = current_config.config_id()
+                throughput = MEASURED_THROUGHPUT.get(cid, 1.0)
+                cost_per_token = (
+                    current_config.hourly_cost / (throughput * 3600)
+                    if throughput > 0 else float('inf')
+                )
                 samples.append({
                     "time_min": t / 60.0,
                     "phase": phase_name,
-                    "config_id": current_config.config_id(),
-                    "demand_tps": demand,
+                    "config_id": cid,
+                    "demand_tps": throughput_ema,
                     "hourly_cost": current_config.hourly_cost,
                     "throughput": throughput,
                     "cost_per_token": cost_per_token,
                 })
+
             t += 1.0
         total_elapsed = end_t
 
     return samples
 
 
-def _phase_spans(samples: list[dict]) -> list[tuple]:
+def _phase_spans(samples: list) -> list:
     spans = []
     prev = samples[0]["phase"]
     start = samples[0]["time_min"]
@@ -217,7 +241,7 @@ def _common_rc():
     })
 
 
-def generate_plots(samples: list[dict]) -> None:
+def generate_plots(samples: list) -> None:
     _common_rc()
 
     t = np.array([s["time_min"] for s in samples])
@@ -251,16 +275,15 @@ def generate_plots(samples: list[dict]) -> None:
     ax1b = ax1.twinx()
     ax1b.plot(t, demand, color="#e15759", linewidth=1.4, alpha=0.85, zorder=4)
     ax1b.fill_between(t, demand, alpha=0.06, color="#e15759")
-    ax1b.set_ylabel("Demand (tok/s)", color="#e15759")
+    ax1b.set_ylabel("Throughput EMA (tok/s)", color="#e15759")
     ax1b.tick_params(axis="y", labelcolor="#e15759")
     ax1b.spines["right"].set_visible(True)
 
-    # Throughput threshold lines (skip gpu_100 — too high)
     for cid, thr in MEASURED_THROUGHPUT.items():
         if thr < 200:
             ax1b.axhline(thr, linestyle=":", color=CONFIG_COLORS[cid],
                          alpha=0.5, linewidth=1)
-            ax1b.text(t[-1] * 1.01, thr, f"{thr:.0f}", fontsize=7,
+            ax1b.text(t[-1] * 1.01, thr, "%d" % thr, fontsize=7,
                       va="center", color=CONFIG_COLORS[cid])
 
     for st in scale_times:
@@ -285,9 +308,10 @@ def generate_plots(samples: list[dict]) -> None:
 
     fig1.tight_layout()
     for ext in ("pdf", "png"):
-        fig1.savefig(OUT_DIR / f"sim_config_vs_time.{ext}", bbox_inches="tight", dpi=300)
+        fig1.savefig(OUT_DIR / ("sim_config_vs_time.%s" % ext),
+                     bbox_inches="tight", dpi=300)
     plt.close(fig1)
-    print(f"Saved: sim_config_vs_time")
+    print("Saved: sim_config_vs_time")
 
     # ==================================================================
     # Plot 2: Cost/hour vs time
@@ -305,7 +329,7 @@ def generate_plots(samples: list[dict]) -> None:
 
     ax2b = ax2.twinx()
     ax2b.plot(t, demand, color="#e15759", linewidth=1.2, alpha=0.6, zorder=4)
-    ax2b.set_ylabel("Demand (tok/s)", color="#e15759")
+    ax2b.set_ylabel("Throughput EMA (tok/s)", color="#e15759")
     ax2b.tick_params(axis="y", labelcolor="#e15759")
     ax2b.spines["right"].set_visible(True)
 
@@ -323,17 +347,21 @@ def generate_plots(samples: list[dict]) -> None:
     ax2.set_title("Infrastructure Cost Over Time")
 
     cost_legend = [
-        mpatches.Patch(color=CONFIG_COLORS[c],
-                       label=f"{c} — ${h.hourly_cost:.2f}/hr", alpha=0.5)
-        for c, h in zip(CONFIG_ORDER, CONFIGS)
+        mpatches.Patch(
+            color=CONFIG_COLORS[c],
+            label="%s — $%.2f/hr" % (c, CONFIGS_BY_COST[i].hourly_cost),
+            alpha=0.5,
+        )
+        for i, c in enumerate(CONFIG_ORDER)
     ]
     ax2.legend(handles=cost_legend, loc="upper left", fontsize=8, ncol=4)
 
     fig2.tight_layout()
     for ext in ("pdf", "png"):
-        fig2.savefig(OUT_DIR / f"sim_cost_vs_time.{ext}", bbox_inches="tight", dpi=300)
+        fig2.savefig(OUT_DIR / ("sim_cost_vs_time.%s" % ext),
+                     bbox_inches="tight", dpi=300)
     plt.close(fig2)
-    print(f"Saved: sim_cost_vs_time")
+    print("Saved: sim_cost_vs_time")
 
     # ==================================================================
     # Plot 3: Cost per token vs time
@@ -343,7 +371,7 @@ def generate_plots(samples: list[dict]) -> None:
     for s, e, p in phase_spans:
         ax3.axvspan(s, e, alpha=0.12, color=PHASE_COLORS.get(p, "#f5f5f5"), zorder=0)
 
-    cpt_micro = cpt * 1e6  # micro-dollars
+    cpt_micro = cpt * 1e6
     for i in range(len(t) - 1):
         c = configs[i]
         ax3.fill_between([t[i], t[i + 1]], [cpt_micro[i], cpt_micro[i + 1]],
@@ -352,7 +380,7 @@ def generate_plots(samples: list[dict]) -> None:
 
     ax3b = ax3.twinx()
     ax3b.plot(t, demand, color="#e15759", linewidth=1.2, alpha=0.6, zorder=4)
-    ax3b.set_ylabel("Demand (tok/s)", color="#e15759")
+    ax3b.set_ylabel("Throughput EMA (tok/s)", color="#e15759")
     ax3b.tick_params(axis="y", labelcolor="#e15759")
     ax3b.spines["right"].set_visible(True)
 
@@ -372,10 +400,10 @@ def generate_plots(samples: list[dict]) -> None:
 
     fig3.tight_layout()
     for ext in ("pdf", "png"):
-        fig3.savefig(OUT_DIR / f"sim_cost_per_token_vs_time.{ext}",
+        fig3.savefig(OUT_DIR / ("sim_cost_per_token_vs_time.%s" % ext),
                      bbox_inches="tight", dpi=300)
     plt.close(fig3)
-    print(f"Saved: sim_cost_per_token_vs_time")
+    print("Saved: sim_cost_per_token_vs_time")
 
     # ==================================================================
     # Plot 4: Dynamic vs static provisioning cost
@@ -390,9 +418,9 @@ def generate_plots(samples: list[dict]) -> None:
         ax4.fill_between([t[i], t[i + 1]], [costs[i], costs[i + 1]],
                          alpha=0.3, color=CONFIG_COLORS[c], step="post", zorder=2)
 
-    static_cost = CONFIGS[-1].hourly_cost  # gpu_100
+    static_cost = CONFIGS_BY_COST[-1].hourly_cost  # gpu_100
     ax4.axhline(static_cost, linestyle="--", color="#b07aa1", alpha=0.6,
-                linewidth=1.5, label=f"Static gpu_100 (${static_cost:.2f}/hr)")
+                linewidth=1.5, label="Static gpu_100 ($%.2f/hr)" % static_cost)
     ax4.step(t, costs, where="post", color="#333", linewidth=1.8, zorder=3,
              label="Dynamic cost")
 
@@ -404,23 +432,24 @@ def generate_plots(samples: list[dict]) -> None:
 
     fig4.tight_layout()
     for ext in ("pdf", "png"):
-        fig4.savefig(OUT_DIR / f"sim_cost_vs_demand.{ext}", bbox_inches="tight", dpi=300)
+        fig4.savefig(OUT_DIR / ("sim_cost_vs_demand.%s" % ext),
+                     bbox_inches="tight", dpi=300)
     plt.close(fig4)
-    print(f"Saved: sim_cost_vs_demand")
+    print("Saved: sim_cost_vs_demand")
 
 
 if __name__ == "__main__":
-    print("Running scaling simulation (cpu_4 → cpu_12 → gpu_25 → gpu_100)...")
+    print("Running scaling simulation (cpu_4 -> cpu_12 -> gpu_25 -> gpu_100)...")
     samples = simulate_timeseries()
-    print(f"Generated {len(samples)} samples over {samples[-1]['time_min']:.1f} min")
+    print("Generated %d samples over %.1f min" % (len(samples), samples[-1]["time_min"]))
 
     for cid in CONFIG_ORDER:
         pts = [s for s in samples if s["config_id"] == cid]
         if pts:
             d = [s["demand_tps"] for s in pts]
-            print(f"  {cid}: {len(pts)} samples, demand {min(d):.1f}–{max(d):.1f} tok/s")
+            print("  %s: %d samples, demand %.1f-%.1f tok/s" % (cid, len(pts), min(d), max(d)))
         else:
-            print(f"  {cid}: never selected")
+            print("  %s: never selected" % cid)
 
     generate_plots(samples)
     print("Done.")
