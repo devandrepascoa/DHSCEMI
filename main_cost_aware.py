@@ -1,13 +1,13 @@
 """
 Cost-Aware LLM Inference Autoscaler — Scaling Demo Server.
 
-Scaling logic: /metrics-based throughput EMA.
-  Poll /metrics for n_tokens_predicted_total + n_prompt_tokens_processed_total,
-  compute delta_tokens / delta_time = instantaneous aggregate tok/s,
-  feed to a 4-minute EMA.
+Scaling logic: per-request tok/s from SSE streaming.
+  Each request measures tokens/wall_time from the SSE stream,
+  feeds into a per_request_tps_ema.
 
-  - Scale UP:   throughput_ema >= SCALE_UP_MULT * measured_throughput[current]
-  - Scale DOWN: throughput_ema <= SCALE_DOWN_MULT * measured_throughput[cheaper]
+  - Scale UP:   per_request_tps_ema < MIN_TPS_THRESHOLD
+  - Scale DOWN: per_request_tps_ema >= MIN_TPS_THRESHOLD
+                AND active_requests_ema <= SCALE_DOWN_CONCURRENCY
 
 Usage:
     uv run uvicorn main_cost_aware:app --port <PORT>
@@ -85,11 +85,14 @@ MEASURED_THROUGHPUT: Dict[str, float] = {
     "gpu_100": 1064.0,
 }
 
-SCALE_UP_MULT = 0.8
-SCALE_DOWN_MULT = 0.3
 METRICS_POLL_INTERVAL = 1.0
 SCALING_CHECK_INTERVAL = 10
-EMA_ALPHA = 2.0 / (240 + 1)  # ~4min EMA window
+_EMA_WINDOW = int(os.environ.get("E2E_EMA_WINDOW", "240"))
+EMA_ALPHA = 2.0 / (_EMA_WINDOW + 1)  # default ~4min EMA window
+
+# Per-request scaling thresholds
+MIN_TPS_THRESHOLD = float(os.environ.get("E2E_MIN_TPS", "10.0"))
+SCALE_DOWN_CONCURRENCY = float(os.environ.get("E2E_SCALE_DOWN_CONCURRENCY", "5.0"))
 
 _RE_PREDICTED = re.compile(
     r'^llamacpp:tokens_predicted_total\s+(\d+(?:\.\d+)?)', re.MULTILINE
@@ -328,22 +331,24 @@ class Container:
 
 
 # ---------------------------------------------------------------------------
-# select_config (threshold-based scaling decision)
+# select_config_per_request (per-request tok/s scaling decision)
 # ---------------------------------------------------------------------------
 
 COOLDOWN_SECONDS = 300
 
 
-def select_config(
+def select_config_per_request(
     current_config: HardwareConfig,
-    throughput_ema: float,
+    per_request_tps_ema: float,
+    active_requests_ema: float,
     configs_by_cost: Optional[List[HardwareConfig]] = None,
 ) -> HardwareConfig:
-    """Select config based on throughput EMA vs measured capacity thresholds.
+    """Select config based on per-request tok/s and active concurrency.
 
-    Scale UP:   throughput_ema >= SCALE_UP_MULT * capacity[current]
-    Scale DOWN: throughput_ema <= SCALE_DOWN_MULT * capacity[current]
-                AND throughput_ema <= 0.75 * capacity[cheaper]
+    Scale UP:   per_request_tps_ema < MIN_TPS_THRESHOLD
+    Scale DOWN: per_request_tps_ema >= MIN_TPS_THRESHOLD
+                AND active_requests_ema <= SCALE_DOWN_CONCURRENCY
+                AND lower config can still serve current concurrency above threshold
 
     configs_by_cost is optional; defaults to HARDWARE_CONFIGS sorted by cost.
     """
@@ -354,20 +359,25 @@ def select_config(
     current_idx = next(
         i for i, c in enumerate(configs_by_cost) if c.config_id() == current_id
     )
-    current_capacity = MEASURED_THROUGHPUT.get(current_id, 1.0)
 
-    # Check scale UP
-    if throughput_ema >= SCALE_UP_MULT * current_capacity:
+    # Scale UP: per-request speed below minimum
+    if per_request_tps_ema < MIN_TPS_THRESHOLD:
         if current_idx + 1 < len(configs_by_cost):
             return configs_by_cost[current_idx + 1]
 
-    # Check scale DOWN: only if underusing current AND cheaper can handle it
+    # Scale DOWN: speed acceptable AND low concurrency
+    #   Also check that the lower config's capacity / concurrency >= threshold
+    #   Use 1.5x safety margin because actual per-request degradation under
+    #   concurrency is worse than the linear capacity/concurrency estimate.
     if current_idx > 0:
-        cheaper = configs_by_cost[current_idx - 1]
-        cheaper_capacity = MEASURED_THROUGHPUT.get(cheaper.config_id(), 1.0)
-        if (throughput_ema <= SCALE_DOWN_MULT * current_capacity
-                and throughput_ema <= 0.75 * cheaper_capacity):
-            return cheaper
+        if (per_request_tps_ema >= MIN_TPS_THRESHOLD
+                and active_requests_ema <= SCALE_DOWN_CONCURRENCY):
+            lower = configs_by_cost[current_idx - 1]
+            lower_capacity = MEASURED_THROUGHPUT.get(lower.config_id(), 1.0)
+            concurrency = max(active_requests_ema, 1.0)
+            estimated_per_req = lower_capacity / concurrency
+            if estimated_per_req >= MIN_TPS_THRESHOLD * 1.5:
+                return lower
 
     return current_config
 
@@ -420,22 +430,28 @@ class CostAwareAutoscaler:
                 return f
         return None
 
-    def select_optimal_config(self, model: str, ema: float,
-                              current: Optional[HardwareConfig] = None) -> HardwareConfig:
+    def select_optimal_config(
+        self, model: str, per_request_tps_ema: float,
+        active_requests_ema: float,
+        current: Optional[HardwareConfig] = None,
+    ) -> HardwareConfig:
         if current is None:
             return self.configs_by_cost[0]
-        return select_config(current, ema, self.configs_by_cost)
+        return select_config_per_request(
+            current, per_request_tps_ema, active_requests_ema, self.configs_by_cost,
+        )
 
-    def check_scaling(self, model: str) -> Optional[HardwareConfig]:
+    def check_scaling(self, model: str,
+                      per_request_tps_ema: float = 0.0,
+                      active_requests_ema: float = 0.0) -> Optional[HardwareConfig]:
         now = self.clock()
         last_scale = self.last_scale_time.get(model, 0)
         if now - last_scale < self.cooldown_seconds:
             return None
-        if self.throughput_tracker._waiting_for_first_token.get(model, False):
-            return None
         current = self.current_config.get(model)
-        ema = self.throughput_tracker.get_ema(model)
-        optimal = self.select_optimal_config(model, ema, current=current)
+        optimal = self.select_optimal_config(
+            model, per_request_tps_ema, active_requests_ema, current=current,
+        )
         if current is None or optimal.config_id() != current.config_id():
             return optimal
         return None
@@ -512,7 +528,6 @@ class CostAwareAutoscaler:
         for name, container in self.containers.items():
             config = self.current_config.get(name)
             config_id = config.config_id() if config else "unknown"
-            ema = self.throughput_tracker.get_ema(name)
             capacity = MEASURED_THROUGHPUT.get(config_id, 1.0)
             cost_per_tok = get_cost_per_token(name, config) if config else 0.0
 
@@ -524,10 +539,9 @@ class CostAwareAutoscaler:
                 "memory": config.memory if config else None,
                 "hourly_cost": config.hourly_cost if config else 0.0,
                 "image": config.image if config else "unknown",
-                "throughput_ema": round(ema, 4),
                 "capacity": capacity,
-                "ema_pct": round(ema / capacity * 100, 1) if capacity > 0 else 0,
-                "scale_up_threshold": round(SCALE_UP_MULT * capacity, 1),
+                "min_tps_threshold": MIN_TPS_THRESHOLD,
+                "scale_down_concurrency": SCALE_DOWN_CONCURRENCY,
                 "cost_per_token": round(cost_per_tok, 10),
                 "active_requests": container.active_requests,
                 "total_requests": container.total_requests,
@@ -561,24 +575,30 @@ autoscaler: Optional[CostAwareAutoscaler] = None
 server_start_time: float = 0.0
 scaling_in_progress: bool = False
 
-# EMA state
-_throughput_ema: Dict[str, float] = {}
-_last_ema_time: Dict[str, float] = {}
+# Per-request tok/s EMA (scaling signal)
+_per_request_tps_ema: Dict[str, float] = {}
+_per_request_tps_ema_time: Dict[str, float] = {}
+_per_request_waiting_first: Dict[str, bool] = {}
 
-# /metrics polling state
+# Active requests EMA (for scale-down decisions)
+_active_requests_ema: Dict[str, float] = {}
+_active_requests_ema_time: Dict[str, float] = {}
+
+# Per-request streaming counters: req_id -> {model, count, first_token_time}
+_active_request_counters: Dict[str, Dict] = {}
+_prev_request_counts: Dict[str, int] = {}  # req_id -> last polled count
+
+# /metrics polling state (for logging only)
 _prev_total_tokens: Dict[str, float] = {}
 _prev_metrics_time: Dict[str, float] = {}
 _last_metrics_tps: Dict[str, float] = {}
 _last_predicted_tps_gauge: Dict[str, float] = {}
 
-# Streaming token counter
+# Streaming token counter (for logging/status display)
 _streaming_token_count: Dict[str, int] = {}
 _prev_streaming_count: Dict[str, int] = {}
 _prev_streaming_time: Dict[str, float] = {}
 _last_streaming_tps: Dict[str, float] = {}
-
-# After scaling, wait for new container to process first tokens
-_waiting_for_first_token: Dict[str, bool] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -746,25 +766,46 @@ async def _poll_metrics(container: Container) -> Optional[Dict]:
         return None
 
 
-def _update_ema(model: str, tps: float, now: float) -> float:
-    if model not in _throughput_ema:
-        _throughput_ema[model] = tps
-        _last_ema_time[model] = now
-        return tps
+def _update_per_request_ema(model: str, req_tps: float, now: float) -> float:
+    """Update per-request tok/s EMA when a request completes."""
+    if model not in _per_request_tps_ema:
+        _per_request_tps_ema[model] = req_tps
+        _per_request_tps_ema_time[model] = now
+        return req_tps
 
-    dt = now - _last_ema_time.get(model, now)
+    dt = now - _per_request_tps_ema_time.get(model, now)
     if dt <= 0:
-        return _throughput_ema.get(model, 0.0)
+        return _per_request_tps_ema.get(model, 0.0)
 
     decay = (1.0 - EMA_ALPHA) ** dt
-    _throughput_ema[model] = _throughput_ema[model] * decay + (1.0 - decay) * tps
-    _last_ema_time[model] = now
-    return _throughput_ema[model]
+    _per_request_tps_ema[model] = (
+        _per_request_tps_ema[model] * decay + (1.0 - decay) * req_tps
+    )
+    _per_request_tps_ema_time[model] = now
+    return _per_request_tps_ema[model]
 
 
+def _update_active_requests_ema(model: str, active: float, now: float) -> float:
+    """Update active requests EMA."""
+    if model not in _active_requests_ema:
+        _active_requests_ema[model] = active
+        _active_requests_ema_time[model] = now
+        return active
 
-async def _streaming_throughput_loop() -> None:
-    """Compute streaming tok/s every METRICS_POLL_INTERVAL from _streaming_token_count."""
+    dt = now - _active_requests_ema_time.get(model, now)
+    if dt <= 0:
+        return _active_requests_ema.get(model, 0.0)
+
+    decay = (1.0 - EMA_ALPHA) ** dt
+    _active_requests_ema[model] = (
+        _active_requests_ema[model] * decay + (1.0 - decay) * active
+    )
+    _active_requests_ema_time[model] = now
+    return _active_requests_ema[model]
+
+
+async def _streaming_counter_loop() -> None:
+    """Sample active requests EMA and compute per-request tok/s every tick."""
     while True:
         await asyncio.sleep(METRICS_POLL_INTERVAL)
         now = time.time()
@@ -774,6 +815,46 @@ async def _streaming_throughput_loop() -> None:
             if not container or not container.is_ready:
                 continue
 
+            # Sample active requests EMA
+            _update_active_requests_ema(
+                model_name, float(container.active_requests), now,
+            )
+
+            # Compute per-request tok/s from active request counters
+            per_req_tps_values = []
+            for req_id, info in list(_active_request_counters.items()):
+                if info.get("model") != model_name:
+                    continue
+                current_count = info.get("count", 0)
+                prev_count = _prev_request_counts.get(req_id, 0)
+                delta = current_count - prev_count
+                _prev_request_counts[req_id] = current_count
+                if delta > 0:
+                    # tok/s for this request in this interval
+                    per_req_tps_values.append(delta / METRICS_POLL_INTERVAL)
+
+            if per_req_tps_values:
+                avg_per_req_tps = sum(per_req_tps_values) / len(per_req_tps_values)
+                _update_per_request_ema(model_name, avg_per_req_tps, now)
+                # If waiting for first request after scaling, mark done
+                if _per_request_waiting_first.get(model_name, False):
+                    _per_request_waiting_first[model_name] = False
+                    # Seed EMA at threshold so we start neutral
+                    _per_request_tps_ema[model_name] = MIN_TPS_THRESHOLD
+                    _per_request_tps_ema_time[model_name] = now
+                    autoscaler.last_scale_time[model_name] = autoscaler.clock()
+                    _log_json("FIRST_TOKEN_AFTER_SCALE", {
+                        "model": model_name,
+                        "elapsed": round(now - server_start_time, 3),
+                        "config_id": autoscaler.current_config.get(
+                            model_name, CONFIGS[0]
+                        ).config_id(),
+                        "avg_per_req_tps": round(avg_per_req_tps, 2),
+                        "active_requests": len(per_req_tps_values),
+                        "seeded_ema": MIN_TPS_THRESHOLD,
+                    })
+
+            # Streaming tok/s for logging only
             current_count = _streaming_token_count.get(model_name, 0)
 
             if model_name not in _prev_streaming_count:
@@ -794,26 +875,6 @@ async def _streaming_throughput_loop() -> None:
             delta_tokens = current_count - prev_count
             tps = delta_tokens / dt
             _last_streaming_tps[model_name] = tps
-
-            # If waiting for first token after scaling, check streaming counter
-            if _waiting_for_first_token.get(model_name, False):
-                if delta_tokens > 0:
-                    _waiting_for_first_token[model_name] = False
-                    autoscaler.last_scale_time[model_name] = autoscaler.clock()
-                    _log_json("FIRST_TOKEN_AFTER_SCALE", {
-                        "model": model_name,
-                        "elapsed": round(now - server_start_time, 3),
-                        "config_id": autoscaler.current_config.get(
-                            model_name, CONFIGS[0]
-                        ).config_id(),
-                        "streaming_count": current_count,
-                        "delta_tokens": delta_tokens,
-                        "tps": round(tps, 2),
-                    })
-                    _update_ema(model_name, tps, now)
-                continue
-
-            _update_ema(model_name, tps, now)
 
 
 async def _metrics_polling_loop() -> None:
@@ -840,7 +901,7 @@ async def _metrics_polling_loop() -> None:
 # ---------------------------------------------------------------------------
 
 async def _background_scaling_loop() -> None:
-    """Check scaling every SCALING_CHECK_INTERVAL using throughput EMA."""
+    """Check scaling every SCALING_CHECK_INTERVAL using per-request tok/s EMA."""
     global scaling_in_progress
     while True:
         await asyncio.sleep(SCALING_CHECK_INTERVAL)
@@ -853,13 +914,13 @@ async def _background_scaling_loop() -> None:
             if not container or not current_config:
                 continue
 
-            if _waiting_for_first_token.get(model_name, False):
+            if _per_request_waiting_first.get(model_name, False):
                 continue
 
             now = time.time()
-            ema = _throughput_ema.get(model_name, 0.0)
+            pr_ema = _per_request_tps_ema.get(model_name, MIN_TPS_THRESHOLD)
+            ar_ema = _active_requests_ema.get(model_name, 0.0)
             current_id = current_config.config_id()
-            capacity = MEASURED_THROUGHPUT.get(current_id, 1.0)
             streaming_tps = _last_streaming_tps.get(model_name, 0.0)
             predicted_tps_gauge = _last_predicted_tps_gauge.get(model_name, 0.0)
 
@@ -867,14 +928,12 @@ async def _background_scaling_loop() -> None:
                 "model": model_name,
                 "elapsed": round(now - server_start_time, 3),
                 "config_id": current_id,
-                "throughput_ema": round(ema, 4),
+                "per_request_tps_ema": round(pr_ema, 4),
+                "active_requests_ema": round(ar_ema, 4),
+                "min_tps_threshold": MIN_TPS_THRESHOLD,
+                "scale_down_concurrency": SCALE_DOWN_CONCURRENCY,
                 "streaming_tps": round(streaming_tps, 4),
                 "predicted_tps_gauge": round(predicted_tps_gauge, 4),
-                "capacity": capacity,
-                "ema_pct_of_capacity": round(
-                    ema / capacity * 100, 1
-                ) if capacity > 0 else 0,
-                "scale_up_threshold": round(SCALE_UP_MULT * capacity, 1),
                 "active_requests": container.active_requests,
             })
 
@@ -883,7 +942,7 @@ async def _background_scaling_loop() -> None:
             if now - last_scale < autoscaler.cooldown_seconds:
                 continue
 
-            optimal = select_config(current_config, ema)
+            optimal = select_config_per_request(current_config, pr_ema, ar_ema)
             if optimal.config_id() == current_id:
                 continue
 
@@ -898,9 +957,8 @@ async def _background_scaling_loop() -> None:
                 "model": model_name,
                 "from_config": old_config_id,
                 "to_config": new_config_id,
-                "throughput_ema": round(ema, 4),
-                "from_capacity": MEASURED_THROUGHPUT.get(old_config_id, 0),
-                "to_capacity": MEASURED_THROUGHPUT.get(new_config_id, 0),
+                "per_request_tps_ema": round(pr_ema, 4),
+                "active_requests_ema": round(ar_ema, 4),
                 "from_hourly_cost": current_config.hourly_cost,
                 "to_hourly_cost": new_config.hourly_cost,
                 "active_requests": container.active_requests,
@@ -929,10 +987,12 @@ async def _background_scaling_loop() -> None:
                 if success:
                     autoscaler.containers[model_name] = new_container
                     autoscaler.current_config[model_name] = new_config
-                    _waiting_for_first_token[model_name] = True
-                    # Reset all throughput tracking state
-                    _throughput_ema.pop(model_name, None)
-                    _last_ema_time.pop(model_name, None)
+                    _per_request_waiting_first[model_name] = True
+                    # Reset all tracking state
+                    _per_request_tps_ema.pop(model_name, None)
+                    _per_request_tps_ema_time.pop(model_name, None)
+                    _active_requests_ema.pop(model_name, None)
+                    _active_requests_ema_time.pop(model_name, None)
                     _prev_total_tokens.pop(model_name, None)
                     _prev_metrics_time.pop(model_name, None)
                     _last_metrics_tps.pop(model_name, None)
@@ -1034,8 +1094,8 @@ async def lifespan(app: FastAPI):
         "model_path": str(model_path),
         "initial_config": initial_config.config_id(),
         "configs": [c.config_id() for c in CONFIGS],
-        "scale_up_mult": SCALE_UP_MULT,
-        "scale_down_mult": SCALE_DOWN_MULT,
+        "min_tps_threshold": MIN_TPS_THRESHOLD,
+        "scale_down_concurrency": SCALE_DOWN_CONCURRENCY,
         "ema_alpha": round(EMA_ALPHA, 6),
         "cooldown_s": COOLDOWN,
         "measured_throughput": MEASURED_THROUGHPUT,
@@ -1045,6 +1105,7 @@ async def lifespan(app: FastAPI):
         autoscaler.containers[model_name] = container
         autoscaler.current_config[model_name] = initial_config
         autoscaler.last_scale_time[model_name] = autoscaler.clock()
+        _per_request_waiting_first[model_name] = True
         _log_json("INIT_OK", {
             "model": model_name,
             "config": initial_config.config_id(),
@@ -1056,7 +1117,7 @@ async def lifespan(app: FastAPI):
         return
 
     metrics_task = asyncio.create_task(_metrics_polling_loop())
-    streaming_task = asyncio.create_task(_streaming_throughput_loop())
+    streaming_task = asyncio.create_task(_streaming_counter_loop())
     scaling_task = asyncio.create_task(_background_scaling_loop())
 
     yield
@@ -1104,16 +1165,19 @@ async def status():
     base = autoscaler.get_status()
     base["server_uptime_seconds"] = round(time.time() - server_start_time, 1)
     base["scaling_in_progress"] = scaling_in_progress
+    base["min_tps_threshold"] = MIN_TPS_THRESHOLD
+    base["scale_down_concurrency"] = SCALE_DOWN_CONCURRENCY
     for model_name in base.get("models", {}):
-        ema = _throughput_ema.get(model_name, 0.0)
+        pr_ema = _per_request_tps_ema.get(model_name, 0.0)
+        ar_ema = _active_requests_ema.get(model_name, 0.0)
+        streaming_tps = _last_streaming_tps.get(model_name, 0.0)
         config_id = base["models"][model_name].get("config_id", "")
         capacity = MEASURED_THROUGHPUT.get(config_id, 1.0)
-        base["models"][model_name]["throughput_ema"] = round(ema, 4)
+        base["models"][model_name]["per_request_tps_ema"] = round(pr_ema, 4)
+        base["models"][model_name]["active_requests_ema"] = round(ar_ema, 4)
+        base["models"][model_name]["throughput_ema"] = round(streaming_tps, 4)
         base["models"][model_name]["capacity"] = capacity
-        base["models"][model_name]["ema_pct"] = (
-            round(ema / capacity * 100, 1) if capacity > 0 else 0
-        )
-        base["models"][model_name]["demand_tps"] = round(ema, 4)
+        base["models"][model_name]["demand_tps"] = round(streaming_tps, 4)
     return base
 
 
@@ -1165,6 +1229,11 @@ async def chat_completions(request: ChatCompletionRequest):
         prompt_n = 0
         timings = {}
 
+        # Register per-request counter for background loop
+        _active_request_counters[req_id] = {
+            "model": request.model, "count": 0,
+        }
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url, json=payload,
@@ -1208,6 +1277,8 @@ async def chat_completions(request: ChatCompletionRequest):
                         if request.model not in _streaming_token_count:
                             _streaming_token_count[request.model] = 0
                         _streaming_token_count[request.model] += n_tok
+                        # Increment per-request counter for background loop
+                        _active_request_counters[req_id]["count"] += n_tok
 
                     if chunk.get("stop", False):
                         timings = chunk.get("timings", {})
@@ -1224,6 +1295,10 @@ async def chat_completions(request: ChatCompletionRequest):
         wall_ms = (time.time() - req_start) * 1000
         total_tokens = prompt_n + predicted_n
 
+        # Clean up per-request counter
+        _active_request_counters.pop(req_id, None)
+        _prev_request_counts.pop(req_id, None)
+
         prompt_ms = timings.get("prompt_ms", 0)
         prompt_per_second = timings.get("prompt_per_second", 0)
         prompt_per_token_ms = timings.get("prompt_per_token_ms", 0)
@@ -1236,7 +1311,7 @@ async def chat_completions(request: ChatCompletionRequest):
                 request.model, total_tokens
             )
 
-        ema = _throughput_ema.get(request.model, 0.0)
+        pr_ema = _per_request_tps_ema.get(request.model, 0.0)
         cpt = (
             get_cost_per_token(request.model, config) * 1e6
             if config else 0
@@ -1257,7 +1332,7 @@ async def chat_completions(request: ChatCompletionRequest):
             "prompt_tps": round(prompt_per_second, 1),
             "generation_tps": round(predicted_per_second, 1),
             "ttft_ms": round(prompt_ms, 1),
-            "throughput_ema": round(ema, 4),
+            "per_request_tps_ema": round(pr_ema, 4),
             "cost_per_token_micro": round(cpt, 4),
             "container": container.container_name,
             "port": container.port,
@@ -1295,6 +1370,9 @@ async def chat_completions(request: ChatCompletionRequest):
             500, "Internal error: %s" % str(e)[:200]
         )
     finally:
+        # Clean up per-request counter if still present
+        _active_request_counters.pop(req_id, None)
+        _prev_request_counts.pop(req_id, None)
         async with container.lock:
             container.active_requests = max(
                 0, container.active_requests - 1

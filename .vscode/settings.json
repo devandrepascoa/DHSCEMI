@@ -1,0 +1,56 @@
+{
+    "kiroAgent.configureMCP": "Enabled",
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.outDir": "%DIR%/build",
+    "latex-workshop.latex.search.rootFiles.include": [
+        "Thesis/main.tex"
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "pdflatex",
+            "tools": [
+                "pdflatex"
+            ]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "pdflatex",
+            "command": "/home/andrepascoa/.TinyTeX/bin/x86_64-linux/pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-output-directory=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "bibtex",
+            "command": "/home/andrepascoa/.TinyTeX/bin/x86_64-linux/bibtex",
+            "args": [
+                "%OUTDIR%/%DOCFILE%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "makeglossaries",
+            "command": "/home/andrepascoa/.TinyTeX/bin/x86_64-linux/makeglossaries",
+            "args": [
+                "-d",
+                "%OUTDIR%",
+                "%DOCFILE%"
+            ],
+            "env": {}
+        }
+    ],
+    "latex-workshop.latex.option.maxPrintLine.enabled": false,
+    "latex-workshop.message.log.show": true,
+    "latex-workshop.latex.build.clearLog.everyRecipeStep.enabled": false,
+    "latex-workshop.showContextMenu": true,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.message.error.show": true,
+    "latex-workshop.message.warning.show": true,
+    "latex-workshop.latex.autoClean.run": "never"
+}

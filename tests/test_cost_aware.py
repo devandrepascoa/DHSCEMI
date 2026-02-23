@@ -1,7 +1,7 @@
 """
 Tests for cost-aware autoscaler (plain pytest, mocked inference).
 No Docker containers or real model inference needed.
-ThroughputTracker and CostAwareAutoscaler use injectable clock for deterministic time control.
+CostAwareAutoscaler uses injectable clock for deterministic time control.
 """
 from __future__ import annotations
 
@@ -17,10 +17,10 @@ from main_cost_aware import (
     ThroughputTracker,
     CostAwareAutoscaler,
     MEASURED_THROUGHPUT,
-    SCALE_UP_MULT,
-    SCALE_DOWN_MULT,
+    MIN_TPS_THRESHOLD,
+    SCALE_DOWN_CONCURRENCY,
     get_cost_per_token,
-    select_config,
+    select_config_per_request,
 )
 
 
@@ -114,48 +114,77 @@ class TestThroughputTracker:
 
 
 # ===================================================================
-# select_config tests (threshold-based scaling)
+# select_config_per_request tests
 # ===================================================================
 
-class TestSelectConfig:
-    def test_stays_on_current_when_within_thresholds(self):
-        """EMA between scale-down and scale-up thresholds → no change."""
-        result = select_config(CPU_4, 15.0, CONFIGS_BY_COST)
+class TestSelectConfigPerRequest:
+    def test_stays_on_current_when_tps_ok_and_high_concurrency(self):
+        """TPS above threshold but concurrency high → no change."""
+        result = select_config_per_request(CPU_4, MIN_TPS_THRESHOLD + 1, 5.0, CONFIGS_BY_COST)
         assert result.config_id() == "cpu_4"
 
-    def test_scales_up_at_80_pct_capacity(self):
-        """EMA >= 80% of cpu_4 capacity (32*0.8=25.6) → scale to cpu_12."""
-        result = select_config(CPU_4, 26.0, CONFIGS_BY_COST)
+    def test_scales_up_when_tps_below_threshold(self):
+        """Per-request TPS below MIN_TPS_THRESHOLD → scale up."""
+        result = select_config_per_request(CPU_4, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
         assert result.config_id() == "cpu_12"
 
-    def test_scales_down_when_underusing(self):
-        """EMA <= 30% of cpu_12 capacity AND <= 75% of cpu_4 capacity → scale down."""
-        # cpu_12 capacity=47, 30% = 14.1; cpu_4 capacity=32, 75% = 24
-        result = select_config(CPU_12, 10.0, CONFIGS_BY_COST)
-        assert result.config_id() == "cpu_4"
+    def test_scales_up_from_cpu12_when_tps_low(self):
+        result = select_config_per_request(CPU_12, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
+        assert result.config_id() == "gpu_25"
 
-    def test_no_scale_down_if_cheaper_cant_handle(self):
-        """EMA low for current but too high for cheaper → stay."""
-        # cpu_12 capacity=47, 30% = 14.1; cpu_4 capacity=32, 75% = 24
-        # EMA=14.0 is below 30% of cpu_12 but also below 75% of cpu_4 → scale down
-        # EMA=25.0 is above 75% of cpu_4 (24) → don't scale down
-        result = select_config(CPU_12, 25.0, CONFIGS_BY_COST)
-        assert result.config_id() == "cpu_12"
-
-    def test_scales_up_from_gpu_25_to_gpu_100(self):
-        """EMA >= 80% of gpu_25 capacity (147*0.8=117.6) → gpu_100."""
-        result = select_config(GPU_25, 120.0, CONFIGS_BY_COST)
+    def test_scales_up_from_gpu25_when_tps_low(self):
+        result = select_config_per_request(GPU_25, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
         assert result.config_id() == "gpu_100"
 
-    def test_stays_on_gpu_100_at_max(self):
+    def test_stays_on_gpu100_at_max(self):
         """Already on most expensive config, can't scale up further."""
-        result = select_config(GPU_100, 900.0, CONFIGS_BY_COST)
+        result = select_config_per_request(GPU_100, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
         assert result.config_id() == "gpu_100"
 
-    def test_stays_on_cpu_4_at_min(self):
-        """Already on cheapest config, can't scale down further."""
-        result = select_config(CPU_4, 0.0, CONFIGS_BY_COST)
+    def test_scales_down_when_tps_ok_and_low_concurrency(self):
+        """TPS above threshold AND concurrency low AND lower config can handle it → scale down."""
+        # cpu_4 capacity=32, concurrency=1.0 → 32/1=32 >= 15 (10*1.5) → ok
+        result = select_config_per_request(
+            CPU_12, MIN_TPS_THRESHOLD + 1, 1.0, CONFIGS_BY_COST,
+        )
         assert result.config_id() == "cpu_4"
+
+    def test_no_scale_down_when_lower_config_cant_handle(self):
+        """TPS above threshold, concurrency low, but lower config can't handle load → stay."""
+        # cpu_12 → cpu_4: capacity=32, concurrency=3.0 → 32/3=10.7 < 15 (10*1.5) → no scale-down
+        result = select_config_per_request(
+            CPU_12, MIN_TPS_THRESHOLD + 1, 3.0, CONFIGS_BY_COST,
+        )
+        assert result.config_id() == "cpu_12"
+
+    def test_no_scale_down_when_concurrency_above_threshold(self):
+        """TPS above threshold but concurrency above SCALE_DOWN_CONCURRENCY → stay."""
+        result = select_config_per_request(
+            GPU_100, MIN_TPS_THRESHOLD + 1, SCALE_DOWN_CONCURRENCY + 1, CONFIGS_BY_COST,
+        )
+        assert result.config_id() == "gpu_100"
+
+    def test_no_scale_down_when_tps_below_threshold(self):
+        """TPS below threshold even with low concurrency → don't scale down (scale up instead)."""
+        result = select_config_per_request(
+            CPU_12, MIN_TPS_THRESHOLD - 1, SCALE_DOWN_CONCURRENCY - 0.5, CONFIGS_BY_COST,
+        )
+        # Should scale UP, not down
+        assert result.config_id() == "gpu_25"
+
+    def test_stays_on_cpu4_at_min(self):
+        """Already on cheapest config, can't scale down further."""
+        result = select_config_per_request(
+            CPU_4, MIN_TPS_THRESHOLD + 1, 1.0, CONFIGS_BY_COST,
+        )
+        assert result.config_id() == "cpu_4"
+
+    def test_scales_down_from_gpu100(self):
+        # gpu_25 capacity=147, concurrency=1.0 → 147/1=147 >= 15 (10*1.5) → ok
+        result = select_config_per_request(
+            GPU_100, MIN_TPS_THRESHOLD + 1, 1.0, CONFIGS_BY_COST,
+        )
+        assert result.config_id() == "gpu_25"
 
 
 # ===================================================================
@@ -170,37 +199,45 @@ class TestCheckScaling:
         )
         scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
-        # High EMA that would trigger scale-up
-        scaler.throughput_tracker.update_ema(TEST_MODEL, 30.0, now=0.0)
 
         fake_time[0] = 100.0  # within cooldown
-        assert scaler.check_scaling(TEST_MODEL) is None
+        # Low TPS that would trigger scale-up
+        assert scaler.check_scaling(
+            TEST_MODEL, per_request_tps_ema=3.0, active_requests_ema=5.0,
+        ) is None
 
-    def test_returns_config_after_cooldown(self):
+    def test_returns_config_after_cooldown_scale_up(self):
         fake_time = [0.0]
         scaler = CostAwareAutoscaler(
             configs=ALL_CONFIGS, cooldown_seconds=300, clock=lambda: fake_time[0],
         )
         scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
-        scaler.throughput_tracker.update_ema(TEST_MODEL, 30.0, now=0.0)
 
         fake_time[0] = 301.0  # past cooldown
-        result = scaler.check_scaling(TEST_MODEL)
+        result = scaler.check_scaling(
+            TEST_MODEL, per_request_tps_ema=3.0, active_requests_ema=5.0,
+        )
         assert result is not None
         assert result.config_id() == "cpu_12"
 
-    def test_returns_none_when_waiting_for_first_token(self):
+    def test_returns_config_after_cooldown_scale_down(self):
         fake_time = [0.0]
         scaler = CostAwareAutoscaler(
-            configs=ALL_CONFIGS, cooldown_seconds=10, clock=lambda: fake_time[0],
+            configs=ALL_CONFIGS, cooldown_seconds=300, clock=lambda: fake_time[0],
         )
-        scaler.current_config[TEST_MODEL] = CPU_4
+        scaler.current_config[TEST_MODEL] = CPU_12
         scaler.last_scale_time[TEST_MODEL] = 0.0
-        scaler.throughput_tracker._waiting_for_first_token[TEST_MODEL] = True
 
-        fake_time[0] = 20.0
-        assert scaler.check_scaling(TEST_MODEL) is None
+        fake_time[0] = 301.0
+        # concurrency=1.0 so cpu_4 (32 tok/s) / 1 = 32 >= 15 (10*1.5) → scale down ok
+        result = scaler.check_scaling(
+            TEST_MODEL,
+            per_request_tps_ema=MIN_TPS_THRESHOLD + 1,
+            active_requests_ema=1.0,
+        )
+        assert result is not None
+        assert result.config_id() == "cpu_4"
 
     def test_returns_none_when_optimal_equals_current(self):
         fake_time = [0.0]
@@ -209,8 +246,11 @@ class TestCheckScaling:
         )
         scaler.current_config[TEST_MODEL] = CPU_4
         scaler.last_scale_time[TEST_MODEL] = 0.0
-        # EMA in the middle of cpu_4 range → no scaling
-        scaler.throughput_tracker.update_ema(TEST_MODEL, 15.0, now=0.0)
 
         fake_time[0] = 20.0
-        assert scaler.check_scaling(TEST_MODEL) is None
+        # TPS above threshold, concurrency high → stay on cpu_4
+        assert scaler.check_scaling(
+            TEST_MODEL,
+            per_request_tps_ema=MIN_TPS_THRESHOLD + 1,
+            active_requests_ema=SCALE_DOWN_CONCURRENCY + 1,
+        ) is None
