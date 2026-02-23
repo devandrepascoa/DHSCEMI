@@ -1,31 +1,26 @@
 #!/usr/bin/env python3
 """
-3-config scaling demo benchmark for thesis.
+4-config scaling demo benchmark for thesis.
 
-Starts the main cost-aware server (cpu_4 → cpu_12 → gpu_25),
-sends real inference requests in phases with controlled request rates
-to trigger vertical scaling up and down, collects metrics, and
-generates a thesis-quality 4-panel plot.
-
-All output goes to stdout — redirect to a file when running:
-    uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
+Starts the main cost-aware server and drives it through the full
+vertical scaling staircase:
+  cpu_4 → cpu_12 → gpu_25 → gpu_100 → gpu_25 → cpu_12 → cpu_4
 
 Server config: cooldown=120s, EMA ~1min window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
 Configs (measured throughput):
-  cpu_4:   32 tok/s  ($0.05/hr, 0.43 μ$/tok)
-  cpu_12:  47 tok/s  ($0.12/hr, 0.71 μ$/tok)
-  gpu_25:  147 tok/s ($0.50/hr, 0.94 μ$/tok)
+  cpu_4:    32 tok/s  ($0.05/hr)
+  cpu_12:   47 tok/s  ($0.12/hr)
+  gpu_25:  147 tok/s  ($0.50/hr)
+  gpu_100: 1064 tok/s ($4.00/hr)
 
-Note: gpu_100 is not included because llama.cpp's efficient batching
-keeps per-request tok/s well above the threshold even at high concurrency
-on gpu_25. The 3-config staircase demonstrates the scaling mechanism.
-
-Phases (~15 min total):
-  1. low load     (3 min): 1 worker, rpm=3   → ~16 tok/s  (cpu_4 stays)
-  2. medium load  (3 min): 3 workers, rpm=20  → ~8 tok/s   (→ cpu_12)
-  3. high load    (3 min): 6 workers, rpm=30  → ~6 tok/s   (→ gpu_25)
-  4. ramp-down 1  (3 min): 2 workers, rpm=15  → ~24 tok/s  (→ cpu_12)
-  5. ramp-down 2  (3 min): 1 worker, rpm=3   → ~32 tok/s  (→ cpu_4)
+Phases (~21 min total):
+  1. low load     (3 min):  1 worker,  rpm=3   → ~18 tok/s  (cpu_4 stays)
+  2. medium load  (3 min):  3 workers, rpm=20  → ~8 tok/s   (→ cpu_12)
+  3. high load    (3 min):  8 workers, back-to-back          (→ gpu_25)
+  4. peak load    (3 min): 20 workers, back-to-back          (→ gpu_100)
+  5. ramp-down 1  (3 min):  3 workers, rpm=20  → ~355 tok/s (→ gpu_25)
+  6. ramp-down 2  (3 min):  2 workers, rpm=15  → ~24 tok/s  (→ cpu_12)
+  7. ramp-down 3  (3 min):  1 worker,  rpm=3   → ~32 tok/s  (→ cpu_4)
 
 Usage:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
@@ -89,16 +84,18 @@ PHASE_COLORS = {
     "ramp-down 3":  "#ede7f6",
 }
 
-# Phases — 3 min each (~15 min total)
+# Phases — 3 min each (~21 min total)
 PHASES = [
     ("low load",       180,  1,   3),
     ("medium load",    180,  3,  20),
-    ("high load",      180,  6,  30),
-    ("ramp-down 1",    180,  2,  15),
-    ("ramp-down 2",    180,  1,   3),
+    ("high load",      180,  8,   0),   # back-to-back to saturate cpu_12
+    ("peak load",      180, 20,   0),   # back-to-back; gpu_25 has --parallel 4, so queuing drives TPS down
+    ("ramp-down 1",    180,  3,  20),
+    ("ramp-down 2",    180,  2,  15),
+    ("ramp-down 3",    180,  1,   3),
 ]
 
-EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "cpu_12", "cpu_4"]
+EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "gpu_100", "gpu_25", "cpu_12", "cpu_4"]
 
 
 @dataclass

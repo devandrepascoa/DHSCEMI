@@ -48,6 +48,7 @@ class HardwareConfig:
     memory: Optional[str] = None
     gpu_percentage: Optional[int] = None
     hourly_cost: float = 0.0
+    parallel_slots: Optional[int] = None
 
     def config_id(self) -> str:
         if self.gpu_percentage:
@@ -67,10 +68,10 @@ class HardwareConfig:
 
 # Available hardware configurations (ordered from cheapest to most expensive)
 HARDWARE_CONFIGS: List[HardwareConfig] = [
-    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05),
-    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12),
-    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50),
-    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00),
+    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05, parallel_slots=4),
+    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12, parallel_slots=12),
+    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50, parallel_slots=4),
+    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32),
 ]
 
 
@@ -584,9 +585,12 @@ _per_request_waiting_first: Dict[str, bool] = {}
 _active_requests_ema: Dict[str, float] = {}
 _active_requests_ema_time: Dict[str, float] = {}
 
-# Per-request streaming counters: req_id -> {model, count, first_token_time}
+# Per-request streaming counters: req_id -> {model, count, start_time, first_token_time}
 _active_request_counters: Dict[str, Dict] = {}
-_prev_request_counts: Dict[str, int] = {}  # req_id -> last polled count
+
+# Track when each model last had active requests (for scale-down hysteresis)
+RECENT_ACTIVITY_WINDOW = float(os.environ.get("E2E_RECENT_ACTIVITY_WINDOW", "30.0"))
+_last_active_time: Dict[str, float] = {}
 
 # /metrics polling state (for logging only)
 _prev_total_tokens: Dict[str, float] = {}
@@ -619,7 +623,7 @@ def _container_info(container: Container) -> Dict:
         "hourly_cost": config.hourly_cost,
         "image": config.image,
         "port": container.port,
-        "parallel": 32,
+        "parallel": config.parallel_slots or (config.cpu_cores or 1),
         "threads": config.cpu_cores or 1,
         "n_gpu_layers": 99 if config.gpu_percentage else 0,
         "docker_flags": container._docker_args(),
@@ -644,6 +648,7 @@ async def _async_container_start(container: Container) -> bool:
     await proc.wait()
 
     threads = container.config.cpu_cores or 1
+    parallel = container.config.parallel_slots or threads
 
     docker_cmd = [
         "docker", "run", "--rm", "-d",
@@ -657,7 +662,7 @@ async def _async_container_start(container: Container) -> bool:
         "--host", "0.0.0.0",
         "--port", "8080",
         "--threads", str(threads),
-        "--parallel", "32",
+        "--parallel", str(parallel),
         "--metrics",
     ]
     if container.config.gpu_percentage:
@@ -820,24 +825,35 @@ async def _streaming_counter_loop() -> None:
                 model_name, float(container.active_requests), now,
             )
 
-            # Compute per-request tok/s from active request counters
+            # Track last time this model had active requests
+            if container.active_requests > 0:
+                _last_active_time[model_name] = now
+
+            # Compute per-request tok/s from active request counters.
+            # Use total_tokens / wall_time for ALL active requests (including
+            # those queued in llama.cpp waiting for a parallel slot). This
+            # ensures queued requests contribute 0 tok/s, properly reflecting
+            # that the config is overloaded.
             per_req_tps_values = []
+            any_tokens = False
             for req_id, info in list(_active_request_counters.items()):
                 if info.get("model") != model_name:
                     continue
                 current_count = info.get("count", 0)
-                prev_count = _prev_request_counts.get(req_id, 0)
-                delta = current_count - prev_count
-                _prev_request_counts[req_id] = current_count
-                if delta > 0:
-                    # tok/s for this request in this interval
-                    per_req_tps_values.append(delta / METRICS_POLL_INTERVAL)
+                req_start = info.get("start_time", now)
+                wall_time = now - req_start
+                if wall_time > 0.5:  # skip requests that just started
+                    tps = current_count / wall_time
+                    per_req_tps_values.append(tps)
+                if current_count > 0:
+                    any_tokens = True
 
             if per_req_tps_values:
                 avg_per_req_tps = sum(per_req_tps_values) / len(per_req_tps_values)
                 _update_per_request_ema(model_name, avg_per_req_tps, now)
                 # If waiting for first request after scaling, mark done
-                if _per_request_waiting_first.get(model_name, False):
+                if _per_request_waiting_first.get(model_name, False) and any_tokens:
+                    _per_request_waiting_first[model_name] = False
                     _per_request_waiting_first[model_name] = False
                     # Seed EMA at threshold so we start neutral
                     _per_request_tps_ema[model_name] = MIN_TPS_THRESHOLD
@@ -924,17 +940,23 @@ async def _background_scaling_loop() -> None:
             streaming_tps = _last_streaming_tps.get(model_name, 0.0)
             predicted_tps_gauge = _last_predicted_tps_gauge.get(model_name, 0.0)
 
+            last_active = _last_active_time.get(model_name, 0.0)
+            recently_active = (now - last_active) < RECENT_ACTIVITY_WINDOW
+
             _log_json("DEMAND_CHECK", {
                 "model": model_name,
                 "elapsed": round(now - server_start_time, 3),
                 "config_id": current_id,
                 "per_request_tps_ema": round(pr_ema, 4),
                 "active_requests_ema": round(ar_ema, 4),
+                "active_requests_effective": max(round(ar_ema, 4), container.active_requests),
                 "min_tps_threshold": MIN_TPS_THRESHOLD,
                 "scale_down_concurrency": SCALE_DOWN_CONCURRENCY,
                 "streaming_tps": round(streaming_tps, 4),
                 "predicted_tps_gauge": round(predicted_tps_gauge, 4),
                 "active_requests": container.active_requests,
+                "recently_active": recently_active,
+                "seconds_since_active": round(now - last_active, 1),
             })
 
             # Check cooldown
@@ -942,7 +964,18 @@ async def _background_scaling_loop() -> None:
             if now - last_scale < autoscaler.cooldown_seconds:
                 continue
 
-            optimal = select_config_per_request(current_config, pr_ema, ar_ema)
+            # Prevent scale-down if there were active requests recently.
+            # Fast configs (gpu_25/gpu_100) finish requests quickly, creating
+            # windows where active_requests=0 and ar_ema is low, but load
+            # is still ongoing. Only allow scale-up when recently active.
+            effective_ar = max(ar_ema, float(container.active_requests))
+            if recently_active and container.active_requests == 0:
+                # Inflate effective concurrency to block premature scale-down
+                effective_ar = max(effective_ar, SCALE_DOWN_CONCURRENCY + 1)
+
+            optimal = select_config_per_request(
+                current_config, pr_ema, effective_ar,
+            )
             if optimal.config_id() == current_id:
                 continue
 
@@ -993,6 +1026,7 @@ async def _background_scaling_loop() -> None:
                     _per_request_tps_ema_time.pop(model_name, None)
                     _active_requests_ema.pop(model_name, None)
                     _active_requests_ema_time.pop(model_name, None)
+                    _last_active_time.pop(model_name, None)
                     _prev_total_tokens.pop(model_name, None)
                     _prev_metrics_time.pop(model_name, None)
                     _last_metrics_tps.pop(model_name, None)
@@ -1167,6 +1201,7 @@ async def status():
     base["scaling_in_progress"] = scaling_in_progress
     base["min_tps_threshold"] = MIN_TPS_THRESHOLD
     base["scale_down_concurrency"] = SCALE_DOWN_CONCURRENCY
+    base["recent_activity_window"] = RECENT_ACTIVITY_WINDOW
     for model_name in base.get("models", {}):
         pr_ema = _per_request_tps_ema.get(model_name, 0.0)
         ar_ema = _active_requests_ema.get(model_name, 0.0)
@@ -1231,7 +1266,7 @@ async def chat_completions(request: ChatCompletionRequest):
 
         # Register per-request counter for background loop
         _active_request_counters[req_id] = {
-            "model": request.model, "count": 0,
+            "model": request.model, "count": 0, "start_time": time.time(),
         }
 
         async with aiohttp.ClientSession() as session:
@@ -1297,7 +1332,6 @@ async def chat_completions(request: ChatCompletionRequest):
 
         # Clean up per-request counter
         _active_request_counters.pop(req_id, None)
-        _prev_request_counts.pop(req_id, None)
 
         prompt_ms = timings.get("prompt_ms", 0)
         prompt_per_second = timings.get("prompt_per_second", 0)
@@ -1372,7 +1406,6 @@ async def chat_completions(request: ChatCompletionRequest):
     finally:
         # Clean up per-request counter if still present
         _active_request_counters.pop(req_id, None)
-        _prev_request_counts.pop(req_id, None)
         async with container.lock:
             container.active_requests = max(
                 0, container.active_requests - 1
