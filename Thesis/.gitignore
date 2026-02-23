@@ -5,6 +5,8 @@
 *.fdb_latexmk
 *.fls
 *.glo
+*.gls
+*.glg
 *.loa
 *.loc
 *.lof
@@ -21,6 +23,9 @@
 *.toc
 *.xdy
 missfont.log
+
+# Build directory
+build/
 
 # Keep the final PDF (remove this line if you don't want to track it)
 # main.pdf
