@@ -19,6 +19,7 @@ from main_cost_aware import (
     MEASURED_THROUGHPUT,
     MIN_TPS_THRESHOLD,
     SCALE_DOWN_CONCURRENCY,
+    RECENT_ACTIVITY_WINDOW,
     get_cost_per_token,
     select_config_per_request,
 )
@@ -28,10 +29,10 @@ from main_cost_aware import (
 # Helpers
 # ---------------------------------------------------------------------------
 
-CPU_4 = HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.05)
-CPU_12 = HardwareConfig(cpu_cores=12, memory="8g", hourly_cost=0.12)
-GPU_25 = HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=25, hourly_cost=0.50)
-GPU_100 = HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=4.00)
+CPU_4 = HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.05, parallel_slots=4)
+CPU_12 = HardwareConfig(cpu_cores=12, memory="8g", hourly_cost=0.12, parallel_slots=12)
+GPU_25 = HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=25, hourly_cost=0.50, parallel_slots=4)
+GPU_100 = HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32)
 
 ALL_CONFIGS = [CPU_4, CPU_12, GPU_25, GPU_100]
 CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: c.hourly_cost)
