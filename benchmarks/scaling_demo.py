@@ -1,26 +1,32 @@
 #!/usr/bin/env python3
 """
-4-config scaling demo benchmark for thesis.
+5-config scaling demo benchmark for thesis.
 
 Starts the main cost-aware server and drives it through the full
 vertical scaling staircase:
-  cpu_4 → cpu_12 → gpu_25 → gpu_100 → gpu_25 → cpu_12 → cpu_4
+  cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100 → gpu_25 → cpu_48 → cpu_16 → cpu_4
 
-Server config: cooldown=120s, EMA ~1min window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
-Configs (measured throughput):
-  cpu_4:    32 tok/s  ($0.05/hr)
-  cpu_12:   47 tok/s  ($0.12/hr)
-  gpu_25:  147 tok/s  ($0.50/hr)
-  gpu_100: 1064 tok/s ($4.00/hr)
+Server config: cooldown=60s, EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
 
-Phases (~21 min total):
-  1. low load     (3 min):  1 worker,  rpm=3   → ~18 tok/s  (cpu_4 stays)
-  2. medium load  (3 min):  3 workers, rpm=20  → ~8 tok/s   (→ cpu_12)
-  3. high load    (3 min):  8 workers, back-to-back          (→ gpu_25)
-  4. peak load    (3 min): 20 workers, back-to-back          (→ gpu_100)
-  5. ramp-down 1  (3 min):  3 workers, rpm=20  → ~355 tok/s (→ gpu_25)
-  6. ramp-down 2  (3 min):  2 workers, rpm=15  → ~24 tok/s  (→ cpu_12)
-  7. ramp-down 3  (3 min):  1 worker,  rpm=3   → ~32 tok/s  (→ cpu_4)
+Configs (measured throughput from benchmark):
+  cpu_4:    92.2 tok/s  ($0.05/hr)  — peak at batch=32
+  cpu_16:  291.2 tok/s  ($0.15/hr)  — peak at batch=32
+  cpu_48:  446.2 tok/s  ($0.45/hr)  — peak at batch=64
+  gpu_25:  335.8 tok/s  ($0.50/hr)  — peak at batch=16
+  gpu_100: 1573.9 tok/s ($4.00/hr)  — peak at batch=64
+
+Scaling signal: per-request tok/s EMA.
+  Scale UP:   per_request_tps_ema < MIN_TPS (10.0)
+  Scale DOWN: per_request_tps_ema >= MIN_TPS AND active_requests_ema <= 5.0
+
+Per-request tok/s ≈ capacity / concurrency.
+  To overwhelm config X: need concurrency > capacity_X / MIN_TPS
+
+Phase design (3 min each, 27 min total):
+  Each scale-up phase uses enough concurrency to overwhelm the current config
+  but not the next one, so it scales up exactly one step and stabilizes.
+  Each scale-down phase uses low enough concurrency that per-request tok/s
+  is well above threshold on the lower config.
 
 Usage:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
@@ -53,49 +59,130 @@ SERVER_STARTUP_TIMEOUT = 180
 OUT_DIR = Path(__file__).parent / "thesis_figures"
 OUT_DIR.mkdir(exist_ok=True)
 
-CONFIG_ORDER = ["cpu_4", "cpu_12", "gpu_25", "gpu_100"]
+# Load configs from hardware_configs.json
+_CONFIG_PATH = Path(__file__).parent.parent / "hardware_configs.json"
+
+
+def _load_from_json() -> tuple:
+    with open(_CONFIG_PATH) as f:
+        data = json.load(f)
+    config_order = [c["config_id"] for c in data["configs"]]
+    hourly_costs = {c["config_id"]: c["hourly_cost"] for c in data["configs"]}
+    measured_throughput = data.get("measured_throughput", {})
+    return config_order, hourly_costs, measured_throughput
+
+
+CONFIG_ORDER, HOURLY_COSTS, MEASURED_THROUGHPUT = _load_from_json()
+
 CONFIG_COLORS = {
     "cpu_4":   "#4e79a7",
-    "cpu_12":  "#f28e2b",
+    "cpu_16":  "#59a14f",
+    "cpu_48":  "#f28e2b",
     "gpu_25":  "#e15759",
     "gpu_100": "#b07aa1",
 }
-MEASURED_THROUGHPUT = {
-    "cpu_4":   32.0,
-    "cpu_12":  47.0,
-    "gpu_25":  147.0,
-    "gpu_100": 1064.0,
-}
-HOURLY_COSTS = {
-    "cpu_4":   0.05,
-    "cpu_12":  0.12,
-    "gpu_25":  0.50,
-    "gpu_100": 4.00,
-}
 
 PHASE_COLORS = {
+    "idle":         "#f0f0f0",
     "low load":     "#e8f4f8",
     "medium load":  "#fff3e0",
     "high load":    "#fce4ec",
-    "peak load":    "#f8d7da",
-    "sustain gpu":  "#f3e5f5",
+    "very high":    "#f8d7da",
+    "peak load":    "#f3e5f5",
     "ramp-down 1":  "#e8f5e9",
     "ramp-down 2":  "#e0f2f1",
     "ramp-down 3":  "#ede7f6",
+    "ramp-down 4":  "#fafafa",
 }
 
-# Phases — 3 min each (~21 min total)
+
+# ---------------------------------------------------------------------------
+# Phase design
+# ---------------------------------------------------------------------------
+# Per-request tok/s ≈ capacity / concurrency
+# Scale-up triggers when per_request_tps < 10.0
+# Concurrency to overwhelm each config:
+#   cpu_4  (92.2):  >9.2  → use 12 workers
+#   cpu_16 (291.2): >29.1 → use 35 workers
+#   cpu_48 (446.2): >44.6 → use 50 workers
+#   gpu_25 (335.8): >33.6 → use 45 workers (already >33.6 from prev phase)
+#   gpu_100 (1573.9): not overwhelmed
+#
+# Scale-down triggers when per_request_tps >= 10.0 AND active_requests_ema <= 5.0
+# For scale-down we use low concurrency (1-3 workers) with rate limiting.
+#
+# Note: gpu_25 has LOWER throughput than cpu_48 (335.8 vs 446.2) but higher cost.
+# The autoscaler sorts by cost, so the ladder is:
+#   cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100
+# To go from cpu_48 to gpu_25, we need concurrency that overwhelms cpu_48 (>44.6)
+# but gpu_25 (335.8/50 ≈ 6.7) will also be overwhelmed, so it will immediately
+# try to scale up again to gpu_100. We need to be careful here.
+#
+# Actually, with cooldown=60s, after scaling from cpu_48→gpu_25, the cooldown
+# prevents immediate re-scaling. During cooldown, the EMA will reflect gpu_25's
+# per-request performance. If we keep 50 workers, gpu_25 gives 335.8/50 ≈ 6.7 tok/s
+# which is < 10, so after cooldown it will scale to gpu_100. That's fine — we just
+# need the phase to be long enough (3 min = 180s) for both transitions.
+#
+# For the scale-up phases, we use 4 min (240s) to allow time for:
+#   - Initial detection (~10-30s)
+#   - Container swap (~30-60s)
+#   - Cooldown (60s)
+#   - Second transition if needed
+#   - Stabilization on target config
+#
+# For scale-down, we use 4 min phases too, with very low load.
+
 PHASES = [
-    ("low load",       180,  1,   3),
-    ("medium load",    180,  3,  20),
-    ("high load",      180,  8,   0),   # back-to-back to saturate cpu_12
-    ("peak load",      180, 20,   0),   # back-to-back; gpu_25 has --parallel 4, so queuing drives TPS down
-    ("ramp-down 1",    180,  3,  20),
-    ("ramp-down 2",    180,  2,  15),
-    ("ramp-down 3",    180,  1,   3),
+    # Phase 1: Low load — stay on cpu_4
+    # 1 worker, rate-limited to ~3 rpm → per-req tok/s ≈ 92.2/1 = 92.2 (well above 10)
+    ("low load",       240,   1,   3),
+
+    # Phase 2: Medium load — overwhelm cpu_4, scale to cpu_16
+    # 12 workers back-to-back → cpu_4: 92.2/12 ≈ 7.7 tok/s < 10 → scale up
+    # cpu_16: 291.2/12 ≈ 24.3 tok/s > 10 → stable
+    ("medium load",    240,  12,   0),
+
+    # Phase 3: High load — overwhelm cpu_16, scale to cpu_48
+    # 35 workers back-to-back → cpu_16: 291.2/35 ≈ 8.3 tok/s < 10 → scale up
+    # cpu_48: 446.2/35 ≈ 12.7 tok/s > 10 → stable
+    ("high load",      240,  35,   0),
+
+    # Phase 4: Very high load — overwhelm cpu_48, scale through gpu_25 to gpu_100
+    # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 10 → scale to gpu_25
+    # gpu_25: 335.8/55 ≈ 6.1 tok/s < 10 → after cooldown, scale to gpu_100
+    # gpu_100: 1573.9/55 ≈ 28.6 tok/s > 10 → stable
+    ("peak load",      300,  55,   0),
+
+    # Phase 5: Ramp-down — scale from gpu_100 to gpu_25
+    # 2 workers, rate-limited → per-req tok/s on gpu_100 ≈ 1573.9/2 = 787 >> 10
+    # active_requests_ema will drop to ~2 < 5 → scale down
+    # gpu_25: 335.8/2 ≈ 168 >> 10 → stable
+    ("ramp-down 1",    240,   2,  10),
+
+    # Phase 6: Ramp-down — scale from gpu_25 to cpu_48
+    # 2 workers, rate-limited → per-req tok/s on gpu_25 ≈ 335.8/2 = 168 >> 10
+    # active_requests_ema ~2 < 5 → scale down
+    # cpu_48: 446.2/2 ≈ 223 >> 10 → stable
+    ("ramp-down 2",    240,   2,  10),
+
+    # Phase 7: Ramp-down — scale from cpu_48 to cpu_16
+    # 1 worker, rate-limited → per-req tok/s on cpu_48 ≈ 446.2/1 = 446 >> 10
+    # active_requests_ema ~1 < 5 → scale down
+    # cpu_16: 291.2/1 ≈ 291 >> 10 → stable
+    ("ramp-down 3",    240,   1,   5),
+
+    # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
+    # 1 worker, rate-limited → per-req tok/s on cpu_16 ≈ 291.2/1 = 291 >> 10
+    # active_requests_ema ~1 < 5 → scale down
+    # cpu_4: 92.2/1 ≈ 92 >> 10 → stable
+    ("ramp-down 4",    240,   1,   3),
 ]
 
-EXPECTED_SEQUENCE = ["cpu_4", "cpu_12", "gpu_25", "gpu_100", "gpu_25", "cpu_12", "cpu_4"]
+EXPECTED_SEQUENCE = [
+    "cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100",
+    "gpu_25", "cpu_48", "cpu_16", "cpu_4",
+]
 
 
 @dataclass
@@ -218,7 +305,7 @@ async def _send_request(
                 prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
                 wall_ms=wall_ms, prompt_eval_ms=prompt_ms, generation_ms=predicted_ms,
                 prompt_tps=prompt_per_second, generation_tps=predicted_per_second,
-                config_id="",  # filled from status polls
+                config_id="",
             )
             collector.requests.append(rr)
 
@@ -317,7 +404,8 @@ def _record(collector: Collector, status: Dict, phase: str) -> None:
         "port": model_info.get("port"),
         "is_ready": model_info.get("is_ready"),
         "capacity": model_info.get("capacity", 0),
-        "ema_pct": model_info.get("ema_pct", 0),
+        "per_request_tps_ema": model_info.get("per_request_tps_ema", 0),
+        "active_requests_ema": model_info.get("active_requests_ema", 0),
         "server_uptime": status.get("server_uptime_seconds", 0),
     })
 
@@ -436,15 +524,18 @@ def generate_plot(collector: Collector) -> None:
     demand = np.array([s.demand_tps for s in samples])
     configs = [s.config_id for s in samples]
     costs = np.array([s.hourly_cost for s in samples])
+    active = np.array([s.active_requests for s in samples])
     config_idx = np.array([CONFIG_ORDER.index(c) if c in CONFIG_ORDER else -1
                            for c in configs])
 
     phase_spans = _phase_spans(samples)
 
     scale_times = []
+    scale_labels = []
     for i in range(1, len(configs)):
         if configs[i] != configs[i - 1]:
             scale_times.append(t[i])
+            scale_labels.append(f"{configs[i-1]}→{configs[i]}")
 
     plt.rcParams.update({
         "figure.dpi": 150, "savefig.dpi": 300,
@@ -454,14 +545,16 @@ def generate_plot(collector: Collector) -> None:
         "axes.spines.top": False, "axes.spines.right": False,
     })
 
-    fig, axes = plt.subplots(4, 1, figsize=(14, 12), sharex=True,
+    fig, axes = plt.subplots(4, 1, figsize=(16, 14), sharex=True,
                               gridspec_kw={"height_ratios": [2.5, 2, 1.5, 1.5]})
 
+    # Phase background shading
     for s, e, p in phase_spans:
         color = PHASE_COLORS.get(p, "#f5f5f5")
         for ax in axes:
             ax.axvspan(s, e, alpha=0.12, color=color, zorder=0)
 
+    # Scaling event vertical lines
     for st in scale_times:
         for ax in axes:
             ax.axvline(st, color="red", linestyle="--", alpha=0.3,
@@ -483,12 +576,13 @@ def generate_plot(collector: Collector) -> None:
     ax1b.tick_params(axis="y", labelcolor="#e15759")
     ax1b.spines["right"].set_visible(True)
 
+    # Throughput capacity lines
     for cid, thr in MEASURED_THROUGHPUT.items():
-        if thr < 200:
-            ax1b.axhline(thr, linestyle=":", color=CONFIG_COLORS[cid],
+        if thr < 500:
+            ax1b.axhline(thr, linestyle=":", color=CONFIG_COLORS.get(cid, "gray"),
                          alpha=0.5, linewidth=1)
             ax1b.text(t[-1] * 1.01, thr, f"{thr:.0f}", fontsize=7,
-                      va="center", color=CONFIG_COLORS[cid])
+                      va="center", color=CONFIG_COLORS.get(cid, "gray"))
 
     ymax_demand = max(demand) if len(demand) > 0 and max(demand) > 0 else 1
     for s, e, p in phase_spans:
@@ -500,24 +594,20 @@ def generate_plot(collector: Collector) -> None:
     ax1.set_yticks(range(len(CONFIG_ORDER)))
     ax1.set_yticklabels(CONFIG_ORDER)
     ax1.set_ylim(-0.5, len(CONFIG_ORDER) - 0.5)
-    ax1.set_title("Cost-Aware Vertical Scaling — Real Hardware Demo")
+    ax1.set_title("Cost-Aware Vertical Scaling — Real Hardware Demo (5 Configs)")
 
     patches = [mpatches.Patch(color=CONFIG_COLORS[c], label=c, alpha=0.5)
                for c in CONFIG_ORDER]
     ax1.legend(handles=patches, loc="upper left", fontsize=8, ncol=len(CONFIG_ORDER))
 
-    # Panel 2: Demand
+    # Panel 2: Active requests (concurrency)
     ax2 = axes[1]
-    ax2.plot(t, demand, color="#333", linewidth=1.5, zorder=3)
-    ax2.fill_between(t, demand, alpha=0.12, color="#4e79a7", zorder=2)
-    ax2.set_ylabel("Demand (tok/s)")
-
-    for cid, thr in MEASURED_THROUGHPUT.items():
-        if thr < 200:
-            ax2.axhline(thr, linestyle=":", color=CONFIG_COLORS[cid],
-                        alpha=0.6, linewidth=1)
-            ax2.text(t[-1] * 1.01, thr, f"{cid} cap",
-                     fontsize=7, va="center", color=CONFIG_COLORS[cid])
+    ax2.plot(t, active, color="#333", linewidth=1.2, zorder=3, alpha=0.8)
+    ax2.fill_between(t, active, alpha=0.15, color="#4e79a7", zorder=2)
+    ax2.set_ylabel("Active Requests")
+    ax2.axhline(5.0, linestyle="--", color="#999", alpha=0.5, linewidth=1,
+                label="Scale-down threshold (5)")
+    ax2.legend(loc="upper right", fontsize=8)
 
     # Panel 3: Hourly cost
     ax3 = axes[2]
@@ -528,7 +618,7 @@ def generate_plot(collector: Collector) -> None:
                          step="post", zorder=2)
     ax3.step(t, costs, where="post", color="#333", linewidth=1.8, zorder=3)
 
-    static_cost = HOURLY_COSTS["gpu_100"]
+    static_cost = HOURLY_COSTS.get("gpu_100", 4.0)
     ax3.axhline(static_cost, linestyle="--", color="#b07aa1", alpha=0.6,
                 linewidth=1.5, label=f"Static gpu_100 (${static_cost:.2f}/hr)")
     ax3.set_ylabel("Hourly Cost ($)")
@@ -593,10 +683,11 @@ async def main() -> None:
     env["E2E_MODEL_NAME"] = MODEL
     env["E2E_MODELS_DIR"] = str(Path("models").resolve())
     env["E2E_INITIAL_CONFIG"] = "cpu_4"
-    env["E2E_COOLDOWN"] = "120"
-    env["E2E_EMA_WINDOW"] = "60"
+    env["E2E_COOLDOWN"] = "60"
+    env["E2E_EMA_WINDOW"] = "30"
     env["E2E_MIN_TPS"] = "10.0"
     env["E2E_SCALE_DOWN_CONCURRENCY"] = "5.0"
+    env["E2E_RECENT_ACTIVITY_WINDOW"] = "15.0"
 
     total_duration = sum(p[1] for p in PHASES)
 
@@ -614,18 +705,18 @@ async def main() -> None:
             cid: {"throughput_tps": t, "hourly_cost": HOURLY_COSTS[cid]}
             for cid, t in MEASURED_THROUGHPUT.items()
         },
-        "headroom": 0.25,
-        "cooldown_s": 120,
-        "ema_window_s": 60,
+        "cooldown_s": 60,
+        "ema_window_s": 30,
         "min_tps_threshold": 10.0,
         "scale_down_concurrency": 5.0,
-        "demand_window_s": 180,
+        "recent_activity_window": 15.0,
     })
 
-    # Write server output to a separate log file instead of a pipe.
-    # Piping stdout causes the server to freeze once the 64KB buffer fills
-    # because nobody drains it during the run.
-    server_log_path = OUT_DIR.parent / "scaling_demo_logs" / f"server_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    # Write server output to a separate log file
+    server_log_path = (
+        OUT_DIR.parent / "scaling_demo_logs"
+        / f"server_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    )
     server_log_path.parent.mkdir(parents=True, exist_ok=True)
     server_log_file = open(server_log_path, "w")
     log(f"Server log → {server_log_path}")
