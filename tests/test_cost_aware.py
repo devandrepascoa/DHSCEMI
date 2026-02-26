@@ -29,15 +29,35 @@ from main_cost_aware import (
 # Helpers
 # ---------------------------------------------------------------------------
 
-CPU_4 = HardwareConfig(cpu_cores=4, memory="8g", hourly_cost=0.05, parallel_slots=4)
-CPU_12 = HardwareConfig(cpu_cores=12, memory="8g", hourly_cost=0.12, parallel_slots=12)
-GPU_25 = HardwareConfig(cpu_cores=2, memory="8g", gpu_percentage=25, hourly_cost=0.50, parallel_slots=4)
-GPU_100 = HardwareConfig(cpu_cores=2, memory="16g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32)
+CPU_4 = HardwareConfig(cpu_cores=4, memory="200g", hourly_cost=0.05, parallel_slots=4)
+CPU_16 = HardwareConfig(cpu_cores=16, memory="200g", hourly_cost=0.15, parallel_slots=8)
+CPU_48 = HardwareConfig(cpu_cores=48, memory="200g", hourly_cost=0.45, parallel_slots=16)
+GPU_25 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=25, hourly_cost=0.50, parallel_slots=4)
+GPU_100 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32)
 
-ALL_CONFIGS = [CPU_4, CPU_12, GPU_25, GPU_100]
+ALL_CONFIGS = [CPU_4, CPU_16, CPU_48, GPU_25, GPU_100]
 CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: c.hourly_cost)
 
 TEST_MODEL = "test-model"
+
+# Test-only throughput values injected into MEASURED_THROUGHPUT for deterministic tests
+_TEST_THROUGHPUT = {
+    "cpu_4": 32.0,
+    "cpu_16": 60.0,
+    "cpu_48": 80.0,
+    "gpu_25": 147.0,
+    "gpu_100": 1064.0,
+}
+
+
+@pytest.fixture(autouse=True)
+def _inject_test_throughput():
+    """Inject known throughput values so tests are deterministic regardless of JSON."""
+    original = dict(MEASURED_THROUGHPUT)
+    MEASURED_THROUGHPUT.update(_TEST_THROUGHPUT)
+    yield
+    MEASURED_THROUGHPUT.clear()
+    MEASURED_THROUGHPUT.update(original)
 
 
 # ===================================================================
@@ -46,7 +66,7 @@ TEST_MODEL = "test-model"
 
 class TestHardwareConfigImage:
     def test_cpu_config_returns_cpu_image(self):
-        for cfg in [CPU_4, CPU_12]:
+        for cfg in [CPU_4, CPU_16, CPU_48]:
             assert cfg.image == "ghcr.io/ggml-org/llama.cpp:full"
 
     def test_gpu_config_returns_cuda_image(self):
@@ -127,15 +147,15 @@ class TestSelectConfigPerRequest:
     def test_scales_up_when_tps_below_threshold(self):
         """Per-request TPS below MIN_TPS_THRESHOLD → scale up."""
         result = select_config_per_request(CPU_4, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
-        assert result.config_id() == "cpu_12"
+        assert result.config_id() == "cpu_16"
 
-    def test_scales_up_from_cpu12_when_tps_low(self):
-        result = select_config_per_request(CPU_12, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
+    def test_scales_up_from_cpu16_when_tps_low(self):
+        result = select_config_per_request(CPU_16, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
+        assert result.config_id() == "cpu_48"
+
+    def test_scales_up_from_cpu48_when_tps_low(self):
+        result = select_config_per_request(CPU_48, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
         assert result.config_id() == "gpu_25"
-
-    def test_scales_up_from_gpu25_when_tps_low(self):
-        result = select_config_per_request(GPU_25, MIN_TPS_THRESHOLD - 1, 5.0, CONFIGS_BY_COST)
-        assert result.config_id() == "gpu_100"
 
     def test_stays_on_gpu100_at_max(self):
         """Already on most expensive config, can't scale up further."""
@@ -146,17 +166,17 @@ class TestSelectConfigPerRequest:
         """TPS above threshold AND concurrency low AND lower config can handle it → scale down."""
         # cpu_4 capacity=32, concurrency=1.0 → 32/1=32 >= 15 (10*1.5) → ok
         result = select_config_per_request(
-            CPU_12, MIN_TPS_THRESHOLD + 1, 1.0, CONFIGS_BY_COST,
+            CPU_16, MIN_TPS_THRESHOLD + 1, 1.0, CONFIGS_BY_COST,
         )
         assert result.config_id() == "cpu_4"
 
     def test_no_scale_down_when_lower_config_cant_handle(self):
         """TPS above threshold, concurrency low, but lower config can't handle load → stay."""
-        # cpu_12 → cpu_4: capacity=32, concurrency=3.0 → 32/3=10.7 < 15 (10*1.5) → no scale-down
+        # cpu_16 → cpu_4: capacity=32, concurrency=3.0 → 32/3=10.7 < 15 (10*1.5) → no scale-down
         result = select_config_per_request(
-            CPU_12, MIN_TPS_THRESHOLD + 1, 3.0, CONFIGS_BY_COST,
+            CPU_16, MIN_TPS_THRESHOLD + 1, 3.0, CONFIGS_BY_COST,
         )
-        assert result.config_id() == "cpu_12"
+        assert result.config_id() == "cpu_16"
 
     def test_no_scale_down_when_concurrency_above_threshold(self):
         """TPS above threshold but concurrency above SCALE_DOWN_CONCURRENCY → stay."""
@@ -168,10 +188,10 @@ class TestSelectConfigPerRequest:
     def test_no_scale_down_when_tps_below_threshold(self):
         """TPS below threshold even with low concurrency → don't scale down (scale up instead)."""
         result = select_config_per_request(
-            CPU_12, MIN_TPS_THRESHOLD - 1, SCALE_DOWN_CONCURRENCY - 0.5, CONFIGS_BY_COST,
+            CPU_16, MIN_TPS_THRESHOLD - 1, SCALE_DOWN_CONCURRENCY - 0.5, CONFIGS_BY_COST,
         )
         # Should scale UP, not down
-        assert result.config_id() == "gpu_25"
+        assert result.config_id() == "cpu_48"
 
     def test_stays_on_cpu4_at_min(self):
         """Already on cheapest config, can't scale down further."""
@@ -220,14 +240,14 @@ class TestCheckScaling:
             TEST_MODEL, per_request_tps_ema=3.0, active_requests_ema=5.0,
         )
         assert result is not None
-        assert result.config_id() == "cpu_12"
+        assert result.config_id() == "cpu_16"
 
     def test_returns_config_after_cooldown_scale_down(self):
         fake_time = [0.0]
         scaler = CostAwareAutoscaler(
             configs=ALL_CONFIGS, cooldown_seconds=300, clock=lambda: fake_time[0],
         )
-        scaler.current_config[TEST_MODEL] = CPU_12
+        scaler.current_config[TEST_MODEL] = CPU_16
         scaler.last_scale_time[TEST_MODEL] = 0.0
 
         fake_time[0] = 301.0
