@@ -66,25 +66,29 @@ class HardwareConfig:
         return "gpu" if self.gpu_percentage else "cpu"
 
 
-# Available hardware configurations (ordered from cheapest to most expensive)
-HARDWARE_CONFIGS: List[HardwareConfig] = [
-    HardwareConfig(cpu_cores=4,  memory="8g",  hourly_cost=0.05, parallel_slots=4),
-    HardwareConfig(cpu_cores=12, memory="8g",  hourly_cost=0.12, parallel_slots=12),
-    HardwareConfig(cpu_cores=2,  memory="8g",  gpu_percentage=25,  hourly_cost=0.50, parallel_slots=4),
-    HardwareConfig(cpu_cores=2,  memory="16g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32),
-]
+# Available hardware configurations — loaded from hardware_configs.json
+_CONFIG_PATH = Path(__file__).parent / "hardware_configs.json"
 
 
-# ---------------------------------------------------------------------------
-# Measured Throughputs and Cost Functions
-# ---------------------------------------------------------------------------
+def _load_hardware_configs() -> tuple[List[HardwareConfig], Dict[str, float]]:
+    """Load hardware configs and measured throughput from JSON file."""
+    with open(_CONFIG_PATH) as f:
+        data = json.load(f)
+    configs = [
+        HardwareConfig(
+            cpu_cores=c.get("cpu_cores"),
+            memory=c.get("memory"),
+            gpu_percentage=c.get("gpu_percentage"),
+            hourly_cost=c.get("hourly_cost", 0.0),
+            parallel_slots=c.get("parallel_slots"),
+        )
+        for c in data["configs"]
+    ]
+    throughput = data.get("measured_throughput", {})
+    return configs, throughput
 
-MEASURED_THROUGHPUT: Dict[str, float] = {
-    "cpu_4":   32.0,
-    "cpu_12":  47.0,
-    "gpu_25":  147.0,
-    "gpu_100": 1064.0,
-}
+
+HARDWARE_CONFIGS, MEASURED_THROUGHPUT = _load_hardware_configs()
 
 METRICS_POLL_INTERVAL = 1.0
 SCALING_CHECK_INTERVAL = 10
@@ -272,7 +276,7 @@ class Container:
             capture_output=True, check=False,
         )
         threads = self.config.cpu_cores or 1
-        parallel = self.config.cpu_cores or 1
+        parallel = self.config.parallel_slots or self.config.cpu_cores or 1
         docker_cmd = [
             'docker', 'run', '--rm', '-d',
             '--name', self.container_name,
@@ -394,6 +398,7 @@ class CostAwareAutoscaler:
         self,
         configs: List[HardwareConfig],
         cooldown_seconds: float = COOLDOWN_SECONDS,
+        cooldown_down_seconds: Optional[float] = None,
         clock: Optional[Callable[[], float]] = None,
         models_dir: str = "./models",
         headroom: float = 0.0,
@@ -401,6 +406,7 @@ class CostAwareAutoscaler:
         self.configs = configs
         self.configs_by_cost = sorted(configs, key=lambda c: c.hourly_cost)
         self.cooldown_seconds = cooldown_seconds
+        self.cooldown_down_seconds = cooldown_down_seconds if cooldown_down_seconds is not None else cooldown_seconds
         self.clock = clock or time.time
         self.models_dir = Path(models_dir).resolve()
         self.headroom = headroom
@@ -409,6 +415,7 @@ class CostAwareAutoscaler:
         self.demand_tracker = DemandTracker()
         self.current_config: Dict[str, HardwareConfig] = {}
         self.last_scale_time: Dict[str, float] = {}
+        self.last_scale_direction: Dict[str, str] = {}  # "up" or "down"
         self.containers: Dict[str, Container] = {}
         self.used_ports: set = set()
         self.lock = asyncio.Lock()
@@ -553,6 +560,7 @@ class CostAwareAutoscaler:
         return {
             "models": models_status,
             "cooldown_seconds": self.cooldown_seconds,
+            "cooldown_down_seconds": self.cooldown_down_seconds,
             "scaling_in_progress": self.scaling_in_progress,
             "available_configs": [c.config_id() for c in self.configs_by_cost],
             "measured_throughput": MEASURED_THROUGHPUT,
@@ -567,6 +575,7 @@ CONFIGS: List[HardwareConfig] = HARDWARE_CONFIGS
 CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: c.hourly_cost)
 
 COOLDOWN = int(os.environ.get("E2E_COOLDOWN", "300"))
+COOLDOWN_DOWN = int(os.environ.get("E2E_COOLDOWN_DOWN", os.environ.get("E2E_COOLDOWN", "300")))
 DEMAND_WINDOW = 180
 
 MODELS_DIR = os.environ.get("E2E_MODELS_DIR", "./models")
@@ -959,9 +968,14 @@ async def _background_scaling_loop() -> None:
                 "seconds_since_active": round(now - last_active, 1),
             })
 
-            # Check cooldown
+            # Check cooldown (directional: scale-down uses longer cooldown)
             last_scale = autoscaler.last_scale_time.get(model_name, 0)
-            if now - last_scale < autoscaler.cooldown_seconds:
+            time_since_scale = now - last_scale
+
+            # Determine what direction the next scale would be.
+            # We need to tentatively compute the optimal config to know direction.
+            # But first, apply the minimum cooldown (scale-up cooldown) as a gate.
+            if time_since_scale < autoscaler.cooldown_seconds:
                 continue
 
             # Prevent scale-down if there were active requests recently.
@@ -983,6 +997,11 @@ async def _background_scaling_loop() -> None:
             old_config_id = current_id
             new_config_id = new_config.config_id()
 
+            # Directional cooldown: scale-down uses longer cooldown
+            is_scale_down = new_config.hourly_cost < current_config.hourly_cost
+            if is_scale_down and time_since_scale < autoscaler.cooldown_down_seconds:
+                continue
+
             _log_json("SCALING_START", {
                 "event": "scaling_start",
                 "timestamp": now,
@@ -990,6 +1009,7 @@ async def _background_scaling_loop() -> None:
                 "model": model_name,
                 "from_config": old_config_id,
                 "to_config": new_config_id,
+                "direction": "down" if is_scale_down else "up",
                 "per_request_tps_ema": round(pr_ema, 4),
                 "active_requests_ema": round(ar_ema, 4),
                 "from_hourly_cost": current_config.hourly_cost,
@@ -1020,6 +1040,9 @@ async def _background_scaling_loop() -> None:
                 if success:
                     autoscaler.containers[model_name] = new_container
                     autoscaler.current_config[model_name] = new_config
+                    autoscaler.last_scale_direction[model_name] = (
+                        "down" if is_scale_down else "up"
+                    )
                     _per_request_waiting_first[model_name] = True
                     # Reset all tracking state
                     _per_request_tps_ema.pop(model_name, None)
@@ -1092,6 +1115,7 @@ async def lifespan(app: FastAPI):
     autoscaler = CostAwareAutoscaler(
         configs=CONFIGS,
         cooldown_seconds=COOLDOWN,
+        cooldown_down_seconds=COOLDOWN_DOWN,
         models_dir=models_dir,
         headroom=0.0,
     )
