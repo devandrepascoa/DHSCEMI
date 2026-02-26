@@ -1,0 +1,48 @@
+{
+  "configs": [
+    {
+      "config_id": "cpu_4",
+      "cpu_cores": 4,
+      "memory": "200g",
+      "hourly_cost": 0.05,
+      "parallel_slots": 32
+    },
+    {
+      "config_id": "cpu_16",
+      "cpu_cores": 16,
+      "memory": "200g",
+      "hourly_cost": 0.15,
+      "parallel_slots": 32
+    },
+    {
+      "config_id": "cpu_48",
+      "cpu_cores": 48,
+      "memory": "200g",
+      "hourly_cost": 0.45,
+      "parallel_slots": 64
+    },
+    {
+      "config_id": "gpu_25",
+      "cpu_cores": 48,
+      "memory": "200g",
+      "gpu_percentage": 25,
+      "hourly_cost": 0.50,
+      "parallel_slots": 16
+    },
+    {
+      "config_id": "gpu_100",
+      "cpu_cores": 48,
+      "memory": "200g",
+      "gpu_percentage": 100,
+      "hourly_cost": 4.00,
+      "parallel_slots": 64
+    }
+  ],
+  "measured_throughput": {
+    "cpu_4": 92.2,
+    "cpu_16": 291.2,
+    "cpu_48": 446.2,
+    "gpu_25": 335.8,
+    "gpu_100": 1573.9
+  }
+}
