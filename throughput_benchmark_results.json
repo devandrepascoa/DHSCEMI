@@ -1,54 +1,297 @@
 {
   "model": "01-DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M",
   "max_tokens": 256,
-  "batch_sizes": [
-    1,
-    4,
-    16,
-    32
-  ],
-  "batch_timeout_seconds": 120,
+  "adaptive_batch_sizing": true,
+  "plateau_threshold": 0.05,
+  "max_batch_size": 512,
   "rounds_per_batch": 3,
   "warmup_requests": 1,
   "prompt": "Explain what machine learning is.",
   "results": {
-    "cpu_12": {
+    "cpu_4": {
       "1": {
-        "tokens_per_second": 15.422420862721461,
+        "tokens_per_second": 28.78204834084434,
         "total_output_tokens": 768,
         "total_input_tokens": 30,
-        "wall_time_seconds": 50.51,
+        "wall_time_seconds": 26.68,
         "successful": 3,
         "failed": 0,
         "timed_out": 0
       },
       "4": {
-        "tokens_per_second": 39.52959405617714,
+        "tokens_per_second": 56.17216219675225,
         "total_output_tokens": 3072,
         "total_input_tokens": 120,
-        "wall_time_seconds": 79.15,
+        "wall_time_seconds": 54.91,
         "successful": 12,
         "failed": 0,
         "timed_out": 0
       },
+      "8": {
+        "tokens_per_second": 72.99797743557806,
+        "total_output_tokens": 5904,
+        "total_input_tokens": 240,
+        "wall_time_seconds": 80.89,
+        "successful": 24,
+        "failed": 0,
+        "timed_out": 0
+      },
       "16": {
-        "tokens_per_second": 40.997703786322845,
-        "total_output_tokens": 4096,
-        "total_input_tokens": 160,
-        "wall_time_seconds": 120.01,
-        "successful": 16,
+        "tokens_per_second": 89.2963588566926,
+        "total_output_tokens": 7872,
+        "total_input_tokens": 320,
+        "wall_time_seconds": 120.02,
+        "successful": 32,
         "failed": 0,
         "timed_out": 1
       },
       "32": {
-        "tokens_per_second": 0,
-        "total_output_tokens": 0,
-        "total_input_tokens": 0,
-        "wall_time_seconds": 120.11,
-        "successful": 0,
+        "tokens_per_second": 92.20450022993161,
+        "total_output_tokens": 7872,
+        "total_input_tokens": 320,
+        "wall_time_seconds": 120.02,
+        "successful": 32,
         "failed": 0,
         "timed_out": 1
-      }
+      },
+      "peak_tokens_per_second": 92.2
+    },
+    "cpu_16": {
+      "1": {
+        "tokens_per_second": 65.0755389680037,
+        "total_output_tokens": 768,
+        "total_input_tokens": 30,
+        "wall_time_seconds": 11.8,
+        "successful": 3,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "4": {
+        "tokens_per_second": 173.14048502737378,
+        "total_output_tokens": 3072,
+        "total_input_tokens": 120,
+        "wall_time_seconds": 17.74,
+        "successful": 12,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "8": {
+        "tokens_per_second": 210.52274625674409,
+        "total_output_tokens": 5904,
+        "total_input_tokens": 240,
+        "wall_time_seconds": 28.05,
+        "successful": 24,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "16": {
+        "tokens_per_second": 266.4582488619338,
+        "total_output_tokens": 11808,
+        "total_input_tokens": 480,
+        "wall_time_seconds": 44.32,
+        "successful": 48,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "32": {
+        "tokens_per_second": 291.2093334074724,
+        "total_output_tokens": 23616,
+        "total_input_tokens": 960,
+        "wall_time_seconds": 81.12,
+        "successful": 96,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "64": {
+        "tokens_per_second": 289.2511411830138,
+        "total_output_tokens": 31332,
+        "total_input_tokens": 1280,
+        "wall_time_seconds": 120.02,
+        "successful": 128,
+        "failed": 0,
+        "timed_out": 1
+      },
+      "peak_tokens_per_second": 291.21
+    },
+    "cpu_48": {
+      "1": {
+        "tokens_per_second": 80.14604962431109,
+        "total_output_tokens": 768,
+        "total_input_tokens": 30,
+        "wall_time_seconds": 9.59,
+        "successful": 3,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "4": {
+        "tokens_per_second": 229.25158277015566,
+        "total_output_tokens": 3072,
+        "total_input_tokens": 120,
+        "wall_time_seconds": 13.41,
+        "successful": 12,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "8": {
+        "tokens_per_second": 296.8115138581914,
+        "total_output_tokens": 5904,
+        "total_input_tokens": 240,
+        "wall_time_seconds": 19.89,
+        "successful": 24,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "16": {
+        "tokens_per_second": 337.940739635905,
+        "total_output_tokens": 11640,
+        "total_input_tokens": 480,
+        "wall_time_seconds": 34.68,
+        "successful": 48,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "32": {
+        "tokens_per_second": 415.7320070364653,
+        "total_output_tokens": 23616,
+        "total_input_tokens": 960,
+        "wall_time_seconds": 56.82,
+        "successful": 96,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "64": {
+        "tokens_per_second": 446.152263862341,
+        "total_output_tokens": 47055,
+        "total_input_tokens": 1920,
+        "wall_time_seconds": 105.66,
+        "successful": 192,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "128": {
+        "tokens_per_second": 402.6077304244156,
+        "total_output_tokens": 31211,
+        "total_input_tokens": 1280,
+        "wall_time_seconds": 120.04,
+        "successful": 128,
+        "failed": 0,
+        "timed_out": 1
+      },
+      "peak_tokens_per_second": 446.15
+    },
+    "gpu_25": {
+      "1": {
+        "tokens_per_second": 90.25951620835734,
+        "total_output_tokens": 768,
+        "total_input_tokens": 30,
+        "wall_time_seconds": 8.51,
+        "successful": 3,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "4": {
+        "tokens_per_second": 224.4672246162222,
+        "total_output_tokens": 3072,
+        "total_input_tokens": 120,
+        "wall_time_seconds": 13.69,
+        "successful": 12,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "8": {
+        "tokens_per_second": 272.388014703693,
+        "total_output_tokens": 5904,
+        "total_input_tokens": 240,
+        "wall_time_seconds": 21.68,
+        "successful": 24,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "16": {
+        "tokens_per_second": 335.7530899428077,
+        "total_output_tokens": 11808,
+        "total_input_tokens": 480,
+        "wall_time_seconds": 35.17,
+        "successful": 48,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "32": {
+        "tokens_per_second": 256.55415828413624,
+        "total_output_tokens": 23616,
+        "total_input_tokens": 960,
+        "wall_time_seconds": 92.06,
+        "successful": 96,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "peak_tokens_per_second": 335.75
+    },
+    "gpu_100": {
+      "1": {
+        "tokens_per_second": 225.71694311167857,
+        "total_output_tokens": 768,
+        "total_input_tokens": 30,
+        "wall_time_seconds": 3.4,
+        "successful": 3,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "4": {
+        "tokens_per_second": 509.7731524696055,
+        "total_output_tokens": 3072,
+        "total_input_tokens": 120,
+        "wall_time_seconds": 6.03,
+        "successful": 12,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "8": {
+        "tokens_per_second": 608.1949466977056,
+        "total_output_tokens": 5904,
+        "total_input_tokens": 240,
+        "wall_time_seconds": 9.71,
+        "successful": 24,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "16": {
+        "tokens_per_second": 1260.6646735681513,
+        "total_output_tokens": 11808,
+        "total_input_tokens": 480,
+        "wall_time_seconds": 9.37,
+        "successful": 48,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "32": {
+        "tokens_per_second": 1467.2175403145966,
+        "total_output_tokens": 23616,
+        "total_input_tokens": 960,
+        "wall_time_seconds": 16.1,
+        "successful": 96,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "64": {
+        "tokens_per_second": 1573.8598024761911,
+        "total_output_tokens": 47232,
+        "total_input_tokens": 1920,
+        "wall_time_seconds": 30.01,
+        "successful": 192,
+        "failed": 0,
+        "timed_out": 0
+      },
+      "128": {
+        "tokens_per_second": 1506.332006801985,
+        "total_output_tokens": 76752,
+        "total_input_tokens": 3120,
+        "wall_time_seconds": 50.92,
+        "successful": 312,
+        "failed": 72,
+        "timed_out": 0
+      },
+      "peak_tokens_per_second": 1573.86
     }
   }
 }
