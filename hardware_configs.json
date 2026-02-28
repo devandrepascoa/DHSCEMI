@@ -3,38 +3,38 @@
     {
       "config_id": "cpu_4",
       "cpu_cores": 4,
-      "memory": "200g",
-      "hourly_cost": 0.05,
+      "memory": "4g",
+      "hourly_cost": 0.04,
       "parallel_slots": 32
     },
     {
       "config_id": "cpu_16",
       "cpu_cores": 16,
-      "memory": "200g",
-      "hourly_cost": 0.15,
+      "memory": "8g",
+      "hourly_cost": 0.17,
       "parallel_slots": 32
     },
     {
       "config_id": "cpu_48",
       "cpu_cores": 48,
-      "memory": "200g",
-      "hourly_cost": 0.45,
+      "memory": "16g",
+      "hourly_cost": 0.50,
       "parallel_slots": 64
     },
     {
       "config_id": "gpu_25",
       "cpu_cores": 48,
-      "memory": "200g",
+      "memory": "16g",
       "gpu_percentage": 25,
-      "hourly_cost": 0.50,
+      "hourly_cost": 0.09,
       "parallel_slots": 16
     },
     {
       "config_id": "gpu_100",
       "cpu_cores": 48,
-      "memory": "200g",
+      "memory": "16g",
       "gpu_percentage": 100,
-      "hourly_cost": 4.00,
+      "hourly_cost": 0.36,
       "parallel_slots": 64
     }
   ],
