@@ -112,13 +112,13 @@ PHASE_COLORS = {
 #
 # Scale-down triggers when per_request_tps >= 10.0
 #   AND lower config can serve current concurrency above threshold (1.5x margin)
-# For scale-down we use 6 workers back-to-back to generate visible throughput.
+# For scale-down we use 6 workers (phases 5-7) and 4 workers (phase 8).
 #
-# With 6 workers, viability checks for each step down:
-#   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓
-#   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓
-#   gpu_25  → cpu_16: 291.2/6 = 48.5 >= 15 ✓
-#   cpu_16  → cpu_4:  92.2/6  = 15.4 >= 15 ✓
+# Viability checks for each step down:
+#   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
+#   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓  (6 workers)
+#   gpu_25  → cpu_16: 291.2/6 = 48.5 >= 15 ✓  (6 workers)
+#   cpu_16  → cpu_4:  92.2/4  = 23.1 >= 15 ✓  (4 workers — safer margin)
 #
 # For the scale-up phases, we use 4 min (240s) to allow time for:
 #   - Initial detection (~10-30s)
@@ -169,9 +169,11 @@ PHASES = [
     ("ramp-down 3",    360,   6,   0),
 
     # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
-    # 6 workers back-to-back → cpu_16: ~210 tok/s, per-req ~35 >> 10
-    # Viability: cpu_4 92.2/6 = 15.4 >= 15 → scale down
-    ("ramp-down 4",    360,   6,   0),
+    # 4 workers back-to-back → cpu_16: ~210 tok/s, per-req ~52 >> 10
+    # Viability: cpu_4 92.2/4 = 23.1 >= 15 → scale down
+    # NOTE: Using 4 workers (not 6) to keep cpu_4 safely above threshold
+    # (92.2/4 = 23.1 vs 92.2/6 = 15.4 which is too close to 10.0)
+    ("ramp-down 4",    360,   4,   0),
 ]
 
 EXPECTED_SEQUENCE = [
