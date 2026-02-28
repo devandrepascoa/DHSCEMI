@@ -36,7 +36,6 @@ GPU_25 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=25, hourly_c
 GPU_100 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32)
 
 ALL_CONFIGS = [CPU_4, CPU_16, CPU_48, GPU_25, GPU_100]
-CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: c.hourly_cost)
 
 TEST_MODEL = "test-model"
 
@@ -48,6 +47,8 @@ _TEST_THROUGHPUT = {
     "gpu_25": 147.0,
     "gpu_100": 1064.0,
 }
+
+CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: _TEST_THROUGHPUT.get(c.config_id(), 0))
 
 
 @pytest.fixture(autouse=True)
@@ -179,9 +180,10 @@ class TestSelectConfigPerRequest:
         assert result.config_id() == "cpu_16"
 
     def test_no_scale_down_when_concurrency_above_threshold(self):
-        """TPS above threshold but concurrency above SCALE_DOWN_CONCURRENCY → stay."""
+        """TPS above threshold but concurrency too high for lower tier viability → stay."""
+        # gpu_25 capacity=147, concurrency=10 → 147/10=14.7 < 15 (1.5x margin) → blocked
         result = select_config_per_request(
-            GPU_100, MIN_TPS_THRESHOLD + 1, SCALE_DOWN_CONCURRENCY + 1, CONFIGS_BY_COST,
+            GPU_100, MIN_TPS_THRESHOLD + 1, 10.0, CONFIGS_BY_COST,
         )
         assert result.config_id() == "gpu_100"
 

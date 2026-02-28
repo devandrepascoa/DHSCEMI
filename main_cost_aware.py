@@ -7,7 +7,7 @@ Scaling logic: per-request tok/s from SSE streaming.
 
   - Scale UP:   per_request_tps_ema < MIN_TPS_THRESHOLD
   - Scale DOWN: per_request_tps_ema >= MIN_TPS_THRESHOLD
-                AND active_requests_ema <= SCALE_DOWN_CONCURRENCY
+                AND lower config can serve current concurrency above threshold
 
 Usage:
     uv run uvicorn main_cost_aware:app --port <PORT>
@@ -352,13 +352,13 @@ def select_config_per_request(
 
     Scale UP:   per_request_tps_ema < MIN_TPS_THRESHOLD
     Scale DOWN: per_request_tps_ema >= MIN_TPS_THRESHOLD
-                AND active_requests_ema <= SCALE_DOWN_CONCURRENCY
                 AND lower config can still serve current concurrency above threshold
 
-    configs_by_cost is optional; defaults to HARDWARE_CONFIGS sorted by cost.
+    configs_by_throughput is optional; defaults to HARDWARE_CONFIGS sorted by
+    measured throughput.
     """
     if configs_by_cost is None:
-        configs_by_cost = sorted(HARDWARE_CONFIGS, key=lambda c: c.hourly_cost)
+        configs_by_cost = sorted(HARDWARE_CONFIGS, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
 
     current_id = current_config.config_id()
     current_idx = next(
@@ -370,13 +370,11 @@ def select_config_per_request(
         if current_idx + 1 < len(configs_by_cost):
             return configs_by_cost[current_idx + 1]
 
-    # Scale DOWN: speed acceptable AND low concurrency
-    #   Also check that the lower config's capacity / concurrency >= threshold
+    # Scale DOWN: speed acceptable, lower config can handle current concurrency
     #   Use 1.5x safety margin because actual per-request degradation under
     #   concurrency is worse than the linear capacity/concurrency estimate.
     if current_idx > 0:
-        if (per_request_tps_ema >= MIN_TPS_THRESHOLD
-                and active_requests_ema <= SCALE_DOWN_CONCURRENCY):
+        if per_request_tps_ema >= MIN_TPS_THRESHOLD:
             lower = configs_by_cost[current_idx - 1]
             lower_capacity = MEASURED_THROUGHPUT.get(lower.config_id(), 1.0)
             concurrency = max(active_requests_ema, 1.0)
@@ -404,7 +402,7 @@ class CostAwareAutoscaler:
         headroom: float = 0.0,
     ):
         self.configs = configs
-        self.configs_by_cost = sorted(configs, key=lambda c: c.hourly_cost)
+        self.configs_by_cost = sorted(configs, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
         self.cooldown_seconds = cooldown_seconds
         self.cooldown_down_seconds = cooldown_down_seconds if cooldown_down_seconds is not None else cooldown_seconds
         self.clock = clock or time.time
@@ -572,7 +570,7 @@ class CostAwareAutoscaler:
 # ===========================================================================
 
 CONFIGS: List[HardwareConfig] = HARDWARE_CONFIGS
-CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: c.hourly_cost)
+CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
 
 COOLDOWN = int(os.environ.get("E2E_COOLDOWN", "300"))
 COOLDOWN_DOWN = int(os.environ.get("E2E_COOLDOWN_DOWN", os.environ.get("E2E_COOLDOWN", "300")))
@@ -984,8 +982,8 @@ async def _background_scaling_loop() -> None:
             # is still ongoing. Only allow scale-up when recently active.
             effective_ar = max(ar_ema, float(container.active_requests))
             if recently_active and container.active_requests == 0:
-                # Inflate effective concurrency to block premature scale-down
-                effective_ar = max(effective_ar, SCALE_DOWN_CONCURRENCY + 1)
+                # Block scale-down by inflating concurrency so viability check fails
+                effective_ar = max(effective_ar, 1e6)
 
             optimal = select_config_per_request(
                 current_config, pr_ema, effective_ar,
@@ -998,7 +996,16 @@ async def _background_scaling_loop() -> None:
             new_config_id = new_config.config_id()
 
             # Directional cooldown: scale-down uses longer cooldown
-            is_scale_down = new_config.hourly_cost < current_config.hourly_cost
+            # Scale-down = moving to a lower-throughput tier (lower index in sorted list)
+            new_config_idx = next(
+                (i for i, c in enumerate(CONFIGS_BY_COST) if c.config_id() == new_config_id),
+                -1,
+            )
+            current_config_idx = next(
+                (i for i, c in enumerate(CONFIGS_BY_COST) if c.config_id() == current_id),
+                -1,
+            )
+            is_scale_down = new_config_idx < current_config_idx
             if is_scale_down and time_since_scale < autoscaler.cooldown_down_seconds:
                 continue
 
