@@ -118,7 +118,7 @@ PHASE_COLORS = {
 #   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
 #   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓  (6 workers)
 #   gpu_25  → cpu_16: 291.2/6 = 48.5 >= 15 ✓  (6 workers)
-#   cpu_16  → cpu_4:  92.2/2  = 46.1 >= 15 ✓  (2 workers — safe margin)
+#   cpu_16  → cpu_4:  92.2/1  = 92.2 >= 15 ✓  (1 worker, rate-limited)
 #
 # For the scale-up phases, we use 4 min (240s) to allow time for:
 #   - Initial detection (~10-30s)
@@ -169,12 +169,12 @@ PHASES = [
     ("ramp-down 3",    360,   6,   0),
 
     # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
-    # 2 workers back-to-back → cpu_16: ~173 tok/s, per-req ~87 >> 10
-    # Viability: cpu_4 92.2/2 = 46.1 >= 15 → scale down
-    # NOTE: Using 2 workers to keep cpu_4 safely above threshold.
-    # At concurrency 2, actual aggregate ~56 tok/s → per-req ~28 tok/s.
-    # Higher concurrency (4-6) causes per-req to dip near 10 and re-triggers scale-up.
-    ("ramp-down 4",    360,   2,   0),
+    # 1 worker at 3 rpm → cpu_16: per-req ~63 tok/s >> 10
+    # Viability: cpu_4 92.2/1 = 92.2 >= 15 → scale down
+    # NOTE: Using rate-limited requests (not back-to-back) to keep cpu_4 stable.
+    # Back-to-back workers (even 2) cause per-req EMA to dip near threshold
+    # during container swap, triggering a re-scale-up.
+    ("ramp-down 4",    360,   1,   3),
 ]
 
 EXPECTED_SEQUENCE = [
