@@ -104,25 +104,21 @@ PHASE_COLORS = {
 # Concurrency to overwhelm each config:
 #   cpu_4  (92.2):  >9.2  → use 12 workers
 #   cpu_16 (291.2): >29.1 → use 35 workers
+#   gpu_25 (335.8): >33.6 → use 35 workers (already >33.6 from prev phase)
 #   cpu_48 (446.2): >44.6 → use 50 workers
-#   gpu_25 (335.8): >33.6 → use 45 workers (already >33.6 from prev phase)
 #   gpu_100 (1573.9): not overwhelmed
 #
-# Scale-down triggers when per_request_tps >= 10.0 AND active_requests_ema <= 5.0
-# For scale-down we use low concurrency (1-3 workers) with rate limiting.
+# Throughput-sorted order: cpu_4 → cpu_16 → gpu_25 → cpu_48 → gpu_100
 #
-# Note: gpu_25 has LOWER throughput than cpu_48 (335.8 vs 446.2) but higher cost.
-# The autoscaler sorts by cost, so the ladder is:
-#   cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100
-# To go from cpu_48 to gpu_25, we need concurrency that overwhelms cpu_48 (>44.6)
-# but gpu_25 (335.8/50 ≈ 6.7) will also be overwhelmed, so it will immediately
-# try to scale up again to gpu_100. We need to be careful here.
+# Scale-down triggers when per_request_tps >= 10.0
+#   AND lower config can serve current concurrency above threshold (1.5x margin)
+# For scale-down we use 6 workers back-to-back to generate visible throughput.
 #
-# Actually, with cooldown=60s, after scaling from cpu_48→gpu_25, the cooldown
-# prevents immediate re-scaling. During cooldown, the EMA will reflect gpu_25's
-# per-request performance. If we keep 50 workers, gpu_25 gives 335.8/50 ≈ 6.7 tok/s
-# which is < 10, so after cooldown it will scale to gpu_100. That's fine — we just
-# need the phase to be long enough (3 min = 180s) for both transitions.
+# With 6 workers, viability checks for each step down:
+#   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓
+#   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓
+#   gpu_25  → cpu_16: 291.2/6 = 48.5 >= 15 ✓
+#   cpu_16  → cpu_4:  92.2/6  = 15.4 >= 15 ✓
 #
 # For the scale-up phases, we use 4 min (240s) to allow time for:
 #   - Initial detection (~10-30s)
@@ -131,7 +127,10 @@ PHASE_COLORS = {
 #   - Second transition if needed
 #   - Stabilization on target config
 #
-# For scale-down, we use 4 min phases too, with very low load.
+# For scale-down, we use 6 min (360s) to allow time for:
+#   - Cooldown (240s)
+#   - Container swap (~30-60s)
+#   - EMA convergence on new tier
 
 PHASES = [
     # Phase 1: Low load — stay on cpu_4
@@ -143,45 +142,41 @@ PHASES = [
     # cpu_16: 291.2/12 ≈ 24.3 tok/s > 10 → stable
     ("medium load",    240,  12,   0),
 
-    # Phase 3: High load — overwhelm cpu_16, scale to cpu_48
+    # Phase 3: High load — overwhelm cpu_16 and gpu_25, scale to cpu_48
     # 35 workers back-to-back → cpu_16: 291.2/35 ≈ 8.3 tok/s < 10 → scale up
+    # gpu_25: 335.8/35 ≈ 9.6 tok/s < 10 → after cooldown, scale up again
     # cpu_48: 446.2/35 ≈ 12.7 tok/s > 10 → stable
-    ("high load",      240,  35,   0),
+    ("high load",      300,  35,   0),
 
-    # Phase 4: Very high load — overwhelm cpu_48, scale through gpu_25 to gpu_100
-    # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 10 → scale to gpu_25
-    # gpu_25: 335.8/55 ≈ 6.1 tok/s < 10 → after cooldown, scale to gpu_100
+    # Phase 4: Very high load — overwhelm cpu_48, scale to gpu_100
+    # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 10 → scale up
     # gpu_100: 1573.9/55 ≈ 28.6 tok/s > 10 → stable
     ("peak load",      300,  55,   0),
 
-    # Phase 5: Ramp-down — scale from gpu_100 to gpu_25
-    # 2 workers, rate-limited → per-req tok/s on gpu_100 ≈ 1573.9/2 = 787 >> 10
-    # active_requests_ema will drop to ~2 < 5 → scale down
-    # gpu_25: 335.8/2 ≈ 168 >> 10 → stable
-    ("ramp-down 1",    240,   2,  10),
+    # Phase 5: Ramp-down — scale from gpu_100 to cpu_48
+    # 6 workers back-to-back → gpu_100: ~1201 tok/s, per-req ~200 >> 10
+    # Viability: cpu_48 446.2/6 = 74.4 >= 15 → scale down
+    ("ramp-down 1",    360,   6,   0),
 
-    # Phase 6: Ramp-down — scale from gpu_25 to cpu_48
-    # 2 workers, rate-limited → per-req tok/s on gpu_25 ≈ 335.8/2 = 168 >> 10
-    # active_requests_ema ~2 < 5 → scale down
-    # cpu_48: 446.2/2 ≈ 223 >> 10 → stable
-    ("ramp-down 2",    240,   2,  10),
+    # Phase 6: Ramp-down — scale from cpu_48 to gpu_25
+    # 6 workers back-to-back → cpu_48: ~303 tok/s, per-req ~50 >> 10
+    # Viability: gpu_25 335.8/6 = 56.0 >= 15 → scale down
+    ("ramp-down 2",    360,   6,   0),
 
-    # Phase 7: Ramp-down — scale from cpu_48 to cpu_16
-    # 1 worker, rate-limited → per-req tok/s on cpu_48 ≈ 446.2/1 = 446 >> 10
-    # active_requests_ema ~1 < 5 → scale down
-    # cpu_16: 291.2/1 ≈ 291 >> 10 → stable
-    ("ramp-down 3",    240,   1,   5),
+    # Phase 7: Ramp-down — scale from gpu_25 to cpu_16
+    # 6 workers back-to-back → gpu_25: ~278 tok/s, per-req ~46 >> 10
+    # Viability: cpu_16 291.2/6 = 48.5 >= 15 → scale down
+    ("ramp-down 3",    360,   6,   0),
 
     # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
-    # 1 worker, rate-limited → per-req tok/s on cpu_16 ≈ 291.2/1 = 291 >> 10
-    # active_requests_ema ~1 < 5 → scale down
-    # cpu_4: 92.2/1 ≈ 92 >> 10 → stable
-    ("ramp-down 4",    240,   1,   3),
+    # 6 workers back-to-back → cpu_16: ~210 tok/s, per-req ~35 >> 10
+    # Viability: cpu_4 92.2/6 = 15.4 >= 15 → scale down
+    ("ramp-down 4",    360,   6,   0),
 ]
 
 EXPECTED_SEQUENCE = [
-    "cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100",
-    "gpu_25", "cpu_48", "cpu_16", "cpu_4",
+    "cpu_4", "cpu_16", "gpu_25", "cpu_48", "gpu_100",
+    "cpu_48", "gpu_25", "cpu_16", "cpu_4",
 ]
 
 
