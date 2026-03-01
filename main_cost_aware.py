@@ -270,6 +270,8 @@ class Container:
             args.extend(['--memory', self.config.memory])
         if self.config.gpu_percentage:
             args.extend(['--gpus', 'all', '--privileged'])
+            if self.config.gpu_percentage < 100:
+                args.extend(['-e', f'CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.config.gpu_percentage}'])
         return args
 
     async def start(self) -> bool:

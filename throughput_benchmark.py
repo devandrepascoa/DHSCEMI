@@ -50,6 +50,8 @@ class HardwareConfig:
         args = ['--memory', self.memory]
         if self.is_gpu:
             args.extend(['--gpus', 'all', '--privileged'])
+            if self.gpu_percentage and self.gpu_percentage < 100:
+                args.extend(['-e', f'CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.gpu_percentage}'])
         else:
             args.extend(['--cpus', str(self.cpu_cores)])
         return args
