@@ -26,16 +26,13 @@ with open(ROOT / "hardware_configs.json") as f:
 CONFIGS = {c["config_id"]: c for c in hw["configs"]}
 MEASURED = hw["measured_throughput"]
 
-# Cost-sorted order
-COST_ORDER = sorted(CONFIGS.keys(), key=lambda c: CONFIGS[c]["hourly_cost"])
+# Tier-order sorted (explicit ordering from hardware_configs.json)
+TIER_ORDER = sorted(CONFIGS.keys(), key=lambda c: CONFIGS[c]["tier_order"])
 
-# Single blue gradient for all configs (cost-sorted: lightest = cheapest)
+# Single blue gradient for all configs (tier-order: lightest = lowest tier)
 _cmap = plt.cm.Blues  # type: ignore[attr-defined]
 _gradient_vals = [0.3 + 0.55 * i / 4 for i in range(5)]
-COLORS = {c: _cmap(v) for c, v in zip(
-    sorted(CONFIGS.keys(), key=lambda c: CONFIGS[c]["hourly_cost"]),
-    _gradient_vals,
-)}
+COLORS = {c: _cmap(v) for c, v in zip(TIER_ORDER, _gradient_vals)}
 
 LABELS = {
     "cpu_4": "cpu_4 (4 cores)",
@@ -130,19 +127,19 @@ def fig_cost_per_token_vs_demand():
 
 
 # ---------------------------------------------------------------------------
-# Figure 4: Cost-sorted scaling ladder
+# Figure 4: Tier-ordered scaling ladder
 # ---------------------------------------------------------------------------
 def fig_scaling_ladder():
     fig, ax = plt.subplots(figsize=(6, 3))
-    costs = [CONFIGS[c]["hourly_cost"] for c in COST_ORDER]
-    peaks = [MEASURED[c] for c in COST_ORDER]
-    colors = [COLORS[c] for c in COST_ORDER]
-    labels = [LABELS[c] for c in COST_ORDER]
+    costs = [CONFIGS[c]["hourly_cost"] for c in TIER_ORDER]
+    peaks = [MEASURED[c] for c in TIER_ORDER]
+    colors = [COLORS[c] for c in TIER_ORDER]
+    labels = [LABELS[c] for c in TIER_ORDER]
 
-    x = range(len(COST_ORDER))
+    x = range(len(TIER_ORDER))
     ax2 = ax.twinx()
 
-    bars = ax.bar(x, costs, color=[COLORS[c] for c in COST_ORDER], edgecolor="white", width=0.5,
+    bars = ax.bar(x, costs, color=[COLORS[c] for c in TIER_ORDER], edgecolor="white", width=0.5,
                   label="Hourly Cost")
     ax2.plot(x, peaks, "ks-", markersize=6, linewidth=1.5, label="Peak Throughput")
 
@@ -150,7 +147,7 @@ def fig_scaling_ladder():
     ax.set_xticklabels(labels, rotation=15, ha="right", fontsize=8)
     ax.set_ylabel("Hourly Cost (\\$)")
     ax2.set_ylabel("Peak Throughput (tok/s)")
-    ax.set_title("Cost-Sorted Scaling Ladder")
+    ax.set_title("Scaling Ladder (by tier order)")
 
     # Combined legend
     lines1, labels1 = ax.get_legend_handles_labels()
