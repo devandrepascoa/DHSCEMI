@@ -318,19 +318,27 @@ async def main():
             config_start = time.perf_counter()
             prev_tps = 0.0
             batch_size = 1
-
-            # Start container once with production parallel_slots
-            container_name = start_container(config, port, parallel=config.parallel_slots)
-            if not container_name:
-                print(f"  FAILED to start container for {config.config_id}")
-                continue
-            print(f"  Waiting for container (--parallel {config.parallel_slots})...")
-            if not await wait_for_container(port):
-                print(f"  ERROR: Container failed to start")
-                continue
+            current_parallel = 0  # track current --parallel setting
 
             while batch_size <= args.max_batch:
-                print(f"\n  --- {config.config_id} | batch_size={batch_size} (parallel={config.parallel_slots}) ---")
+                # Restart container if we need more parallel slots
+                if batch_size > current_parallel:
+                    if current_parallel > 0:
+                        print(f"  Restarting container with --parallel {batch_size}...")
+                        stop_container(container_name)
+                        await asyncio.sleep(2)
+                        port = get_free_port()
+                    container_name = start_container(config, port, parallel=batch_size)
+                    if not container_name:
+                        print(f"  FAILED to restart container for batch_size={batch_size}")
+                        break
+                    print(f"  Waiting for container (--parallel {batch_size})...")
+                    if not await wait_for_container(port):
+                        print(f"  ERROR: Container failed to start")
+                        break
+                    current_parallel = batch_size
+
+                print(f"\n  --- {config.config_id} | batch_size={batch_size} (parallel={current_parallel}) ---")
                 result = await benchmark_batch(port, batch_size)
                 result.config_id = config.config_id
                 results[config.config_id][batch_size] = result
