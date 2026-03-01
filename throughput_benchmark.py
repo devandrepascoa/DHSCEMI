@@ -35,6 +35,7 @@ class HardwareConfig:
     cpu_cores: Optional[int] = None
     gpu_percentage: Optional[int] = None
     memory: str = "8g"
+    parallel_slots: int = 32
 
     @property
     def is_gpu(self) -> bool:
@@ -75,6 +76,7 @@ def load_configs_from_json() -> List[HardwareConfig]:
             cpu_cores=c.get("cpu_cores"),
             gpu_percentage=c.get("gpu_percentage"),
             memory=c.get("memory", "8g"),
+            parallel_slots=c.get("parallel_slots", 32),
         )
         for c in data["configs"]
     ]
@@ -296,7 +298,7 @@ async def main():
 
     for config in CONFIGS:
         print(f"\n{'='*50}")
-        print(f"Config: {config.config_id}")
+        print(f"Config: {config.config_id} (parallel_slots={config.parallel_slots})")
         print(f"{'='*50}")
         results[config.config_id] = {}
         port = get_free_port()
@@ -306,27 +308,19 @@ async def main():
             config_start = time.perf_counter()
             prev_tps = 0.0
             batch_size = 1
-            current_parallel = 0  # track current --parallel setting
+
+            # Start container once with production parallel_slots
+            container_name = start_container(config, port, parallel=config.parallel_slots)
+            if not container_name:
+                print(f"  FAILED to start container for {config.config_id}")
+                continue
+            print(f"  Waiting for container (--parallel {config.parallel_slots})...")
+            if not await wait_for_container(port):
+                print(f"  ERROR: Container failed to start")
+                continue
 
             while batch_size <= MAX_BATCH_SIZE:
-                # Restart container if we need more parallel slots
-                if batch_size > current_parallel:
-                    if current_parallel > 0:
-                        print(f"  Restarting container with --parallel {batch_size}...")
-                        stop_container(container_name)
-                        await asyncio.sleep(2)
-                        port = get_free_port()
-                    container_name = start_container(config, port, parallel=batch_size)
-                    if not container_name:
-                        print(f"  FAILED to restart container for batch_size={batch_size}")
-                        break
-                    print(f"  Waiting for container (--parallel {batch_size})...")
-                    if not await wait_for_container(port):
-                        print(f"  ERROR: Container failed to start")
-                        break
-                    current_parallel = batch_size
-
-                print(f"\n  --- {config.config_id} | batch_size={batch_size} ---")
+                print(f"\n  --- {config.config_id} | batch_size={batch_size} (parallel={config.parallel_slots}) ---")
                 result = await benchmark_batch(port, batch_size)
                 result.config_id = config.config_id
                 results[config.config_id][batch_size] = result
