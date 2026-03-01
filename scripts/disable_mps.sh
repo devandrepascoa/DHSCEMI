@@ -1,46 +1,34 @@
 #!/bin/bash
+# Disable NVIDIA MPS daemon and clean up state.
 
-get_compute_mode() {
-    nvidia-smi -q -d COMPUTE | grep "Compute Mode" | awk '{print $NF}' | head -n 1
-}
+set -euo pipefail
 
-is_mps_daemon_running() {
-    pgrep -x "nvidia-cuda-mps-control" >/dev/null
-    return $?
-}
+MPS_PIPE_DIR="/tmp/nvidia-mps-pipe"
 
 echo "--- Disabling NVIDIA MPS ---"
 
-num_gpus=$(nvidia-smi -L | wc -l)
-if [ "$num_gpus" -ne 1 ]; then
-    echo "Error: This script is for single GPU machines. Found $num_gpus GPUs."
-    echo "Please adjust the script or ensure only one GPU is present."
-    exit 1
+# Send quit command
+echo "Stopping MPS daemon..."
+echo quit | nvidia-cuda-mps-control 2>/dev/null || true
+sleep 2
+
+# Force kill any remaining processes
+if pgrep -f "nvidia-cuda-mps" >/dev/null; then
+    echo "Force killing remaining MPS processes..."
+    pkill -9 -f "nvidia-cuda-mps" 2>/dev/null || true
+    sleep 1
 fi
 
-echo "Attempting to stop MPS daemon..."
-if is_mps_daemon_running; then
-    echo "Sending quit command to MPS daemon..."
-    echo quit | nvidia-cuda-mps-control
-    sleep 2 # Give it a moment to shut down
-    if is_mps_daemon_running; then
-        echo "MPS daemon is still running. Attempting force kill..."
-        pkill -9 nvidia-mps-server || true # Use || true to prevent script from exiting if not found
-        pkill -9 nvidia-cuda-mps-control || true
-        echo "MPS daemon force killed (if it was running)."
-    else
-        echo "MPS daemon stopped successfully."
-    fi
+# Clean stale state
+echo "Cleaning MPS state..."
+rm -rf "$MPS_PIPE_DIR"/* /tmp/nvidia-mps/* 2>/dev/null || true
+
+# Verify
+if pgrep -f "nvidia-cuda-mps" >/dev/null; then
+    echo "WARNING: MPS processes still running."
+    ps aux | grep mps | grep -v grep
 else
-    echo "MPS daemon is not running."
+    echo "MPS fully stopped."
 fi
 
-echo "Setting GPU compute mode to DEFAULT for GPU 0..."
-if ! nvidia-smi -i 0 -c DEFAULT; then
-    echo "Warning: Failed to set DEFAULT mode for GPU 0."
-    echo "This usually means the GPU is in use. A reboot might be required for changes to apply."
-fi
-
-echo "--- MPS Disablement Attempt Complete ---"
-echo "RECOMMENDATION: If compute mode was changed and GPU was in use, consider a reboot."
-echo "Verification: Run 'nvidia-smi -q -d COMPUTE' and 'ps -ef | grep mps'."
+echo "--- MPS Disabled ---"
