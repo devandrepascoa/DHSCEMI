@@ -6,7 +6,7 @@ Starts the main cost-aware server and drives it through the full
 vertical scaling staircase:
   cpu_4 → cpu_16 → cpu_48 → gpu_100 → cpu_48 → cpu_16 → cpu_4
 
-Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=15.0
+Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=10.0
 
 Configs (measured throughput from benchmark):
   cpu_4:    92.2 tok/s  ($0.04/hr)  — peak at batch=32
@@ -15,17 +15,16 @@ Configs (measured throughput from benchmark):
   gpu_100: 1573.9 tok/s ($0.36/hr)  — peak at batch=64
 
 Scaling signal: per-request tok/s EMA.
-  Scale UP:   per_request_tps_ema < MIN_TPS (15.0)
+  Scale UP:   per_request_tps_ema < MIN_TPS (10.0)
   Scale DOWN: per_request_tps_ema >= MIN_TPS AND viability check passes
 
 Per-request tok/s ≈ capacity / concurrency.
   To overwhelm config X: need concurrency > capacity_X / MIN_TPS
 
-Phase design:
-  Each scale-up phase uses enough concurrency to overwhelm the current config
-  but not the next one, so it scales up exactly one step and stabilizes.
-  Each scale-down phase uses low enough concurrency that per-request tok/s
-  is well above threshold on the lower config.
+Phase design (6 phases, ~30 min total):
+  4 scale-up phases + 2 ramp-down phases.
+  Ramp-down 1 may do 1-2 transitions (gpu_100→cpu_48, possibly →cpu_16).
+  Ramp-down 2 uses 1 worker at 2 rpm to drop remaining tiers to cpu_4.
 
 Usage:
     uv run python benchmarks/scaling_demo.py 2>&1 | tee benchmarks/scaling_demo_logs/run.log
@@ -89,8 +88,6 @@ PHASE_COLORS = {
     "peak load":    "#f3e5f5",
     "ramp-down 1":  "#e8f5e9",
     "ramp-down 2":  "#e0f2f1",
-    "ramp-down 3":  "#ede7f6",
-    "ramp-down 4":  "#fafafa",
 }
 
 
@@ -98,76 +95,55 @@ PHASE_COLORS = {
 # Phase design
 # ---------------------------------------------------------------------------
 # Per-request tok/s ≈ capacity / concurrency
-# Scale-up triggers when per_request_tps < 15.0
+# Scale-up triggers when per_request_tps < 10.0
 # Concurrency to overwhelm each config:
-#   cpu_4  (92.2):  >6.1  → use 12 workers
-#   cpu_16 (291.2): >19.4 → use 35 workers
-#   cpu_48 (446.2): >29.7 → use 55 workers
-#   gpu_100 (1573.9): not overwhelmed by 55 (1573.9/55 = 28.6 > 15)
+#   cpu_4  (92.2):  >9.2  → use 12 workers
+#   cpu_16 (291.2): >29.1 → use 35 workers
+#   cpu_48 (446.2): >44.6 → use 55 workers
+#   gpu_100 (1573.9): not overwhelmed by 55 (1573.9/55 = 28.6 > 10)
 #
 # Tier order: cpu_4 → cpu_16 → cpu_48 → gpu_100
 #
-# Scale-down triggers when per_request_tps >= 15.0
+# Scale-down triggers when per_request_tps >= 10.0
 #   AND lower config can serve current concurrency above threshold (1.5x margin)
 #
-# Viability checks for each step down:
+# Viability checks for scale-down (1.5x margin means need >= 15):
 #   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
 #   cpu_48  → cpu_16: 291.2/6 = 48.5 >= 15 ✓  (6 workers)
-#   cpu_16  → cpu_4:  92.2/8  = 11.5 <  15 ✗  (8 workers — blocked!)
 #   cpu_16  → cpu_4:  92.2/1  = 92.2 >= 15 ✓  (1 worker, rate-limited)
 #
-# For the scale-up phases, we use 4 min (240s) to allow time for:
-#   - Initial detection (~10-30s)
-#   - Container swap (~30-60s)
-#   - Cooldown (60s)
-#   - Stabilization on target config
-#
-# For scale-down, we use 6 min (360s) to allow time for:
-#   - Cooldown (240s)
-#   - Container swap (~30-60s)
-#   - EMA convergence on new tier
+# Ramp-down 1 (6 workers, 360s) may do 1-2 transitions since
+# cooldown_down=240s fits within the phase window.
+# Ramp-down 2 (1 worker, 2 rpm, 360s) drops whatever remains to cpu_4.
 
 PHASES = [
     # Phase 1: Low load — stay on cpu_4
-    # 1 worker, rate-limited to ~3 rpm → per-req tok/s ≈ 92.2/1 = 92.2 (well above 15)
+    # 1 worker, rate-limited to ~3 rpm → per-req tok/s ≈ 92.2/1 = 92.2 (well above 10)
     ("low load",       240,   1,   3),
 
     # Phase 2: Medium load — overwhelm cpu_4, scale to cpu_16
-    # 12 workers back-to-back → cpu_4: 92.2/12 ≈ 7.7 tok/s < 15 → scale up
-    # cpu_16: 291.2/12 ≈ 24.3 tok/s > 15 → stable
+    # 12 workers back-to-back → cpu_4: 92.2/12 ≈ 7.7 tok/s < 10 → scale up
+    # cpu_16: 291.2/12 ≈ 24.3 tok/s > 10 → stable
     ("medium load",    240,  12,   0),
 
     # Phase 3: High load — overwhelm cpu_16, scale to cpu_48
-    # 35 workers back-to-back → cpu_16: 291.2/35 ≈ 8.3 tok/s < 15 → scale up
-    # cpu_48: 446.2/35 ≈ 12.7 tok/s > 15 → stable
+    # 35 workers back-to-back → cpu_16: 291.2/35 ≈ 8.3 tok/s < 10 → scale up
+    # cpu_48: 446.2/35 ≈ 12.7 tok/s > 10 → stable
     ("high load",      300,  35,   0),
 
     # Phase 4: Peak load — overwhelm cpu_48, scale to gpu_100
-    # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 15 → scale up
-    # gpu_100: 1573.9/55 ≈ 28.6 tok/s > 15 → stable
+    # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 10 → scale up
+    # gpu_100: 1573.9/55 ≈ 28.6 tok/s > 10 → stable
     ("peak load",      300,  55,   0),
 
-    # Phase 5: Ramp-down — scale from gpu_100 toward cpu_48
-    # 6 workers back-to-back → gpu_100: per-req ~262 >> 15
-    # Viability: cpu_48 446.2/6 = 74.4 >= 15 → scale down
-    # NOTE: ramp-down 1 may do two transitions (gpu_100→cpu_48→cpu_16)
-    # within 360s since cooldown_down=240s allows both.
+    # Phase 5: Ramp-down 1 — 6 workers, gpu_100→cpu_48 (may also →cpu_16)
+    # gpu_100: per-req ~262 >> 10, viability cpu_48: 446.2/6=74.4 >= 15 → scale down
+    # If also cpu_48→cpu_16: 291.2/6=48.5 >= 15 → scale down
     ("ramp-down 1",    360,   6,   0),
 
-    # Phase 6: Ramp-down — continue down (cpu_48→cpu_16 or cpu_16 already)
-    # 6 workers back-to-back
-    # Viability: cpu_16 291.2/6 = 48.5 >= 15 → scale down ✓
-    ("ramp-down 2",    360,   6,   0),
-
-    # Phase 7: Ramp-down — hold on cpu_16
-    # 8 workers back-to-back
-    # Viability: cpu_4  92.2/8  = 11.5 <  15 → blocked ✗ (prevents premature drop)
-    ("ramp-down 3",    360,   8,   0),
-
-    # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
-    # 1 worker at 2 rpm → cpu_16: per-req ~63 tok/s >> 15
-    # Viability: cpu_4 92.2/1 = 92.2 >= 15 → scale down
-    ("ramp-down 4",    360,   1,   2),
+    # Phase 6: Ramp-down 2 — 1 worker at 2 rpm, drop remaining to cpu_4
+    # cpu_16 or cpu_48: per-req >> 10, viability cpu_4: 92.2/1=92.2 >= 15 → scale down
+    ("ramp-down 2",    360,   1,   2),
 ]
 
 EXPECTED_SEQUENCE = [
@@ -585,7 +561,7 @@ def generate_plot(collector: Collector) -> None:
     ax1.set_yticks(range(len(CONFIG_ORDER)))
     ax1.set_yticklabels(CONFIG_ORDER)
     ax1.set_ylim(-0.5, len(CONFIG_ORDER) - 0.5)
-    ax1.set_title("Cost-Aware Vertical Scaling — Real Hardware Demo (5 Configs)")
+    ax1.set_title("Cost-Aware Vertical Scaling — Real Hardware Demo (4 Configs)")
 
     patches = [mpatches.Patch(color=CONFIG_COLORS[c], label=c, alpha=0.5)
                for c in CONFIG_ORDER]

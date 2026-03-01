@@ -179,54 +179,6 @@
       },
       "peak_tokens_per_second": 446.15
     },
-    "gpu_25": {
-      "1": {
-        "tokens_per_second": 90.25951620835734,
-        "total_output_tokens": 768,
-        "total_input_tokens": 30,
-        "wall_time_seconds": 8.51,
-        "successful": 3,
-        "failed": 0,
-        "timed_out": 0
-      },
-      "4": {
-        "tokens_per_second": 224.4672246162222,
-        "total_output_tokens": 3072,
-        "total_input_tokens": 120,
-        "wall_time_seconds": 13.69,
-        "successful": 12,
-        "failed": 0,
-        "timed_out": 0
-      },
-      "8": {
-        "tokens_per_second": 272.388014703693,
-        "total_output_tokens": 5904,
-        "total_input_tokens": 240,
-        "wall_time_seconds": 21.68,
-        "successful": 24,
-        "failed": 0,
-        "timed_out": 0
-      },
-      "16": {
-        "tokens_per_second": 392.4,
-        "total_output_tokens": 11808,
-        "total_input_tokens": 480,
-        "wall_time_seconds": 35.17,
-        "successful": 48,
-        "failed": 0,
-        "timed_out": 0
-      },
-      "32": {
-        "tokens_per_second": 256.55415828413624,
-        "total_output_tokens": 23616,
-        "total_input_tokens": 960,
-        "wall_time_seconds": 92.06,
-        "successful": 96,
-        "failed": 0,
-        "timed_out": 0
-      },
-      "peak_tokens_per_second": 392.4
-    },
     "gpu_100": {
       "1": {
         "tokens_per_second": 225.71694311167857,
