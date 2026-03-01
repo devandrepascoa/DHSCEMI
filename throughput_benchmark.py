@@ -26,6 +26,8 @@ BATCH_TIMEOUT = 120  # 2 minute timeout per batch size (covers all rounds)
 CPU_IMAGE = "ghcr.io/ggml-org/llama.cpp:full"
 GPU_IMAGE = "ghcr.io/ggml-org/llama.cpp:full-cuda"
 
+CONFIG_PATH = Path(__file__).parent / "hardware_configs.json"
+
 
 @dataclass
 class HardwareConfig:
@@ -63,16 +65,29 @@ class HardwareConfig:
             return ['--threads', str(self.cpu_cores)]
 
 
-# Configurations to benchmark
-CONFIGS = [
-   # HardwareConfig(config_id="cpu_4", cpu_cores=4),
-   # HardwareConfig(config_id="cpu_8", cpu_cores=8),
-    HardwareConfig(config_id="cpu_12", cpu_cores=12),
-    #HardwareConfig(config_id="gpu_25", gpu_percentage=25, memory="8g"),
-   # HardwareConfig(config_id="gpu_100", gpu_percentage=100, memory="8g"),
-]
+def load_configs_from_json() -> List[HardwareConfig]:
+    """Load benchmark configs from hardware_configs.json."""
+    with open(CONFIG_PATH) as f:
+        data = json.load(f)
+    return [
+        HardwareConfig(
+            config_id=c["config_id"],
+            cpu_cores=c.get("cpu_cores"),
+            gpu_percentage=c.get("gpu_percentage"),
+            memory=c.get("memory", "8g"),
+        )
+        for c in data["configs"]
+    ]
+
+
+# Configurations to benchmark — loaded from hardware_configs.json
+CONFIGS = load_configs_from_json()
 
 BATCH_SIZES = [1, 4, 16, 32]
+
+# Adaptive batch sizing: stop when throughput improvement drops below this ratio
+PLATEAU_THRESHOLD = 0.05  # 5% improvement minimum to keep going
+MAX_BATCH_SIZE = 512
 
 PROMPT = "Explain what machine learning is."
 # Rough estimate of input tokens for the prompt + system overhead
@@ -98,8 +113,8 @@ def get_free_port() -> int:
         return s.getsockname()[1]
 
 
-def start_container(config: HardwareConfig, port: int) -> Optional[str]:
-    """Start a llama.cpp container with specified config."""
+def start_container(config: HardwareConfig, port: int, parallel: int = 32) -> Optional[str]:
+    """Start a llama.cpp container with specified config and parallel slots."""
     container_name = f"llama-bench-{config.config_id}-{port}"
     subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True)
 
@@ -116,7 +131,7 @@ def start_container(config: HardwareConfig, port: int) -> Optional[str]:
         '--port', '8080',
         *config.server_args(),
         '-c', '2048',
-        '--parallel', '32',
+        '--parallel', str(parallel),
     ]
 
     print(f"  Starting container: {' '.join(cmd[-10:])}")
@@ -265,13 +280,15 @@ def stop_container(container_name: str):
 
 async def main():
     print("=" * 70)
-    print("Hardware Configuration Throughput Benchmark")
+    print("Hardware Configuration Throughput Benchmark (Adaptive Batch Sizing)")
     print("=" * 70)
     print(f"Model: {MODEL_NAME}")
     print(f"Max tokens: {MAX_TOKENS}")
-    print(f"Batch sizes: {BATCH_SIZES}")
+    print(f"Initial batch sizes: {BATCH_SIZES}")
+    print(f"Plateau threshold: {PLATEAU_THRESHOLD*100:.0f}% improvement minimum")
+    print(f"Max batch size: {MAX_BATCH_SIZE}")
     print(f"Rounds per batch: {NUM_REQUESTS} (+ {WARMUP_REQUESTS} warmup)")
-    print(f"Timeout per batch round: {BATCH_TIMEOUT}s")
+    print(f"Timeout per batch: {BATCH_TIMEOUT}s")
     print()
 
     # results[config_id][batch_size] = BenchmarkResult
@@ -283,58 +300,102 @@ async def main():
         print(f"{'='*50}")
         results[config.config_id] = {}
         port = get_free_port()
-        container_name = start_container(config, port)
-
-        if not container_name:
-            print(f"  FAILED to start {config.config_id}")
-            continue
+        container_name = None
 
         try:
-            print(f"  Waiting for container to be ready...")
-            if not await wait_for_container(port):
-                print(f"  ERROR: Container failed to start")
-                continue
-
             config_start = time.perf_counter()
-            for batch_size in BATCH_SIZES:
+            prev_tps = 0.0
+            batch_size = 1
+            current_parallel = 0  # track current --parallel setting
+
+            while batch_size <= MAX_BATCH_SIZE:
+                # Restart container if we need more parallel slots
+                if batch_size > current_parallel:
+                    if current_parallel > 0:
+                        print(f"  Restarting container with --parallel {batch_size}...")
+                        stop_container(container_name)
+                        await asyncio.sleep(2)
+                        port = get_free_port()
+                    container_name = start_container(config, port, parallel=batch_size)
+                    if not container_name:
+                        print(f"  FAILED to restart container for batch_size={batch_size}")
+                        break
+                    print(f"  Waiting for container (--parallel {batch_size})...")
+                    if not await wait_for_container(port):
+                        print(f"  ERROR: Container failed to start")
+                        break
+                    current_parallel = batch_size
+
                 print(f"\n  --- {config.config_id} | batch_size={batch_size} ---")
                 result = await benchmark_batch(port, batch_size)
                 result.config_id = config.config_id
                 results[config.config_id][batch_size] = result
+
+                curr_tps = result.tokens_per_second
+
+                # Check for plateau
+                if prev_tps > 0 and curr_tps > 0:
+                    improvement = (curr_tps - prev_tps) / prev_tps
+                    print(f"  Throughput: {curr_tps:.1f} tok/s "
+                          f"(+{improvement*100:.1f}% vs batch={batch_size // 2 if batch_size > 1 else 1})")
+                    if improvement < PLATEAU_THRESHOLD:
+                        print(f"  PLATEAU reached at batch_size={batch_size} "
+                              f"({improvement*100:.1f}% < {PLATEAU_THRESHOLD*100:.0f}% threshold)")
+                        break
+                elif result.timed_out or curr_tps == 0:
+                    print(f"  STOPPED: timeout or zero throughput at batch_size={batch_size}")
+                    break
+                else:
+                    print(f"  Throughput: {curr_tps:.1f} tok/s (baseline)")
+
+                prev_tps = curr_tps
+                # Double the batch size
+                batch_size = batch_size * 2 if batch_size >= 4 else batch_size * 4
                 await asyncio.sleep(1)
+
             config_wall = time.perf_counter() - config_start
             print(f"\n  Total time for {config.config_id}: {config_wall:.1f}s")
         finally:
             print(f"  Stopping container...")
-            stop_container(container_name)
+            if container_name:
+                stop_container(container_name)
             await asyncio.sleep(2)
 
     # Print summary
     print("\n" + "=" * 70)
     print("SUMMARY - Aggregate Tokens/sec by Configuration and Batch Size")
     print("=" * 70)
+
+    # Collect all batch sizes seen
+    all_batch_sizes = sorted({bs for cr in results.values() for bs in cr})
+
     header = f"{'Config':<12}"
-    for bs in BATCH_SIZES:
+    for bs in all_batch_sizes:
         header += f"{'batch=' + str(bs):<18}"
+    header += f"{'peak':>10}"
     print(header)
-    print("-" * 70)
+    print("-" * (12 + 18 * len(all_batch_sizes) + 10))
 
     for config in CONFIGS:
         line = f"{config.config_id:<12}"
-        for bs in BATCH_SIZES:
+        peak_tps = 0.0
+        for bs in all_batch_sizes:
             r = results.get(config.config_id, {}).get(bs)
             if r:
                 line += f"{r.tokens_per_second:>8.1f} t/s      "
+                peak_tps = max(peak_tps, r.tokens_per_second)
             else:
-                line += f"{'N/A':>8}          "
+                line += f"{'—':>8}          "
+        line += f"{peak_tps:>8.1f} t/s"
         print(line)
 
     # Save to JSON
     output = {
         "model": MODEL_NAME,
         "max_tokens": MAX_TOKENS,
-        "batch_sizes": BATCH_SIZES,
-        "batch_timeout_seconds": BATCH_TIMEOUT,
+        "adaptive_batch_sizing": True,
+        "plateau_threshold": PLATEAU_THRESHOLD,
+        "max_batch_size": MAX_BATCH_SIZE,
         "rounds_per_batch": NUM_REQUESTS,
         "warmup_requests": WARMUP_REQUESTS,
         "prompt": PROMPT,
@@ -342,6 +403,7 @@ async def main():
     }
     for cid, batch_results in results.items():
         output["results"][cid] = {}
+        peak = 0.0
         for bs, r in batch_results.items():
             output["results"][cid][str(bs)] = {
                 "tokens_per_second": r.tokens_per_second,
@@ -352,6 +414,8 @@ async def main():
                 "failed": r.failed,
                 "timed_out": r.timed_out,
             }
+            peak = max(peak, r.tokens_per_second)
+        output["results"][cid]["peak_tokens_per_second"] = round(peak, 2)
 
     with open("throughput_benchmark_results.json", "w") as f:
         json.dump(output, f, indent=2)
