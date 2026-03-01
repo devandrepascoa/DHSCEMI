@@ -56,13 +56,7 @@ class HardwareConfig:
 
     def server_args(self) -> List[str]:
         if self.is_gpu:
-            if self.gpu_percentage == 100:
-                return ['-ngl', '99']
-            elif self.gpu_percentage == 25:
-                return ['-ngl', '6']
-            else:
-                layers = int(24 * self.gpu_percentage / 100)
-                return ['-ngl', str(layers)]
+            return ['-ngl', '99']
         else:
             return ['--threads', str(self.cpu_cores)]
 
