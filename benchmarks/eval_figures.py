@@ -168,9 +168,14 @@ def fig_scaling_demo():
         demo = json.load(f)
 
     elapsed = [e["elapsed"] / 60.0 for e in demo]  # minutes
-    tps = [e["throughput_tps"] for e in demo]
+    # Per-request TPS = aggregate / active_requests (what the autoscaler uses)
+    per_req_tps = [
+        e["throughput_tps"] / max(e["active_requests"], 1) for e in demo
+    ]
+    active = [e["active_requests"] for e in demo]
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
+    ax2 = ax.twinx()
 
     # Draw background spans colored by active config
     prev_cfg = demo[0]["config_id"]
@@ -194,15 +199,24 @@ def fig_scaling_demo():
     ax.axvspan(span_start, elapsed[-1], alpha=0.25, color=COLORS[prev_cfg],
                label=lbl)
 
-    # Plot throughput line
-    ax.plot(elapsed, tps, color="black", linewidth=0.8, alpha=0.9)
+    # Plot per-request throughput line
+    ax.plot(elapsed, per_req_tps, color="black", linewidth=0.8, alpha=0.9,
+            label="Per-request tok/s")
+    # Plot active requests on secondary axis
+    ax2.plot(elapsed, active, color="gray", linewidth=0.6, alpha=0.5,
+             linestyle="--", label="Active requests")
+    ax2.set_ylabel("Active Requests", color="gray")
+    ax2.tick_params(axis="y", labelcolor="gray")
 
     ax.set_xlabel("Elapsed Time (minutes)")
-    ax.set_ylabel("Throughput (tok/s)")
-    ax.set_title("Scaling Demo: Throughput and Hardware Transitions")
+    ax.set_ylabel("Per-Request Throughput (tok/s)")
+    ax.set_title("Scaling Demo: Per-Request Throughput and Hardware Transitions")
     ax.set_xlim(elapsed[0], elapsed[-1])
     ax.set_ylim(bottom=0)
-    ax.legend(loc="upper right", fontsize=7)
+    # Combined legend
+    lines1, labels1 = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax.legend(lines1 + lines2, labels1 + labels2, loc="upper right", fontsize=7)
     ax.grid(True, alpha=0.3)
     _save(fig, "eval_scaling_demo")
 
