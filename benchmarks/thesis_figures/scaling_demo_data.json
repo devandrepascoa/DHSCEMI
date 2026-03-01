@@ -1,6 +1,6 @@
 [
   {
-    "elapsed": 0.007638692855834961,
+    "elapsed": 0.007460117340087891,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -10,27 +10,27 @@
     "total_requests": 0
   },
   {
-    "elapsed": 5.018627166748047,
+    "elapsed": 5.017520427703857,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 28.9815,
-    "throughput_tps": 28.9815,
+    "demand_tps": 27.9951,
+    "throughput_tps": 27.9951,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 1
   },
   {
-    "elapsed": 10.029568910598755,
+    "elapsed": 10.027450799942017,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 27.0142,
-    "throughput_tps": 27.0142,
+    "demand_tps": 27.9895,
+    "throughput_tps": 27.9895,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 1
   },
   {
-    "elapsed": 15.040087223052979,
+    "elapsed": 15.038204431533813,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -40,7 +40,7 @@
     "total_requests": 1
   },
   {
-    "elapsed": 20.046010494232178,
+    "elapsed": 20.044464349746704,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -50,27 +50,27 @@
     "total_requests": 2
   },
   {
-    "elapsed": 25.056422233581543,
+    "elapsed": 25.054810047149658,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 27.9863,
-    "throughput_tps": 27.9863,
+    "demand_tps": 28.0109,
+    "throughput_tps": 28.0109,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 2
   },
   {
-    "elapsed": 30.06271743774414,
+    "elapsed": 30.06149983406067,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 10.9995,
-    "throughput_tps": 10.9995,
+    "demand_tps": 10.9901,
+    "throughput_tps": 10.9901,
     "hourly_cost": 0.04,
     "active_requests": 0,
     "total_requests": 2
   },
   {
-    "elapsed": 35.06960606575012,
+    "elapsed": 35.068427324295044,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -80,7 +80,7 @@
     "total_requests": 2
   },
   {
-    "elapsed": 40.07600212097168,
+    "elapsed": 40.074992656707764,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -90,337 +90,347 @@
     "total_requests": 3
   },
   {
-    "elapsed": 45.0833261013031,
+    "elapsed": 45.0813205242157,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 27.9828,
+    "throughput_tps": 27.9828,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 3
+  },
+  {
+    "elapsed": 50.08746838569641,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 20.997,
+    "throughput_tps": 20.997,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 3
+  },
+  {
+    "elapsed": 55.09412503242493,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 3
+  },
+  {
+    "elapsed": 60.1006555557251,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 4
+  },
+  {
+    "elapsed": 65.10739850997925,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 27.9724,
+    "throughput_tps": 27.9724,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 4
+  },
+  {
+    "elapsed": 70.11459279060364,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 18.9879,
+    "throughput_tps": 18.9879,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 4
+  },
+  {
+    "elapsed": 75.12094473838806,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 4
+  },
+  {
+    "elapsed": 80.12723803520203,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 5
+  },
+  {
+    "elapsed": 85.13473844528198,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 28.009,
+    "throughput_tps": 28.009,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 5
+  },
+  {
+    "elapsed": 90.14143919944763,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 22.0056,
+    "throughput_tps": 22.0056,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 5
+  },
+  {
+    "elapsed": 95.14751982688904,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 5
+  },
+  {
+    "elapsed": 100.15349555015564,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 6
+  },
+  {
+    "elapsed": 105.16067957878113,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 6
+  },
+  {
+    "elapsed": 110.1677758693695,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 6
+  },
+  {
+    "elapsed": 115.17822861671448,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 6
+  },
+  {
+    "elapsed": 120.186044216156,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 7
+  },
+  {
+    "elapsed": 125.19401597976685,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 7
+  },
+  {
+    "elapsed": 130.20159935951233,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 7
+  },
+  {
+    "elapsed": 135.21155881881714,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 7
+  },
+  {
+    "elapsed": 140.2178177833557,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 8
+  },
+  {
+    "elapsed": 145.22852849960327,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 27.9997,
+    "throughput_tps": 27.9997,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 8
+  },
+  {
+    "elapsed": 150.23709797859192,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 8
+  },
+  {
+    "elapsed": 155.24541449546814,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 8
+  },
+  {
+    "elapsed": 160.25167775154114,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 9
+  },
+  {
+    "elapsed": 165.26013112068176,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 27.9963,
+    "throughput_tps": 27.9963,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 9
+  },
+  {
+    "elapsed": 170.26697254180908,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 21.999,
+    "throughput_tps": 21.999,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 9
+  },
+  {
+    "elapsed": 175.273597240448,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 9
+  },
+  {
+    "elapsed": 180.27961707115173,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 10
+  },
+  {
+    "elapsed": 185.28620529174805,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 27.9809,
+    "throughput_tps": 27.9809,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 10
+  },
+  {
+    "elapsed": 190.29245567321777,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 19.992,
+    "throughput_tps": 19.992,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 10
+  },
+  {
+    "elapsed": 195.29947066307068,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 10
+  },
+  {
+    "elapsed": 200.30652165412903,
+    "phase": "low load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 1,
+    "total_requests": 11
+  },
+  {
+    "elapsed": 205.31289315223694,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 27.9852,
     "throughput_tps": 27.9852,
     "hourly_cost": 0.04,
     "active_requests": 1,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 50.090455770492554,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 19.0102,
-    "throughput_tps": 19.0102,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 55.09663486480713,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 60.10261631011963,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 65.10923981666565,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9888,
-    "throughput_tps": 27.9888,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 70.1160900592804,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 16.9951,
-    "throughput_tps": 16.9951,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 75.12246346473694,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 80.12860894203186,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 85.13511538505554,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 27.0175,
-    "throughput_tps": 27.0175,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 90.14190673828125,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 17.9899,
-    "throughput_tps": 17.9899,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 95.14757061004639,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 100.15451717376709,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 105.16207337379456,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9698,
-    "throughput_tps": 27.9698,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 110.16872549057007,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 16.9934,
-    "throughput_tps": 16.9934,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 115.17533230781555,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 120.18212151527405,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 125.18844032287598,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9781,
-    "throughput_tps": 27.9781,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 130.19532442092896,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 18.0032,
-    "throughput_tps": 18.0032,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 135.20118165016174,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 140.20723915100098,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 145.21348571777344,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 150.22044110298157,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 155.230140209198,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 160.23594045639038,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 165.2462248802185,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9786,
-    "throughput_tps": 27.9786,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 170.25273871421814,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 17.0074,
-    "throughput_tps": 17.0074,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 175.25880360603333,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 180.2657434940338,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 10
-  },
-  {
-    "elapsed": 185.27244234085083,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 28.0009,
-    "throughput_tps": 28.0009,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 10
-  },
-  {
-    "elapsed": 190.27978324890137,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 16.9984,
-    "throughput_tps": 16.9984,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 10
-  },
-  {
-    "elapsed": 195.28584837913513,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 10
-  },
-  {
-    "elapsed": 200.29212927818298,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
     "total_requests": 11
   },
   {
-    "elapsed": 205.2983500957489,
+    "elapsed": 210.3190610408783,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 27.9997,
-    "throughput_tps": 27.9997,
+    "demand_tps": 18.9949,
+    "throughput_tps": 18.9949,
     "hourly_cost": 0.04,
     "active_requests": 0,
     "total_requests": 11
   },
   {
-    "elapsed": 210.3040521144867,
+    "elapsed": 215.3257713317871,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -430,17 +440,7 @@
     "total_requests": 11
   },
   {
-    "elapsed": 215.31414794921875,
-    "phase": "low load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 11
-  },
-  {
-    "elapsed": 220.31952595710754,
+    "elapsed": 220.33195281028748,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -450,27 +450,27 @@
     "total_requests": 12
   },
   {
-    "elapsed": 225.32950568199158,
+    "elapsed": 225.33833169937134,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 27.9878,
-    "throughput_tps": 27.9878,
+    "demand_tps": 28.007,
+    "throughput_tps": 28.007,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 12
   },
   {
-    "elapsed": 230.33617782592773,
+    "elapsed": 230.34533762931824,
     "phase": "low load",
     "config_id": "cpu_4",
-    "demand_tps": 17.9915,
-    "throughput_tps": 17.9915,
+    "demand_tps": 18.9945,
+    "throughput_tps": 18.9945,
     "hourly_cost": 0.04,
     "active_requests": 0,
     "total_requests": 12
   },
   {
-    "elapsed": 235.34237480163574,
+    "elapsed": 235.35165095329285,
     "phase": "low load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -480,7 +480,7 @@
     "total_requests": 12
   },
   {
-    "elapsed": 240.03699016571045,
+    "elapsed": 240.03705048561096,
     "phase": "medium load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
@@ -490,3988 +490,2948 @@
     "total_requests": 23
   },
   {
-    "elapsed": 245.04725122451782,
+    "elapsed": 245.04739332199097,
     "phase": "medium load",
     "config_id": "cpu_4",
-    "demand_tps": 84.0069,
-    "throughput_tps": 84.0069,
+    "demand_tps": 84.0139,
+    "throughput_tps": 84.0139,
     "hourly_cost": 0.04,
     "active_requests": 12,
     "total_requests": 24
   },
   {
-    "elapsed": 250.05342364311218,
+    "elapsed": 250.05499649047852,
     "phase": "medium load",
     "config_id": "cpu_4",
-    "demand_tps": 72.0035,
-    "throughput_tps": 72.0035,
+    "demand_tps": 83.9244,
+    "throughput_tps": 83.9244,
     "hourly_cost": 0.04,
-    "active_requests": 10,
-    "total_requests": 24
+    "active_requests": 12,
+    "total_requests": 25
   },
   {
-    "elapsed": 255.05899953842163,
-    "phase": "medium load",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 10,
-    "total_requests": 118
-  },
-  {
-    "elapsed": 260.06506180763245,
+    "elapsed": 255.06085920333862,
     "phase": "medium load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.04,
-    "active_requests": 10,
-    "total_requests": 210
+    "active_requests": 11,
+    "total_requests": 72
   },
   {
-    "elapsed": 265.07136702537537,
+    "elapsed": 260.06616854667664,
+    "phase": "medium load",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 11,
+    "total_requests": 120
+  },
+  {
+    "elapsed": 265.0736298561096,
     "phase": "medium load",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.04,
     "active_requests": 0,
-    "total_requests": 241
+    "total_requests": 147
   },
   {
-    "elapsed": 270.0806391239166,
+    "elapsed": 270.0814571380615,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.8377,
-    "throughput_tps": 215.8377,
+    "demand_tps": 204.9791,
+    "throughput_tps": 204.9791,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 12
   },
   {
-    "elapsed": 275.0912914276123,
+    "elapsed": 275.0918879508972,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.8075,
-    "throughput_tps": 215.8075,
+    "demand_tps": 216.0448,
+    "throughput_tps": 216.0448,
+    "hourly_cost": 0.17,
+    "active_requests": 12,
+    "total_requests": 12
+  },
+  {
+    "elapsed": 280.1013276576996,
+    "phase": "medium load",
+    "config_id": "cpu_16",
+    "demand_tps": 208.1277,
+    "throughput_tps": 208.1277,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 13
   },
   {
-    "elapsed": 280.09902143478394,
+    "elapsed": 285.10766196250916,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 216.1164,
-    "throughput_tps": 216.1164,
+    "demand_tps": 212.8193,
+    "throughput_tps": 212.8193,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 14
+    "total_requests": 25
   },
   {
-    "elapsed": 285.10846066474915,
+    "elapsed": 290.118763923645,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.9634,
-    "throughput_tps": 215.9634,
+    "demand_tps": 217.8938,
+    "throughput_tps": 217.8938,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 24
+    "total_requests": 27
   },
   {
-    "elapsed": 290.11837887763977,
+    "elapsed": 295.1290476322174,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.8864,
-    "throughput_tps": 215.8864,
+    "demand_tps": 203.9039,
+    "throughput_tps": 203.9039,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 26
+    "total_requests": 27
   },
   {
-    "elapsed": 295.12423491477966,
+    "elapsed": 300.13562512397766,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 201.8474,
-    "throughput_tps": 201.8474,
+    "demand_tps": 199.9941,
+    "throughput_tps": 199.9941,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 29
+    "total_requests": 39
   },
   {
-    "elapsed": 300.13133335113525,
+    "elapsed": 305.14232563972473,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 214.9293,
-    "throughput_tps": 214.9293,
+    "demand_tps": 214.0806,
+    "throughput_tps": 214.0806,
+    "hourly_cost": 0.17,
+    "active_requests": 12,
+    "total_requests": 40
+  },
+  {
+    "elapsed": 310.1484115123749,
+    "phase": "medium load",
+    "config_id": "cpu_16",
+    "demand_tps": 216.0212,
+    "throughput_tps": 216.0212,
     "hourly_cost": 0.17,
     "active_requests": 11,
-    "total_requests": 37
+    "total_requests": 40
   },
   {
-    "elapsed": 305.1394863128662,
+    "elapsed": 315.15551114082336,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.0871,
-    "throughput_tps": 227.0871,
+    "demand_tps": 213.9132,
+    "throughput_tps": 213.9132,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 41
+    "total_requests": 51
   },
   {
-    "elapsed": 310.14667320251465,
+    "elapsed": 320.1618196964264,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.9281,
-    "throughput_tps": 215.9281,
-    "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 45
-  },
-  {
-    "elapsed": 315.15330147743225,
-    "phase": "medium load",
-    "config_id": "cpu_16",
-    "demand_tps": 197.9973,
-    "throughput_tps": 197.9973,
+    "demand_tps": 213.826,
+    "throughput_tps": 213.826,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 53
   },
   {
-    "elapsed": 320.16082239151,
+    "elapsed": 325.1674177646637,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.8795,
-    "throughput_tps": 215.8795,
-    "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 57
-  },
-  {
-    "elapsed": 325.16764760017395,
-    "phase": "medium load",
-    "config_id": "cpu_16",
-    "demand_tps": 197.8941,
-    "throughput_tps": 197.8941,
+    "demand_tps": 186.9681,
+    "throughput_tps": 186.9681,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 62
   },
   {
-    "elapsed": 330.1750874519348,
+    "elapsed": 330.17347025871277,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.1166,
-    "throughput_tps": 215.1166,
+    "demand_tps": 228.0556,
+    "throughput_tps": 228.0556,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 65
   },
   {
-    "elapsed": 335.1830976009369,
+    "elapsed": 335.182133436203,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.9544,
-    "throughput_tps": 227.9544,
+    "demand_tps": 215.9081,
+    "throughput_tps": 215.9081,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 69
+    "total_requests": 67
   },
   {
-    "elapsed": 340.19013023376465,
+    "elapsed": 340.18872117996216,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 201.9852,
-    "throughput_tps": 201.9852,
+    "demand_tps": 201.9536,
+    "throughput_tps": 201.9536,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 76
+    "total_requests": 75
   },
   {
-    "elapsed": 345.19759464263916,
+    "elapsed": 345.1955032348633,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.8624,
-    "throughput_tps": 227.8624,
+    "demand_tps": 212.0247,
+    "throughput_tps": 212.0247,
+    "hourly_cost": 0.17,
+    "active_requests": 12,
+    "total_requests": 78
+  },
+  {
+    "elapsed": 350.2052583694458,
+    "phase": "medium load",
+    "config_id": "cpu_16",
+    "demand_tps": 223.0091,
+    "throughput_tps": 223.0091,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 80
   },
   {
-    "elapsed": 350.2048509120941,
+    "elapsed": 355.2114050388336,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.8392,
-    "throughput_tps": 227.8392,
-    "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 83
-  },
-  {
-    "elapsed": 355.21228313446045,
-    "phase": "medium load",
-    "config_id": "cpu_16",
-    "demand_tps": 215.8511,
-    "throughput_tps": 215.8511,
+    "demand_tps": 200.8177,
+    "throughput_tps": 200.8177,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 89
   },
   {
-    "elapsed": 360.2180986404419,
+    "elapsed": 360.2184052467346,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 215.8695,
-    "throughput_tps": 215.8695,
+    "demand_tps": 206.9454,
+    "throughput_tps": 206.9454,
+    "hourly_cost": 0.17,
+    "active_requests": 12,
+    "total_requests": 92
+  },
+  {
+    "elapsed": 365.22422909736633,
+    "phase": "medium load",
+    "config_id": "cpu_16",
+    "demand_tps": 201.902,
+    "throughput_tps": 201.902,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 96
   },
   {
-    "elapsed": 365.2234466075897,
+    "elapsed": 370.23093700408936,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.9464,
-    "throughput_tps": 227.9464,
+    "demand_tps": 215.8875,
+    "throughput_tps": 215.8875,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 98
+    "total_requests": 101
   },
   {
-    "elapsed": 370.227445602417,
+    "elapsed": 375.23636841773987,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 228.0958,
-    "throughput_tps": 228.0958,
+    "demand_tps": 227.8334,
+    "throughput_tps": 227.8334,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 102
+    "total_requests": 105
   },
   {
-    "elapsed": 375.23245120048523,
+    "elapsed": 380.2433133125305,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 212.1539,
-    "throughput_tps": 212.1539,
+    "demand_tps": 212.0823,
+    "throughput_tps": 212.0823,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 108
+    "total_requests": 109
   },
   {
-    "elapsed": 380.23911142349243,
+    "elapsed": 385.25289130210876,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.8679,
-    "throughput_tps": 227.8679,
+    "demand_tps": 225.9776,
+    "throughput_tps": 225.9776,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 113
   },
   {
-    "elapsed": 385.24513578414917,
+    "elapsed": 390.2604355812073,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 208.9169,
-    "throughput_tps": 208.9169,
+    "demand_tps": 216.0091,
+    "throughput_tps": 216.0091,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 118
+    "total_requests": 117
   },
   {
-    "elapsed": 390.2513167858124,
+    "elapsed": 395.2680037021637,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.9009,
-    "throughput_tps": 227.9009,
+    "demand_tps": 214.8972,
+    "throughput_tps": 214.8972,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 120
+    "total_requests": 121
   },
   {
-    "elapsed": 395.25633931159973,
+    "elapsed": 400.2740378379822,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 206.0946,
-    "throughput_tps": 206.0946,
+    "demand_tps": 223.9157,
+    "throughput_tps": 223.9157,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 127
+    "total_requests": 126
   },
   {
-    "elapsed": 400.26199102401733,
+    "elapsed": 405.281555891037,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 214.0647,
-    "throughput_tps": 214.0647,
+    "demand_tps": 227.9621,
+    "throughput_tps": 227.9621,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 131
+    "total_requests": 129
   },
   {
-    "elapsed": 405.2666082382202,
+    "elapsed": 410.29040265083313,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 228.1694,
-    "throughput_tps": 228.1694,
+    "demand_tps": 227.9964,
+    "throughput_tps": 227.9964,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 135
   },
   {
-    "elapsed": 410.27219796180725,
+    "elapsed": 415.29701495170593,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 214.038,
-    "throughput_tps": 214.038,
+    "demand_tps": 213.9509,
+    "throughput_tps": 213.9509,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 140
+    "total_requests": 139
   },
   {
-    "elapsed": 415.2763671875,
+    "elapsed": 420.3033449649811,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 219.9123,
-    "throughput_tps": 219.9123,
+    "demand_tps": 207.9331,
+    "throughput_tps": 207.9331,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 144
+    "total_requests": 145
   },
   {
-    "elapsed": 420.28154468536377,
+    "elapsed": 425.31295895576477,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 213.9629,
-    "throughput_tps": 213.9629,
+    "demand_tps": 227.8767,
+    "throughput_tps": 227.8767,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 147
+    "total_requests": 149
   },
   {
-    "elapsed": 425.28721952438354,
+    "elapsed": 430.31897592544556,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 213.8354,
-    "throughput_tps": 213.8354,
+    "demand_tps": 215.9241,
+    "throughput_tps": 215.9241,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 154
+    "total_requests": 152
   },
   {
-    "elapsed": 430.2933735847473,
+    "elapsed": 435.32536697387695,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 224.0373,
-    "throughput_tps": 224.0373,
+    "demand_tps": 205.9652,
+    "throughput_tps": 205.9652,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 157
   },
   {
-    "elapsed": 435.29892921447754,
+    "elapsed": 440.33267998695374,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 227.9771,
-    "throughput_tps": 227.9771,
+    "demand_tps": 227.8562,
+    "throughput_tps": 227.8562,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 160
+    "total_requests": 163
   },
   {
-    "elapsed": 440.3063380718231,
+    "elapsed": 445.33869791030884,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 216.0041,
-    "throughput_tps": 216.0041,
+    "demand_tps": 201.9398,
+    "throughput_tps": 201.9398,
     "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 166
+    "active_requests": 11,
+    "total_requests": 164
   },
   {
-    "elapsed": 445.31596064567566,
+    "elapsed": 450.3462495803833,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 204.0621,
-    "throughput_tps": 204.0621,
+    "demand_tps": 215.8522,
+    "throughput_tps": 215.8522,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 169
   },
   {
-    "elapsed": 450.3220191001892,
+    "elapsed": 455.3525207042694,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 188.0839,
-    "throughput_tps": 188.0839,
+    "demand_tps": 211.9739,
+    "throughput_tps": 211.9739,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 174
+    "total_requests": 175
   },
   {
-    "elapsed": 455.3280336856842,
+    "elapsed": 460.3584008216858,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 239.8989,
-    "throughput_tps": 239.8989,
+    "demand_tps": 201.8885,
+    "throughput_tps": 201.8885,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 182
+    "total_requests": 179
   },
   {
-    "elapsed": 460.3345832824707,
+    "elapsed": 465.3686091899872,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 225.976,
-    "throughput_tps": 225.976,
+    "demand_tps": 215.8731,
+    "throughput_tps": 215.8731,
     "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 186
+    "active_requests": 11,
+    "total_requests": 181
   },
   {
-    "elapsed": 465.3409090042114,
+    "elapsed": 470.377001285553,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 204.8766,
-    "throughput_tps": 204.8766,
+    "demand_tps": 214.0447,
+    "throughput_tps": 214.0447,
     "hourly_cost": 0.17,
     "active_requests": 12,
     "total_requests": 188
   },
   {
-    "elapsed": 470.34746742248535,
+    "elapsed": 475.38339471817017,
     "phase": "medium load",
     "config_id": "cpu_16",
-    "demand_tps": 197.956,
-    "throughput_tps": 197.956,
+    "demand_tps": 211.0256,
+    "throughput_tps": 211.0256,
     "hourly_cost": 0.17,
     "active_requests": 12,
-    "total_requests": 195
+    "total_requests": 191
   },
   {
-    "elapsed": 475.3548049926758,
-    "phase": "medium load",
-    "config_id": "cpu_16",
-    "demand_tps": 214.0726,
-    "throughput_tps": 214.0726,
-    "hourly_cost": 0.17,
-    "active_requests": 12,
-    "total_requests": 198
-  },
-  {
-    "elapsed": 480.07248973846436,
+    "elapsed": 480.07424449920654,
     "phase": "high load",
     "config_id": "cpu_16",
-    "demand_tps": 214.1153,
-    "throughput_tps": 214.1153,
+    "demand_tps": 211.9534,
+    "throughput_tps": 211.9534,
     "hourly_cost": 0.17,
-    "active_requests": 46,
-    "total_requests": 236
+    "active_requests": 45,
+    "total_requests": 229
   },
   {
-    "elapsed": 485.08282232284546,
+    "elapsed": 485.08385372161865,
     "phase": "high load",
     "config_id": "cpu_16",
-    "demand_tps": 287.6974,
-    "throughput_tps": 287.6974,
+    "demand_tps": 287.966,
+    "throughput_tps": 287.966,
     "hourly_cost": 0.17,
-    "active_requests": 44,
-    "total_requests": 237
+    "active_requests": 45,
+    "total_requests": 230
   },
   {
-    "elapsed": 490.09330439567566,
+    "elapsed": 490.09435510635376,
     "phase": "high load",
     "config_id": "cpu_16",
-    "demand_tps": 255.9652,
-    "throughput_tps": 255.9652,
+    "demand_tps": 256.0195,
+    "throughput_tps": 256.0195,
     "hourly_cost": 0.17,
-    "active_requests": 41,
-    "total_requests": 237
+    "active_requests": 42,
+    "total_requests": 231
   },
   {
-    "elapsed": 495.1003086566925,
+    "elapsed": 495.1031746864319,
     "phase": "high load",
     "config_id": "cpu_16",
-    "demand_tps": 287.8841,
-    "throughput_tps": 287.8841,
+    "demand_tps": 255.8923,
+    "throughput_tps": 255.8923,
     "hourly_cost": 0.17,
     "active_requests": 41,
-    "total_requests": 238
+    "total_requests": 232
   },
   {
-    "elapsed": 500.10641717910767,
+    "elapsed": 500.1144440174103,
     "phase": "high load",
     "config_id": "cpu_16",
-    "demand_tps": 265.0414,
-    "throughput_tps": 265.0414,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 39,
-    "total_requests": 240
+    "total_requests": 232
   },
   {
-    "elapsed": 505.11387944221497,
-    "phase": "high load",
-    "config_id": "cpu_16",
-    "demand_tps": 287.6863,
-    "throughput_tps": 287.6863,
-    "hourly_cost": 0.17,
-    "active_requests": 38,
-    "total_requests": 241
-  },
-  {
-    "elapsed": 510.11931109428406,
+    "elapsed": 505.1258063316345,
     "phase": "high load",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
-    "active_requests": 36,
-    "total_requests": 270
+    "active_requests": 39,
+    "total_requests": 232
   },
   {
-    "elapsed": 515.1244988441467,
-    "phase": "high load",
-    "config_id": "cpu_16",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.17,
-    "active_requests": 36,
-    "total_requests": 318
-  },
-  {
-    "elapsed": 520.130865573883,
+    "elapsed": 510.1327660083771,
     "phase": "high load",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 396
+    "total_requests": 302
   },
   {
-    "elapsed": 525.1378540992737,
+    "elapsed": 515.1384701728821,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 227.9256,
-    "throughput_tps": 227.9256,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 35
   },
   {
-    "elapsed": 530.1464126110077,
+    "elapsed": 520.1499156951904,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 489.7204,
-    "throughput_tps": 489.7204,
+    "demand_tps": 478.7057,
+    "throughput_tps": 478.7057,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 35
   },
   {
-    "elapsed": 535.151421546936,
+    "elapsed": 525.1563582420349,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.628,
-    "throughput_tps": 454.628,
+    "demand_tps": 454.5537,
+    "throughput_tps": 454.5537,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 36
+  },
+  {
+    "elapsed": 530.1634516716003,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 454.6996,
+    "throughput_tps": 454.6996,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 38
   },
   {
-    "elapsed": 540.159494638443,
+    "elapsed": 535.168297290802,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 476.7006,
-    "throughput_tps": 476.7006,
-    "hourly_cost": 0.5,
-    "active_requests": 35,
-    "total_requests": 39
-  },
-  {
-    "elapsed": 545.1639637947083,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 353.9209,
-    "throughput_tps": 353.9209,
+    "demand_tps": 311.7942,
+    "throughput_tps": 311.7942,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 70
   },
   {
-    "elapsed": 550.1700785160065,
+    "elapsed": 540.177371263504,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 479.8674,
-    "throughput_tps": 479.8674,
+    "demand_tps": 452.9497,
+    "throughput_tps": 452.9497,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 70
+  },
+  {
+    "elapsed": 545.1832211017609,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 427.6612,
+    "throughput_tps": 427.6612,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 72
   },
   {
-    "elapsed": 555.1764943599701,
+    "elapsed": 550.1881151199341,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 419.9435,
-    "throughput_tps": 419.9435,
+    "demand_tps": 454.7397,
+    "throughput_tps": 454.7397,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 78
+    "total_requests": 77
   },
   {
-    "elapsed": 560.1806311607361,
+    "elapsed": 555.191586971283,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 455.2882,
-    "throughput_tps": 455.2882,
+    "demand_tps": 419.8644,
+    "throughput_tps": 419.8644,
     "hourly_cost": 0.5,
-    "active_requests": 34,
-    "total_requests": 80
+    "active_requests": 10,
+    "total_requests": 81
   },
   {
-    "elapsed": 565.1851360797882,
+    "elapsed": 560.1981401443481,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 268.8083,
-    "throughput_tps": 268.8083,
-    "hourly_cost": 0.5,
-    "active_requests": 35,
-    "total_requests": 105
-  },
-  {
-    "elapsed": 570.1953539848328,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 420.2338,
-    "throughput_tps": 420.2338,
-    "hourly_cost": 0.5,
-    "active_requests": 34,
-    "total_requests": 108
-  },
-  {
-    "elapsed": 575.1995575428009,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 415.74,
-    "throughput_tps": 415.74,
+    "demand_tps": 436.0014,
+    "throughput_tps": 436.0014,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 116
+    "total_requests": 107
   },
   {
-    "elapsed": 580.2047498226166,
+    "elapsed": 565.204992055893,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 439.7473,
-    "throughput_tps": 439.7473,
+    "demand_tps": 394.8195,
+    "throughput_tps": 394.8195,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 119
+    "total_requests": 111
   },
   {
-    "elapsed": 585.2114953994751,
+    "elapsed": 570.2097520828247,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.7916,
-    "throughput_tps": 454.7916,
+    "demand_tps": 402.8051,
+    "throughput_tps": 402.8051,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 117
+  },
+  {
+    "elapsed": 575.2164072990417,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 417.6875,
+    "throughput_tps": 417.6875,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 121
   },
   {
-    "elapsed": 590.2183208465576,
+    "elapsed": 580.2234699726105,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 474.8429,
-    "throughput_tps": 474.8429,
+    "demand_tps": 454.563,
+    "throughput_tps": 454.563,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 145
+    "total_requests": 144
   },
   {
-    "elapsed": 595.2231059074402,
+    "elapsed": 585.2288284301758,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 415.8223,
-    "throughput_tps": 415.8223,
+    "demand_tps": 452.9863,
+    "throughput_tps": 452.9863,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 150
+  },
+  {
+    "elapsed": 590.2339539527893,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 418.9699,
+    "throughput_tps": 418.9699,
     "hourly_cost": 0.5,
     "active_requests": 34,
-    "total_requests": 151
+    "total_requests": 152
   },
   {
-    "elapsed": 600.2279670238495,
+    "elapsed": 595.2391533851624,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 426.2565,
-    "throughput_tps": 426.2565,
+    "demand_tps": 452.7583,
+    "throughput_tps": 452.7583,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 156
+    "total_requests": 158
   },
   {
-    "elapsed": 605.2352712154388,
+    "elapsed": 600.2452924251556,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.8034,
-    "throughput_tps": 454.8034,
+    "demand_tps": 447.0214,
+    "throughput_tps": 447.0214,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 162
+    "total_requests": 179
   },
   {
-    "elapsed": 610.2450735569,
+    "elapsed": 605.2497560977936,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 453.1486,
-    "throughput_tps": 453.1486,
+    "demand_tps": 429.8091,
+    "throughput_tps": 429.8091,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 181
+    "total_requests": 185
   },
   {
-    "elapsed": 615.2516362667084,
+    "elapsed": 610.2540144920349,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 455.0516,
-    "throughput_tps": 455.0516,
+    "demand_tps": 415.7996,
+    "throughput_tps": 415.7996,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 188
+    "total_requests": 189
   },
   {
-    "elapsed": 620.2582852840424,
+    "elapsed": 615.259119272232,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 418.7282,
-    "throughput_tps": 418.7282,
+    "demand_tps": 454.6523,
+    "throughput_tps": 454.6523,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 194
+    "total_requests": 198
   },
   {
-    "elapsed": 625.2689800262451,
+    "elapsed": 620.263959646225,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 455.2702,
-    "throughput_tps": 455.2702,
-    "hourly_cost": 0.5,
-    "active_requests": 35,
-    "total_requests": 201
-  },
-  {
-    "elapsed": 630.2749030590057,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 431.0171,
-    "throughput_tps": 431.0171,
+    "demand_tps": 416.9095,
+    "throughput_tps": 416.9095,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 218
   },
   {
-    "elapsed": 635.284521818161,
+    "elapsed": 625.2686200141907,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.709,
-    "throughput_tps": 454.709,
+    "demand_tps": 429.2056,
+    "throughput_tps": 429.2056,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 223
+    "total_requests": 222
   },
   {
-    "elapsed": 640.2922320365906,
+    "elapsed": 630.2727768421173,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 455.0131,
-    "throughput_tps": 455.0131,
+    "demand_tps": 454.879,
+    "throughput_tps": 454.879,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 230
+    "total_requests": 225
   },
   {
-    "elapsed": 645.2992749214172,
+    "elapsed": 635.2773158550262,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 425.9147,
-    "throughput_tps": 425.9147,
+    "demand_tps": 414.2721,
+    "throughput_tps": 414.2721,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 238
+    "total_requests": 234
   },
   {
-    "elapsed": 650.3074245452881,
+    "elapsed": 640.283932685852,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 416.0151,
-    "throughput_tps": 416.0151,
+    "demand_tps": 454.9759,
+    "throughput_tps": 454.9759,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 254
+    "total_requests": 252
   },
   {
-    "elapsed": 655.3142230510712,
+    "elapsed": 645.2881333827972,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 417.9065,
-    "throughput_tps": 417.9065,
+    "demand_tps": 380.9747,
+    "throughput_tps": 380.9747,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 257
+  },
+  {
+    "elapsed": 650.2948091030121,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 452.7473,
+    "throughput_tps": 452.7473,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 261
   },
   {
-    "elapsed": 660.3212330341339,
+    "elapsed": 655.299332857132,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 427.208,
-    "throughput_tps": 427.208,
-    "hourly_cost": 0.5,
-    "active_requests": 35,
-    "total_requests": 267
-  },
-  {
-    "elapsed": 665.3280277252197,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 412.8011,
-    "throughput_tps": 412.8011,
-    "hourly_cost": 0.5,
-    "active_requests": 35,
-    "total_requests": 275
-  },
-  {
-    "elapsed": 670.3341755867004,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 443.0108,
-    "throughput_tps": 443.0108,
+    "demand_tps": 388.9885,
+    "throughput_tps": 388.9885,
     "hourly_cost": 0.5,
     "active_requests": 34,
-    "total_requests": 290
+    "total_requests": 272
   },
   {
-    "elapsed": 675.3403596878052,
+    "elapsed": 660.3045098781586,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 453.9042,
-    "throughput_tps": 453.9042,
+    "demand_tps": 337.9699,
+    "throughput_tps": 337.9699,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 299
+    "total_requests": 289
   },
   {
-    "elapsed": 680.3460092544556,
+    "elapsed": 665.3103652000427,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 417.742,
-    "throughput_tps": 417.742,
+    "demand_tps": 455.0056,
+    "throughput_tps": 455.0056,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 307
+    "total_requests": 295
   },
   {
-    "elapsed": 685.3520636558533,
+    "elapsed": 670.3148436546326,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 414.1015,
-    "throughput_tps": 414.1015,
-    "hourly_cost": 0.5,
-    "active_requests": 34,
-    "total_requests": 312
-  },
-  {
-    "elapsed": 690.3595700263977,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 454.7824,
-    "throughput_tps": 454.7824,
+    "demand_tps": 418.0039,
+    "throughput_tps": 418.0039,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 325
+    "total_requests": 301
   },
   {
-    "elapsed": 695.3648343086243,
+    "elapsed": 675.3197317123413,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 452.7715,
-    "throughput_tps": 452.7715,
+    "demand_tps": 453.6912,
+    "throughput_tps": 453.6912,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 306
+  },
+  {
+    "elapsed": 680.3242638111115,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 363.0143,
+    "throughput_tps": 363.0143,
+    "hourly_cost": 0.5,
+    "active_requests": 27,
+    "total_requests": 316
+  },
+  {
+    "elapsed": 685.3296544551849,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 414.8384,
+    "throughput_tps": 414.8384,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 331
   },
   {
-    "elapsed": 700.3729074001312,
+    "elapsed": 690.3348395824432,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 449.8979,
-    "throughput_tps": 449.8979,
+    "demand_tps": 453.0069,
+    "throughput_tps": 453.0069,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 343
+    "total_requests": 338
   },
   {
-    "elapsed": 705.3778851032257,
+    "elapsed": 695.3389928340912,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.7109,
-    "throughput_tps": 454.7109,
-    "hourly_cost": 0.5,
-    "active_requests": 34,
-    "total_requests": 348
-  },
-  {
-    "elapsed": 710.3842225074768,
-    "phase": "high load",
-    "config_id": "cpu_48",
-    "demand_tps": 373.8406,
-    "throughput_tps": 373.8406,
+    "demand_tps": 455.1374,
+    "throughput_tps": 455.1374,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 362
+    "total_requests": 345
   },
   {
-    "elapsed": 715.3913967609406,
+    "elapsed": 700.3421494960785,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 416.8082,
-    "throughput_tps": 416.8082,
+    "demand_tps": 454.7904,
+    "throughput_tps": 454.7904,
     "hourly_cost": 0.5,
-    "active_requests": 34,
+    "active_requests": 35,
+    "total_requests": 355
+  },
+  {
+    "elapsed": 705.3468415737152,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 415.7194,
+    "throughput_tps": 415.7194,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
     "total_requests": 367
   },
   {
-    "elapsed": 720.3966646194458,
+    "elapsed": 710.3505728244781,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 398.9761,
-    "throughput_tps": 398.9761,
+    "demand_tps": 414.7459,
+    "throughput_tps": 414.7459,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 381
+    "total_requests": 375
   },
   {
-    "elapsed": 725.4022705554962,
+    "elapsed": 715.3564887046814,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 404.0019,
-    "throughput_tps": 404.0019,
+    "demand_tps": 453.1329,
+    "throughput_tps": 453.1329,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 387
+    "total_requests": 383
   },
   {
-    "elapsed": 730.4076924324036,
+    "elapsed": 720.3638048171997,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 489.7879,
-    "throughput_tps": 489.7879,
+    "demand_tps": 413.926,
+    "throughput_tps": 413.926,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 392
   },
   {
-    "elapsed": 735.4156534671783,
+    "elapsed": 725.3684000968933,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.9283,
-    "throughput_tps": 454.9283,
+    "demand_tps": 399.0843,
+    "throughput_tps": 399.0843,
     "hourly_cost": 0.5,
     "active_requests": 35,
     "total_requests": 403
   },
   {
-    "elapsed": 740.4228329658508,
+    "elapsed": 730.3744351863861,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 452.8139,
-    "throughput_tps": 452.8139,
+    "demand_tps": 417.1673,
+    "throughput_tps": 417.1673,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 417
+    "total_requests": 409
   },
   {
-    "elapsed": 745.4300756454468,
+    "elapsed": 735.3802919387817,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 454.785,
-    "throughput_tps": 454.785,
+    "demand_tps": 401.6757,
+    "throughput_tps": 401.6757,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 423
+    "total_requests": 416
   },
   {
-    "elapsed": 750.437023639679,
+    "elapsed": 740.3843514919281,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 415.9833,
-    "throughput_tps": 415.9833,
+    "demand_tps": 415.8886,
+    "throughput_tps": 415.8886,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 429
+    "total_requests": 425
   },
   {
-    "elapsed": 755.4445464611053,
+    "elapsed": 745.3892500400543,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 395.0189,
-    "throughput_tps": 395.0189,
+    "demand_tps": 360.1137,
+    "throughput_tps": 360.1137,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 439
+    "total_requests": 438
   },
   {
-    "elapsed": 760.4517025947571,
+    "elapsed": 750.3941693305969,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 368.0627,
-    "throughput_tps": 368.0627,
+    "demand_tps": 413.921,
+    "throughput_tps": 413.921,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 452
+    "total_requests": 448
   },
   {
-    "elapsed": 765.4584636688232,
+    "elapsed": 755.4010455608368,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 453.0409,
-    "throughput_tps": 453.0409,
+    "demand_tps": 381.6694,
+    "throughput_tps": 381.6694,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 460
+    "total_requests": 454
   },
   {
-    "elapsed": 770.4640822410583,
+    "elapsed": 760.4062938690186,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 455.1468,
-    "throughput_tps": 455.1468,
+    "demand_tps": 429.7788,
+    "throughput_tps": 429.7788,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 465
+    "total_requests": 461
   },
   {
-    "elapsed": 775.4691965579987,
+    "elapsed": 765.4103116989136,
     "phase": "high load",
     "config_id": "cpu_48",
-    "demand_tps": 414.9068,
-    "throughput_tps": 414.9068,
+    "demand_tps": 454.7183,
+    "throughput_tps": 454.7183,
     "hourly_cost": 0.5,
     "active_requests": 35,
-    "total_requests": 476
+    "total_requests": 468
   },
   {
-    "elapsed": 780.1588339805603,
+    "elapsed": 770.4154732227325,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 450.9292,
+    "throughput_tps": 450.9292,
+    "hourly_cost": 0.5,
+    "active_requests": 34,
+    "total_requests": 483
+  },
+  {
+    "elapsed": 775.4196901321411,
+    "phase": "high load",
+    "config_id": "cpu_48",
+    "demand_tps": 416.7097,
+    "throughput_tps": 416.7097,
+    "hourly_cost": 0.5,
+    "active_requests": 35,
+    "total_requests": 490
+  },
+  {
+    "elapsed": 780.0684063434601,
     "phase": "peak load",
     "config_id": "cpu_48",
-    "demand_tps": 415.8606,
-    "throughput_tps": 415.8606,
+    "demand_tps": 447.0624,
+    "throughput_tps": 447.0624,
     "hourly_cost": 0.5,
-    "active_requests": 88,
-    "total_requests": 540
+    "active_requests": 89,
+    "total_requests": 551
   },
   {
-    "elapsed": 785.1651163101196,
+    "elapsed": 785.0756957530975,
     "phase": "peak load",
     "config_id": "cpu_48",
-    "demand_tps": 511.7705,
-    "throughput_tps": 511.7705,
+    "demand_tps": 494.6605,
+    "throughput_tps": 494.6605,
     "hourly_cost": 0.5,
-    "active_requests": 81,
-    "total_requests": 541
+    "active_requests": 83,
+    "total_requests": 552
   },
   {
-    "elapsed": 790.1691975593567,
+    "elapsed": 790.080958366394,
     "phase": "peak load",
     "config_id": "cpu_48",
-    "demand_tps": 471.9021,
-    "throughput_tps": 471.9021,
+    "demand_tps": 466.2268,
+    "throughput_tps": 466.2268,
     "hourly_cost": 0.5,
-    "active_requests": 79,
-    "total_requests": 542
+    "active_requests": 78,
+    "total_requests": 554
   },
   {
-    "elapsed": 795.1741969585419,
+    "elapsed": 795.0875720977783,
+    "phase": "peak load",
+    "config_id": "cpu_48",
+    "demand_tps": 175.9943,
+    "throughput_tps": 175.9943,
+    "hourly_cost": 0.5,
+    "active_requests": 71,
+    "total_requests": 556
+  },
+  {
+    "elapsed": 800.0973064899445,
     "phase": "peak load",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
-    "active_requests": 77,
-    "total_requests": 553
+    "active_requests": 71,
+    "total_requests": 556
   },
   {
-    "elapsed": 800.1799154281616,
+    "elapsed": 805.1271958351135,
     "phase": "peak load",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
-    "active_requests": 77,
-    "total_requests": 601
+    "active_requests": 46,
+    "total_requests": 666
   },
   {
-    "elapsed": 805.1861596107483,
+    "elapsed": 810.1343524456024,
     "phase": "peak load",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
     "active_requests": 0,
-    "total_requests": 757
+    "total_requests": 670
   },
   {
-    "elapsed": 810.1964828968048,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 55
-  },
-  {
-    "elapsed": 815.2033495903015,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1137.2354,
-    "throughput_tps": 1137.2354,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 72
-  },
-  {
-    "elapsed": 820.2095544338226,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1107.3257,
-    "throughput_tps": 1107.3257,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 92
-  },
-  {
-    "elapsed": 825.2175030708313,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1048.016,
-    "throughput_tps": 1048.016,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 120
-  },
-  {
-    "elapsed": 830.2230045795441,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1088.0122,
-    "throughput_tps": 1088.0122,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 139
-  },
-  {
-    "elapsed": 835.2292242050171,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1137.5313,
-    "throughput_tps": 1137.5313,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 159
-  },
-  {
-    "elapsed": 840.2361376285553,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1008.0216,
-    "throughput_tps": 1008.0216,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 184
-  },
-  {
-    "elapsed": 845.2418057918549,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1087.2244,
-    "throughput_tps": 1087.2244,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 208
-  },
-  {
-    "elapsed": 850.2490997314453,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1107.2286,
-    "throughput_tps": 1107.2286,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 230
-  },
-  {
-    "elapsed": 855.2550716400146,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 990.2521,
-    "throughput_tps": 990.2521,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 254
-  },
-  {
-    "elapsed": 860.2607274055481,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1056.7793,
-    "throughput_tps": 1056.7793,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 275
-  },
-  {
-    "elapsed": 865.2663156986237,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1034.1417,
-    "throughput_tps": 1034.1417,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 297
-  },
-  {
-    "elapsed": 870.2716190814972,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 1181.0788,
-    "throughput_tps": 1181.0788,
-    "hourly_cost": 0.09,
-    "active_requests": 52,
-    "total_requests": 314
-  },
-  {
-    "elapsed": 875.2770285606384,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 886.5158,
-    "throughput_tps": 886.5158,
-    "hourly_cost": 0.09,
-    "active_requests": 55,
-    "total_requests": 335
-  },
-  {
-    "elapsed": 880.2829608917236,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 368.1018,
-    "throughput_tps": 368.1018,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 357
-  },
-  {
-    "elapsed": 885.2893612384796,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
-    "active_requests": 54,
-    "total_requests": 404
-  },
-  {
-    "elapsed": 890.3171095848083,
-    "phase": "peak load",
-    "config_id": "gpu_25",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
-    "active_requests": 0,
-    "total_requests": 559
-  },
-  {
-    "elapsed": 895.3247952461243,
+    "elapsed": 815.143627166748,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1386.8631,
-    "throughput_tps": 1386.8631,
+    "demand_tps": 439.9694,
+    "throughput_tps": 439.9694,
     "hourly_cost": 0.36,
     "active_requests": 55,
     "total_requests": 55
   },
   {
-    "elapsed": 900.3304886817932,
+    "elapsed": 820.148891210556,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1320.2282,
-    "throughput_tps": 1320.2282,
+    "demand_tps": 436.7801,
+    "throughput_tps": 436.7801,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 58
+  },
+  {
+    "elapsed": 825.154102563858,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 437.4759,
+    "throughput_tps": 437.4759,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 61
+  },
+  {
+    "elapsed": 830.1609442234039,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 489.9262,
+    "throughput_tps": 489.9262,
     "hourly_cost": 0.36,
     "active_requests": 55,
     "total_requests": 62
   },
   {
-    "elapsed": 905.3374881744385,
+    "elapsed": 835.1692006587982,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1317.1837,
-    "throughput_tps": 1317.1837,
+    "demand_tps": 480.8635,
+    "throughput_tps": 480.8635,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 112
+    "total_requests": 62
   },
   {
-    "elapsed": 910.3443074226379,
+    "elapsed": 840.1744525432587,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1170.9417,
-    "throughput_tps": 1170.9417,
+    "demand_tps": 421.9387,
+    "throughput_tps": 421.9387,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 123
+    "total_requests": 64
   },
   {
-    "elapsed": 915.350667476654,
+    "elapsed": 845.1794681549072,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1063.1592,
-    "throughput_tps": 1063.1592,
+    "demand_tps": 488.2669,
+    "throughput_tps": 488.2669,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 169
+    "total_requests": 110
   },
   {
-    "elapsed": 920.357120513916,
+    "elapsed": 850.1826808452606,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1301.8532,
-    "throughput_tps": 1301.8532,
+    "demand_tps": 439.7666,
+    "throughput_tps": 439.7666,
+    "hourly_cost": 0.36,
+    "active_requests": 54,
+    "total_requests": 111
+  },
+  {
+    "elapsed": 855.1876800060272,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 439.5961,
+    "throughput_tps": 439.5961,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 177
+    "total_requests": 118
   },
   {
-    "elapsed": 925.3626463413239,
+    "elapsed": 860.1960713863373,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1228.0559,
-    "throughput_tps": 1228.0559,
+    "demand_tps": 439.9489,
+    "throughput_tps": 439.9489,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 189
+    "total_requests": 124
   },
   {
-    "elapsed": 930.3697679042816,
+    "elapsed": 865.2023818492889,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1042.8245,
-    "throughput_tps": 1042.8245,
+    "demand_tps": 438.8727,
+    "throughput_tps": 438.8727,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 228
+    "total_requests": 127
   },
   {
-    "elapsed": 935.3761076927185,
+    "elapsed": 870.2089958190918,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1106.2223,
-    "throughput_tps": 1106.2223,
+    "demand_tps": 494.8775,
+    "throughput_tps": 494.8775,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 129
+  },
+  {
+    "elapsed": 875.2150845527649,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 296.8945,
+    "throughput_tps": 296.8945,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 167
+  },
+  {
+    "elapsed": 880.2199742794037,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 494.7982,
+    "throughput_tps": 494.7982,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 168
+  },
+  {
+    "elapsed": 885.2236442565918,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 397.1614,
+    "throughput_tps": 397.1614,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 175
+  },
+  {
+    "elapsed": 890.2284572124481,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 493.5453,
+    "throughput_tps": 493.5453,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 179
+  },
+  {
+    "elapsed": 895.2327926158905,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 493.8963,
+    "throughput_tps": 493.8963,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 182
+  },
+  {
+    "elapsed": 900.2366983890533,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 439.8426,
+    "throughput_tps": 439.8426,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 184
+  },
+  {
+    "elapsed": 905.2410016059875,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 440.0105,
+    "throughput_tps": 440.0105,
+    "hourly_cost": 0.36,
+    "active_requests": 54,
+    "total_requests": 187
+  },
+  {
+    "elapsed": 910.2451651096344,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 438.913,
+    "throughput_tps": 438.913,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 224
+  },
+  {
+    "elapsed": 915.2515909671783,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 427.0345,
+    "throughput_tps": 427.0345,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 229
+  },
+  {
+    "elapsed": 920.2591001987457,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 471.9713,
+    "throughput_tps": 471.9713,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 235
+  },
+  {
+    "elapsed": 925.2676515579224,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 440.1481,
+    "throughput_tps": 440.1481,
     "hourly_cost": 0.36,
     "active_requests": 55,
     "total_requests": 239
   },
   {
-    "elapsed": 940.3829779624939,
+    "elapsed": 930.2753055095673,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 840.6831,
-    "throughput_tps": 840.6831,
+    "demand_tps": 450.0395,
+    "throughput_tps": 450.0395,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 242
+  },
+  {
+    "elapsed": 935.2794818878174,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 438.1588,
+    "throughput_tps": 438.1588,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 249
+  },
+  {
+    "elapsed": 940.2842376232147,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 439.2652,
+    "throughput_tps": 439.2652,
     "hourly_cost": 0.36,
     "active_requests": 55,
     "total_requests": 281
   },
   {
-    "elapsed": 945.3886730670929,
+    "elapsed": 945.2902374267578,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1319.3278,
-    "throughput_tps": 1319.3278,
+    "demand_tps": 439.5459,
+    "throughput_tps": 439.5459,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 293
+    "total_requests": 284
   },
   {
-    "elapsed": 950.3963565826416,
+    "elapsed": 950.2948453426361,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1141.0626,
-    "throughput_tps": 1141.0626,
+    "demand_tps": 416.892,
+    "throughput_tps": 416.892,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 307
+    "total_requests": 292
   },
   {
-    "elapsed": 955.4031929969788,
+    "elapsed": 955.2997133731842,
     "phase": "peak load",
     "config_id": "gpu_100",
-    "demand_tps": 1296.5815,
-    "throughput_tps": 1296.5815,
+    "demand_tps": 445.0769,
+    "throughput_tps": 445.0769,
     "hourly_cost": 0.36,
     "active_requests": 55,
-    "total_requests": 343
-  },
-  {
-    "elapsed": 960.4093346595764,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1225.5436,
-    "throughput_tps": 1225.5436,
-    "hourly_cost": 0.36,
-    "active_requests": 54,
-    "total_requests": 360
-  },
-  {
-    "elapsed": 965.4149460792542,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1249.6469,
-    "throughput_tps": 1249.6469,
-    "hourly_cost": 0.36,
-    "active_requests": 54,
-    "total_requests": 400
-  },
-  {
-    "elapsed": 970.4210913181305,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1250.3698,
-    "throughput_tps": 1250.3698,
-    "hourly_cost": 0.36,
-    "active_requests": 54,
-    "total_requests": 414
-  },
-  {
-    "elapsed": 975.4292662143707,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1227.7737,
-    "throughput_tps": 1227.7737,
-    "hourly_cost": 0.36,
-    "active_requests": 38,
-    "total_requests": 433
-  },
-  {
-    "elapsed": 980.435245513916,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1182.991,
-    "throughput_tps": 1182.991,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 465
-  },
-  {
-    "elapsed": 985.4411787986755,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1237.2687,
-    "throughput_tps": 1237.2687,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 488
-  },
-  {
-    "elapsed": 990.44753074646,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1065.6761,
-    "throughput_tps": 1065.6761,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 518
-  },
-  {
-    "elapsed": 995.4551479816437,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1292.775,
-    "throughput_tps": 1292.775,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 535
-  },
-  {
-    "elapsed": 1000.4614639282227,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 921.1184,
-    "throughput_tps": 921.1184,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 566
-  },
-  {
-    "elapsed": 1005.4695410728455,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1235.2779,
-    "throughput_tps": 1235.2779,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 586
-  },
-  {
-    "elapsed": 1010.4763746261597,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1081.3756,
-    "throughput_tps": 1081.3756,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 604
-  },
-  {
-    "elapsed": 1015.4836156368256,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1249.986,
-    "throughput_tps": 1249.986,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 634
-  },
-  {
-    "elapsed": 1020.4897861480713,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1207.8149,
-    "throughput_tps": 1207.8149,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 654
-  },
-  {
-    "elapsed": 1025.4956622123718,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 994.0237,
-    "throughput_tps": 994.0237,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 683
-  },
-  {
-    "elapsed": 1030.5021665096283,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1199.8244,
-    "throughput_tps": 1199.8244,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 707
-  },
-  {
-    "elapsed": 1035.5083289146423,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1065.8153,
-    "throughput_tps": 1065.8153,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 727
-  },
-  {
-    "elapsed": 1040.515587568283,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1091.1345,
-    "throughput_tps": 1091.1345,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 753
-  },
-  {
-    "elapsed": 1045.52286362648,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1257.3216,
-    "throughput_tps": 1257.3216,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 778
-  },
-  {
-    "elapsed": 1050.531219959259,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1063.6848,
-    "throughput_tps": 1063.6848,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 805
-  },
-  {
-    "elapsed": 1055.5375759601593,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1138.0289,
-    "throughput_tps": 1138.0289,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 827
-  },
-  {
-    "elapsed": 1060.545175075531,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1126.5708,
-    "throughput_tps": 1126.5708,
-    "hourly_cost": 0.36,
-    "active_requests": 54,
-    "total_requests": 850
-  },
-  {
-    "elapsed": 1065.550124168396,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1120.1876,
-    "throughput_tps": 1120.1876,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 873
-  },
-  {
-    "elapsed": 1070.5538790225983,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1208.8487,
-    "throughput_tps": 1208.8487,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 892
-  },
-  {
-    "elapsed": 1075.559907913208,
-    "phase": "peak load",
-    "config_id": "gpu_100",
-    "demand_tps": 1038.222,
-    "throughput_tps": 1038.222,
-    "hourly_cost": 0.36,
-    "active_requests": 55,
-    "total_requests": 921
-  },
-  {
-    "elapsed": 1080.0511751174927,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 1241.8277,
-    "throughput_tps": 1241.8277,
-    "hourly_cost": 0.36,
-    "active_requests": 60,
-    "total_requests": 950
-  },
-  {
-    "elapsed": 1085.0614380836487,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 568.8294,
-    "throughput_tps": 568.8294,
-    "hourly_cost": 0.36,
-    "active_requests": 46,
-    "total_requests": 951
-  },
-  {
-    "elapsed": 1090.0717024803162,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 291.9134,
-    "throughput_tps": 291.9134,
-    "hourly_cost": 0.36,
-    "active_requests": 35,
-    "total_requests": 951
-  },
-  {
-    "elapsed": 1095.081616640091,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 300.0929,
-    "throughput_tps": 300.0929,
-    "hourly_cost": 0.36,
-    "active_requests": 27,
-    "total_requests": 951
-  },
-  {
-    "elapsed": 1100.0928056240082,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 277.952,
-    "throughput_tps": 277.952,
-    "hourly_cost": 0.36,
-    "active_requests": 10,
-    "total_requests": 951
-  },
-  {
-    "elapsed": 1105.099674463272,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 497.6463,
-    "throughput_tps": 497.6463,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 963
-  },
-  {
-    "elapsed": 1110.1060965061188,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 482.0747,
-    "throughput_tps": 482.0747,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 975
-  },
-  {
-    "elapsed": 1115.1115448474884,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 546.0615,
-    "throughput_tps": 546.0615,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 987
-  },
-  {
-    "elapsed": 1120.1171505451202,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 536.0638,
-    "throughput_tps": 536.0638,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 996
-  },
-  {
-    "elapsed": 1125.1234455108643,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 485.9838,
-    "throughput_tps": 485.9838,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 1007
-  },
-  {
-    "elapsed": 1130.1292071342468,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 511.6426,
-    "throughput_tps": 511.6426,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 1019
-  },
-  {
-    "elapsed": 1135.1354475021362,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 519.8796,
-    "throughput_tps": 519.8796,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 1028
-  },
-  {
-    "elapsed": 1140.14213180542,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 508.0288,
-    "throughput_tps": 508.0288,
-    "hourly_cost": 0.36,
-    "active_requests": 6,
-    "total_requests": 1038
-  },
-  {
-    "elapsed": 1145.1483590602875,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.36,
-    "active_requests": 5,
-    "total_requests": 1067
-  },
-  {
-    "elapsed": 1150.1540219783783,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.36,
-    "active_requests": 5,
-    "total_requests": 1115
-  },
-  {
-    "elapsed": 1155.1621325016022,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_100",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.36,
-    "active_requests": 0,
-    "total_requests": 1160
-  },
-  {
-    "elapsed": 1160.1680047512054,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 557.7172,
-    "throughput_tps": 557.7172,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 1165.174556016922,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 557.8183,
-    "throughput_tps": 557.8183,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 21
-  },
-  {
-    "elapsed": 1170.1808726787567,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 480.0684,
-    "throughput_tps": 480.0684,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 33
-  },
-  {
-    "elapsed": 1175.1870770454407,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 545.9693,
-    "throughput_tps": 545.9693,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 41
-  },
-  {
-    "elapsed": 1180.192373752594,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 507.2282,
-    "throughput_tps": 507.2282,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 53
-  },
-  {
-    "elapsed": 1185.1985552310944,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 509.4846,
-    "throughput_tps": 509.4846,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 63
-  },
-  {
-    "elapsed": 1190.2038779258728,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 527.8333,
-    "throughput_tps": 527.8333,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 75
-  },
-  {
-    "elapsed": 1195.2098588943481,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 533.0853,
-    "throughput_tps": 533.0853,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 87
-  },
-  {
-    "elapsed": 1200.2150189876556,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 474.2152,
-    "throughput_tps": 474.2152,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 97
-  },
-  {
-    "elapsed": 1205.2202427387238,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 509.9447,
-    "throughput_tps": 509.9447,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 108
-  },
-  {
-    "elapsed": 1210.2257623672485,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 527.7076,
-    "throughput_tps": 527.7076,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 118
-  },
-  {
-    "elapsed": 1215.2314021587372,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 508.1806,
-    "throughput_tps": 508.1806,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 128
-  },
-  {
-    "elapsed": 1220.2370455265045,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 525.7746,
-    "throughput_tps": 525.7746,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 138
-  },
-  {
-    "elapsed": 1225.242172241211,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 483.5538,
-    "throughput_tps": 483.5538,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 150
-  },
-  {
-    "elapsed": 1230.248726606369,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 521.8411,
-    "throughput_tps": 521.8411,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 158
-  },
-  {
-    "elapsed": 1235.256294965744,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 515.854,
-    "throughput_tps": 515.854,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 169
-  },
-  {
-    "elapsed": 1240.2636172771454,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 513.9333,
-    "throughput_tps": 513.9333,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 179
-  },
-  {
-    "elapsed": 1245.2696244716644,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 481.9025,
-    "throughput_tps": 481.9025,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 190
-  },
-  {
-    "elapsed": 1250.2757256031036,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 504.1698,
-    "throughput_tps": 504.1698,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 200
-  },
-  {
-    "elapsed": 1255.2815601825714,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 509.2426,
-    "throughput_tps": 509.2426,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 210
-  },
-  {
-    "elapsed": 1260.2871160507202,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 490.8788,
-    "throughput_tps": 490.8788,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 220
-  },
-  {
-    "elapsed": 1265.2940509319305,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 525.6192,
-    "throughput_tps": 525.6192,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 229
-  },
-  {
-    "elapsed": 1270.300407409668,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 513.421,
-    "throughput_tps": 513.421,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 240
-  },
-  {
-    "elapsed": 1275.3060910701752,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 508.1654,
-    "throughput_tps": 508.1654,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 250
-  },
-  {
-    "elapsed": 1280.3126637935638,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 513.9498,
-    "throughput_tps": 513.9498,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 261
-  },
-  {
-    "elapsed": 1285.3183233737946,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 519.5008,
-    "throughput_tps": 519.5008,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 271
-  },
-  {
-    "elapsed": 1290.3244771957397,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 491.7677,
-    "throughput_tps": 491.7677,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 283
-  },
-  {
-    "elapsed": 1295.3305201530457,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 479.9448,
-    "throughput_tps": 479.9448,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
     "total_requests": 296
   },
   {
-    "elapsed": 1300.3376321792603,
+    "elapsed": 960.3038334846497,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 449.8531,
+    "throughput_tps": 449.8531,
+    "hourly_cost": 0.36,
+    "active_requests": 54,
+    "total_requests": 300
+  },
+  {
+    "elapsed": 965.3095178604126,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 381.8513,
+    "throughput_tps": 381.8513,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 306
+  },
+  {
+    "elapsed": 970.3134276866913,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 404.1144,
+    "throughput_tps": 404.1144,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 310
+  },
+  {
+    "elapsed": 975.318204164505,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 442.9677,
+    "throughput_tps": 442.9677,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 340
+  },
+  {
+    "elapsed": 980.3230180740356,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 416.8235,
+    "throughput_tps": 416.8235,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 347
+  },
+  {
+    "elapsed": 985.3281686306,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 437.7468,
+    "throughput_tps": 437.7468,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 354
+  },
+  {
+    "elapsed": 990.3332235813141,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 439.0579,
+    "throughput_tps": 439.0579,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 357
+  },
+  {
+    "elapsed": 995.3394315242767,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 444.6425,
+    "throughput_tps": 444.6425,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 364
+  },
+  {
+    "elapsed": 1000.3438925743103,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 478.0585,
+    "throughput_tps": 478.0585,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 372
+  },
+  {
+    "elapsed": 1005.3488738536835,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 439.8161,
+    "throughput_tps": 439.8161,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 397
+  },
+  {
+    "elapsed": 1010.3553023338318,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 438.7038,
+    "throughput_tps": 438.7038,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 403
+  },
+  {
+    "elapsed": 1015.3588690757751,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 436.9057,
+    "throughput_tps": 436.9057,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 411
+  },
+  {
+    "elapsed": 1020.3652305603027,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 440.1,
+    "throughput_tps": 440.1,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 417
+  },
+  {
+    "elapsed": 1025.3703763484955,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 405.8205,
+    "throughput_tps": 405.8205,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 422
+  },
+  {
+    "elapsed": 1030.3747334480286,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 427.1005,
+    "throughput_tps": 427.1005,
+    "hourly_cost": 0.36,
+    "active_requests": 54,
+    "total_requests": 434
+  },
+  {
+    "elapsed": 1035.3808608055115,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 424.1475,
+    "throughput_tps": 424.1475,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 438
+  },
+  {
+    "elapsed": 1040.384583234787,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 472.9098,
+    "throughput_tps": 472.9098,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 458
+  },
+  {
+    "elapsed": 1045.3897542953491,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 494.8812,
+    "throughput_tps": 494.8812,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 463
+  },
+  {
+    "elapsed": 1050.3961696624756,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 441.0849,
+    "throughput_tps": 441.0849,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 472
+  },
+  {
+    "elapsed": 1055.3995788097382,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 438.8159,
+    "throughput_tps": 438.8159,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 477
+  },
+  {
+    "elapsed": 1060.4034616947174,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 435.9032,
+    "throughput_tps": 435.9032,
+    "hourly_cost": 0.36,
+    "active_requests": 54,
+    "total_requests": 489
+  },
+  {
+    "elapsed": 1065.4081537723541,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 448.1713,
+    "throughput_tps": 448.1713,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 496
+  },
+  {
+    "elapsed": 1070.4135432243347,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 437.9916,
+    "throughput_tps": 437.9916,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 512
+  },
+  {
+    "elapsed": 1075.4178144931793,
+    "phase": "peak load",
+    "config_id": "gpu_100",
+    "demand_tps": 438.902,
+    "throughput_tps": 438.902,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 519
+  },
+  {
+    "elapsed": 1080.038434267044,
     "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 507.5208,
-    "throughput_tps": 507.5208,
-    "hourly_cost": 0.09,
+    "config_id": "gpu_100",
+    "demand_tps": 381.6269,
+    "throughput_tps": 381.6269,
+    "hourly_cost": 0.36,
+    "active_requests": 58,
+    "total_requests": 527
+  },
+  {
+    "elapsed": 1085.046980381012,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 306.1206,
+    "throughput_tps": 306.1206,
+    "hourly_cost": 0.36,
+    "active_requests": 55,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1090.0554904937744,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 270.0359,
+    "throughput_tps": 270.0359,
+    "hourly_cost": 0.36,
+    "active_requests": 51,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1095.0645713806152,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 219.9089,
+    "throughput_tps": 219.9089,
+    "hourly_cost": 0.36,
+    "active_requests": 44,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1100.073977947235,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 158.9093,
+    "throughput_tps": 158.9093,
+    "hourly_cost": 0.36,
+    "active_requests": 37,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1105.0827322006226,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 159.9683,
+    "throughput_tps": 159.9683,
+    "hourly_cost": 0.36,
+    "active_requests": 31,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1110.0920553207397,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 151.9412,
+    "throughput_tps": 151.9412,
+    "hourly_cost": 0.36,
+    "active_requests": 29,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1115.1005942821503,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 107.989,
+    "throughput_tps": 107.989,
+    "hourly_cost": 0.36,
+    "active_requests": 18,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1120.1099359989166,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 126.9681,
+    "throughput_tps": 126.9681,
+    "hourly_cost": 0.36,
+    "active_requests": 10,
+    "total_requests": 530
+  },
+  {
+    "elapsed": 1125.117084980011,
+    "phase": "ramp-down 1",
+    "config_id": "gpu_100",
+    "demand_tps": 273.9741,
+    "throughput_tps": 273.9741,
+    "hourly_cost": 0.36,
     "active_requests": 6,
-    "total_requests": 305
+    "total_requests": 536
   },
   {
-    "elapsed": 1305.3433649539948,
+    "elapsed": 1130.1222672462463,
     "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 540.0827,
-    "throughput_tps": 540.0827,
-    "hourly_cost": 0.09,
+    "config_id": "gpu_100",
+    "demand_tps": 264.9339,
+    "throughput_tps": 264.9339,
+    "hourly_cost": 0.36,
     "active_requests": 6,
-    "total_requests": 315
+    "total_requests": 543
   },
   {
-    "elapsed": 1310.3491294384003,
+    "elapsed": 1135.1277425289154,
     "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 494.8246,
-    "throughput_tps": 494.8246,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 327
-  },
-  {
-    "elapsed": 1315.354118347168,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 530.0752,
-    "throughput_tps": 530.0752,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 337
-  },
-  {
-    "elapsed": 1320.3600590229034,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 537.7592,
-    "throughput_tps": 537.7592,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 348
-  },
-  {
-    "elapsed": 1325.3659126758575,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 508.4311,
-    "throughput_tps": 508.4311,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 359
-  },
-  {
-    "elapsed": 1330.3714363574982,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 485.9841,
-    "throughput_tps": 485.9841,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 370
-  },
-  {
-    "elapsed": 1335.3771479129791,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 519.5205,
-    "throughput_tps": 519.5205,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 380
-  },
-  {
-    "elapsed": 1340.3827986717224,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 492.8161,
-    "throughput_tps": 492.8161,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 391
-  },
-  {
-    "elapsed": 1345.3887774944305,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 513.8803,
-    "throughput_tps": 513.8803,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 400
-  },
-  {
-    "elapsed": 1350.3946306705475,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 481.7239,
-    "throughput_tps": 481.7239,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 412
-  },
-  {
-    "elapsed": 1355.3997569084167,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 498.7808,
-    "throughput_tps": 498.7808,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 421
-  },
-  {
-    "elapsed": 1360.4054164886475,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 536.2641,
-    "throughput_tps": 536.2641,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 431
-  },
-  {
-    "elapsed": 1365.4111442565918,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 495.5503,
-    "throughput_tps": 495.5503,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 443
-  },
-  {
-    "elapsed": 1370.4179997444153,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 526.0314,
-    "throughput_tps": 526.0314,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 452
-  },
-  {
-    "elapsed": 1375.4249727725983,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 517.8233,
-    "throughput_tps": 517.8233,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 464
-  },
-  {
-    "elapsed": 1380.4309508800507,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 527.0256,
-    "throughput_tps": 527.0256,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 474
-  },
-  {
-    "elapsed": 1385.437194108963,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 544.5595,
-    "throughput_tps": 544.5595,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 483
-  },
-  {
-    "elapsed": 1390.4426651000977,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 511.7404,
-    "throughput_tps": 511.7404,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 495
-  },
-  {
-    "elapsed": 1395.4483814239502,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 495.003,
-    "throughput_tps": 495.003,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 505
-  },
-  {
-    "elapsed": 1400.4535813331604,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 566.5104,
-    "throughput_tps": 566.5104,
-    "hourly_cost": 0.09,
-    "active_requests": 6,
-    "total_requests": 516
-  },
-  {
-    "elapsed": 1405.4583332538605,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
-    "demand_tps": 536.9917,
-    "throughput_tps": 536.9917,
-    "hourly_cost": 0.09,
-    "active_requests": 5,
-    "total_requests": 526
-  },
-  {
-    "elapsed": 1410.4636669158936,
-    "phase": "ramp-down 1",
-    "config_id": "gpu_25",
+    "config_id": "gpu_100",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
+    "hourly_cost": 0.36,
     "active_requests": 5,
-    "total_requests": 558
+    "total_requests": 575
   },
   {
-    "elapsed": 1415.469316959381,
+    "elapsed": 1140.1324343681335,
     "phase": "ramp-down 1",
-    "config_id": "gpu_25",
+    "config_id": "gpu_100",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
+    "hourly_cost": 0.36,
     "active_requests": 5,
-    "total_requests": 605
+    "total_requests": 623
   },
   {
-    "elapsed": 1420.4749615192413,
+    "elapsed": 1145.1385345458984,
     "phase": "ramp-down 1",
-    "config_id": "gpu_25",
+    "config_id": "gpu_100",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
-    "hourly_cost": 0.09,
+    "hourly_cost": 0.36,
     "active_requests": 0,
-    "total_requests": 647
+    "total_requests": 655
   },
   {
-    "elapsed": 1425.4812359809875,
+    "elapsed": 1150.1456763744354,
     "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
+    "demand_tps": 288.0535,
+    "throughput_tps": 288.0535,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 6
   },
   {
-    "elapsed": 1430.4875733852386,
+    "elapsed": 1155.1522748470306,
     "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 267.1519,
-    "throughput_tps": 267.1519,
-    "hourly_cost": 0.5,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 1435.497579574585,
-    "phase": "ramp-down 1",
-    "config_id": "cpu_48",
-    "demand_tps": 272.9309,
-    "throughput_tps": 272.9309,
+    "demand_tps": 245.9125,
+    "throughput_tps": 245.9125,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 12
   },
   {
-    "elapsed": 1440.061359167099,
-    "phase": "ramp-down 2",
+    "elapsed": 1160.158997297287,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 287.9441,
-    "throughput_tps": 287.9441,
+    "demand_tps": 266.5107,
+    "throughput_tps": 266.5107,
     "hourly_cost": 0.5,
-    "active_requests": 11,
-    "total_requests": 24
+    "active_requests": 1,
+    "total_requests": 13
   },
   {
-    "elapsed": 1445.0688242912292,
-    "phase": "ramp-down 2",
+    "elapsed": 1165.1666433811188,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 185.8295,
-    "throughput_tps": 185.8295,
-    "hourly_cost": 0.5,
-    "active_requests": 7,
-    "total_requests": 26
-  },
-  {
-    "elapsed": 1450.0746476650238,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 282.0038,
-    "throughput_tps": 282.0038,
-    "hourly_cost": 0.5,
-    "active_requests": 5,
-    "total_requests": 31
-  },
-  {
-    "elapsed": 1455.0824148654938,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 253.9408,
-    "throughput_tps": 253.9408,
+    "demand_tps": 275.7668,
+    "throughput_tps": 275.7668,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 37
+    "total_requests": 21
   },
   {
-    "elapsed": 1460.0910761356354,
-    "phase": "ramp-down 2",
+    "elapsed": 1170.171844959259,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 236.8017,
-    "throughput_tps": 236.8017,
+    "demand_tps": 281.8806,
+    "throughput_tps": 281.8806,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 43
+    "total_requests": 27
   },
   {
-    "elapsed": 1465.0966348648071,
-    "phase": "ramp-down 2",
+    "elapsed": 1175.1771874427795,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 270.0079,
-    "throughput_tps": 270.0079,
+    "demand_tps": 259.9733,
+    "throughput_tps": 259.9733,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 49
+    "total_requests": 33
   },
   {
-    "elapsed": 1470.1027781963348,
-    "phase": "ramp-down 2",
+    "elapsed": 1180.1826317310333,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 281.8819,
-    "throughput_tps": 281.8819,
+    "demand_tps": 255.8635,
+    "throughput_tps": 255.8635,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 52
+    "total_requests": 39
   },
   {
-    "elapsed": 1475.109493970871,
-    "phase": "ramp-down 2",
+    "elapsed": 1185.1891667842865,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 270.0206,
-    "throughput_tps": 270.0206,
+    "demand_tps": 283.0858,
+    "throughput_tps": 283.0858,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 44
+  },
+  {
+    "elapsed": 1190.1947047710419,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 287.1434,
+    "throughput_tps": 287.1434,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 51
+  },
+  {
+    "elapsed": 1195.1990201473236,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 245.7961,
+    "throughput_tps": 245.7961,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 58
   },
   {
-    "elapsed": 1480.1161382198334,
-    "phase": "ramp-down 2",
+    "elapsed": 1200.2036957740784,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 238.9858,
-    "throughput_tps": 238.9858,
+    "demand_tps": 265.8323,
+    "throughput_tps": 265.8323,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 64
+    "total_requests": 63
   },
   {
-    "elapsed": 1485.1221799850464,
-    "phase": "ramp-down 2",
+    "elapsed": 1205.2103173732758,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 244.8665,
-    "throughput_tps": 244.8665,
+    "demand_tps": 269.9795,
+    "throughput_tps": 269.9795,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 71
+    "total_requests": 68
   },
   {
-    "elapsed": 1490.1291937828064,
-    "phase": "ramp-down 2",
+    "elapsed": 1210.2154655456543,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 282.1038,
-    "throughput_tps": 282.1038,
+    "demand_tps": 294.0941,
+    "throughput_tps": 294.0941,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 76
+    "total_requests": 75
   },
   {
-    "elapsed": 1495.1354539394379,
-    "phase": "ramp-down 2",
+    "elapsed": 1215.2204103469849,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 275.9493,
-    "throughput_tps": 275.9493,
+    "demand_tps": 266.0717,
+    "throughput_tps": 266.0717,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 81
   },
   {
-    "elapsed": 1500.1407160758972,
-    "phase": "ramp-down 2",
+    "elapsed": 1220.223904132843,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 282.018,
-    "throughput_tps": 282.018,
+    "demand_tps": 282.0899,
+    "throughput_tps": 282.0899,
     "hourly_cost": 0.5,
     "active_requests": 5,
-    "total_requests": 87
+    "total_requests": 86
   },
   {
-    "elapsed": 1505.1486766338348,
-    "phase": "ramp-down 2",
+    "elapsed": 1225.2282826900482,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 271.7899,
-    "throughput_tps": 271.7899,
+    "demand_tps": 260.9191,
+    "throughput_tps": 260.9191,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 93
   },
   {
-    "elapsed": 1510.1541578769684,
-    "phase": "ramp-down 2",
+    "elapsed": 1230.2330377101898,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 260.7156,
-    "throughput_tps": 260.7156,
+    "demand_tps": 250.0521,
+    "throughput_tps": 250.0521,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 100
+    "total_requests": 98
   },
   {
-    "elapsed": 1515.159509897232,
-    "phase": "ramp-down 2",
+    "elapsed": 1235.2378330230713,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 267.8536,
-    "throughput_tps": 267.8536,
+    "demand_tps": 257.8859,
+    "throughput_tps": 257.8859,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 106
+    "total_requests": 101
   },
   {
-    "elapsed": 1520.1642136573792,
-    "phase": "ramp-down 2",
+    "elapsed": 1240.2420117855072,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 256.0416,
-    "throughput_tps": 256.0416,
+    "demand_tps": 263.7683,
+    "throughput_tps": 263.7683,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 112
+    "total_requests": 108
   },
   {
-    "elapsed": 1525.1693148612976,
-    "phase": "ramp-down 2",
+    "elapsed": 1245.2479395866394,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 281.9624,
-    "throughput_tps": 281.9624,
+    "demand_tps": 281.7775,
+    "throughput_tps": 281.7775,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 117
+    "total_requests": 114
   },
   {
-    "elapsed": 1530.1738018989563,
-    "phase": "ramp-down 2",
+    "elapsed": 1250.2548196315765,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 294.0612,
-    "throughput_tps": 294.0612,
+    "demand_tps": 279.964,
+    "throughput_tps": 279.964,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 123
+    "total_requests": 120
   },
   {
-    "elapsed": 1535.1793015003204,
-    "phase": "ramp-down 2",
+    "elapsed": 1255.2597486972809,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 237.7841,
-    "throughput_tps": 237.7841,
+    "demand_tps": 243.81,
+    "throughput_tps": 243.81,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 126
+    "total_requests": 127
   },
   {
-    "elapsed": 1540.1840920448303,
-    "phase": "ramp-down 2",
+    "elapsed": 1260.2636427879333,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 266.031,
-    "throughput_tps": 266.031,
+    "demand_tps": 255.8326,
+    "throughput_tps": 255.8326,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 133
+    "total_requests": 132
   },
   {
-    "elapsed": 1545.1887435913086,
-    "phase": "ramp-down 2",
+    "elapsed": 1265.2687962055206,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 287.9878,
-    "throughput_tps": 287.9878,
+    "demand_tps": 255.999,
+    "throughput_tps": 255.999,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 140
+    "total_requests": 138
   },
   {
-    "elapsed": 1550.1935362815857,
-    "phase": "ramp-down 2",
+    "elapsed": 1270.2733733654022,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 281.8709,
-    "throughput_tps": 281.8709,
+    "demand_tps": 265.868,
+    "throughput_tps": 265.868,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 147
+    "total_requests": 144
   },
   {
-    "elapsed": 1555.197642326355,
-    "phase": "ramp-down 2",
+    "elapsed": 1275.276790380478,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 264.7658,
-    "throughput_tps": 264.7658,
+    "demand_tps": 269.8891,
+    "throughput_tps": 269.8891,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 152
+    "total_requests": 150
   },
   {
-    "elapsed": 1560.2014427185059,
-    "phase": "ramp-down 2",
+    "elapsed": 1280.2814209461212,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 246.9227,
-    "throughput_tps": 246.9227,
+    "demand_tps": 259.9415,
+    "throughput_tps": 259.9415,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 158
+    "total_requests": 155
   },
   {
-    "elapsed": 1565.2058818340302,
-    "phase": "ramp-down 2",
+    "elapsed": 1285.28702044487,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 288.0358,
-    "throughput_tps": 288.0358,
+    "demand_tps": 281.8339,
+    "throughput_tps": 281.8339,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 164
+    "total_requests": 160
   },
   {
-    "elapsed": 1570.2101712226868,
-    "phase": "ramp-down 2",
+    "elapsed": 1290.2910904884338,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 260.9988,
-    "throughput_tps": 260.9988,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 169
-  },
-  {
-    "elapsed": 1575.2178027629852,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 271.9347,
-    "throughput_tps": 271.9347,
+    "demand_tps": 281.9209,
+    "throughput_tps": 281.9209,
     "hourly_cost": 0.5,
     "active_requests": 5,
-    "total_requests": 174
+    "total_requests": 166
   },
   {
-    "elapsed": 1580.2223100662231,
-    "phase": "ramp-down 2",
+    "elapsed": 1295.2960946559906,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 288.0832,
-    "throughput_tps": 288.0832,
+    "demand_tps": 281.105,
+    "throughput_tps": 281.105,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 181
+    "total_requests": 172
   },
   {
-    "elapsed": 1585.2263398170471,
-    "phase": "ramp-down 2",
+    "elapsed": 1300.301206111908,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 266.0907,
-    "throughput_tps": 266.0907,
+    "demand_tps": 276.0282,
+    "throughput_tps": 276.0282,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 178
+  },
+  {
+    "elapsed": 1305.3054931163788,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 249.9856,
+    "throughput_tps": 249.9856,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 185
+  },
+  {
+    "elapsed": 1310.3105273246765,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 276.0563,
+    "throughput_tps": 276.0563,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 190
+  },
+  {
+    "elapsed": 1315.3147764205933,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 266.0353,
+    "throughput_tps": 266.0353,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 196
+  },
+  {
+    "elapsed": 1320.319574356079,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 261.9443,
+    "throughput_tps": 261.9443,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 201
+  },
+  {
+    "elapsed": 1325.325041770935,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 281.8327,
+    "throughput_tps": 281.8327,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 207
+  },
+  {
+    "elapsed": 1330.329973936081,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 265.7563,
+    "throughput_tps": 265.7563,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 213
+  },
+  {
+    "elapsed": 1335.3346655368805,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 288.151,
+    "throughput_tps": 288.151,
     "hourly_cost": 0.5,
     "active_requests": 5,
-    "total_requests": 188
+    "total_requests": 218
   },
   {
-    "elapsed": 1590.230248451233,
-    "phase": "ramp-down 2",
+    "elapsed": 1340.3393971920013,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 279.8453,
-    "throughput_tps": 279.8453,
+    "demand_tps": 227.9018,
+    "throughput_tps": 227.9018,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 193
+    "total_requests": 225
   },
   {
-    "elapsed": 1595.233835220337,
-    "phase": "ramp-down 2",
+    "elapsed": 1345.3439910411835,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 281.9987,
-    "throughput_tps": 281.9987,
+    "demand_tps": 250.9136,
+    "throughput_tps": 250.9136,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 198
+    "total_requests": 230
   },
   {
-    "elapsed": 1600.2412464618683,
-    "phase": "ramp-down 2",
+    "elapsed": 1350.3492259979248,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 287.9003,
-    "throughput_tps": 287.9003,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 202
-  },
-  {
-    "elapsed": 1605.2481184005737,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 271.8757,
-    "throughput_tps": 271.8757,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 208
-  },
-  {
-    "elapsed": 1610.2546665668488,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 271.9135,
-    "throughput_tps": 271.9135,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 215
-  },
-  {
-    "elapsed": 1615.2611765861511,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 282.1241,
-    "throughput_tps": 282.1241,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 221
-  },
-  {
-    "elapsed": 1620.2683379650116,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 287.8795,
-    "throughput_tps": 287.8795,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 228
-  },
-  {
-    "elapsed": 1625.275314092636,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 287.9934,
-    "throughput_tps": 287.9934,
+    "demand_tps": 275.9465,
+    "throughput_tps": 275.9465,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 234
   },
   {
-    "elapsed": 1630.281091451645,
-    "phase": "ramp-down 2",
+    "elapsed": 1355.3548138141632,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 294.1607,
-    "throughput_tps": 294.1607,
+    "demand_tps": 281.8581,
+    "throughput_tps": 281.8581,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 241
+    "total_requests": 240
   },
   {
-    "elapsed": 1635.2880437374115,
-    "phase": "ramp-down 2",
+    "elapsed": 1360.3618845939636,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 258.9322,
-    "throughput_tps": 258.9322,
+    "demand_tps": 276.0776,
+    "throughput_tps": 276.0776,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 247
   },
   {
-    "elapsed": 1640.2935664653778,
-    "phase": "ramp-down 2",
+    "elapsed": 1365.3666100502014,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 220.0175,
-    "throughput_tps": 220.0175,
+    "demand_tps": 274.0785,
+    "throughput_tps": 274.0785,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 253
+    "total_requests": 254
   },
   {
-    "elapsed": 1645.2995164394379,
-    "phase": "ramp-down 2",
+    "elapsed": 1370.3714489936829,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 262.038,
-    "throughput_tps": 262.038,
-    "hourly_cost": 0.5,
-    "active_requests": 5,
-    "total_requests": 256
-  },
-  {
-    "elapsed": 1650.3067014217377,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 287.9303,
-    "throughput_tps": 287.9303,
+    "demand_tps": 271.0643,
+    "throughput_tps": 271.0643,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 263
+    "total_requests": 260
   },
   {
-    "elapsed": 1655.3147358894348,
-    "phase": "ramp-down 2",
+    "elapsed": 1375.3783073425293,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 271.7515,
-    "throughput_tps": 271.7515,
+    "demand_tps": 277.8609,
+    "throughput_tps": 277.8609,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 270
+    "total_requests": 266
   },
   {
-    "elapsed": 1660.3212711811066,
-    "phase": "ramp-down 2",
+    "elapsed": 1380.38334774971,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 255.9271,
-    "throughput_tps": 255.9271,
+    "demand_tps": 228.1696,
+    "throughput_tps": 228.1696,
+    "hourly_cost": 0.5,
+    "active_requests": 6,
+    "total_requests": 272
+  },
+  {
+    "elapsed": 1385.388093471527,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 262.9463,
+    "throughput_tps": 262.9463,
     "hourly_cost": 0.5,
     "active_requests": 6,
     "total_requests": 277
   },
   {
-    "elapsed": 1665.3280878067017,
-    "phase": "ramp-down 2",
+    "elapsed": 1390.3936722278595,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 283.9021,
-    "throughput_tps": 283.9021,
+    "demand_tps": 276.9342,
+    "throughput_tps": 276.9342,
     "hourly_cost": 0.5,
     "active_requests": 6,
-    "total_requests": 281
+    "total_requests": 280
   },
   {
-    "elapsed": 1670.334342956543,
-    "phase": "ramp-down 2",
+    "elapsed": 1395.3981850147247,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
-    "demand_tps": 243.9866,
-    "throughput_tps": 243.9866,
+    "demand_tps": 282.0254,
+    "throughput_tps": 282.0254,
     "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 287
+    "active_requests": 5,
+    "total_requests": 286
   },
   {
-    "elapsed": 1675.3408553600311,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_48",
-    "demand_tps": 157.9307,
-    "throughput_tps": 157.9307,
-    "hourly_cost": 0.5,
-    "active_requests": 6,
-    "total_requests": 296
-  },
-  {
-    "elapsed": 1680.3465898036957,
-    "phase": "ramp-down 2",
+    "elapsed": 1400.4043378829956,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
     "active_requests": 5,
-    "total_requests": 343
+    "total_requests": 304
   },
   {
-    "elapsed": 1685.3530654907227,
-    "phase": "ramp-down 2",
+    "elapsed": 1405.409146308899,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_48",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.5,
+    "active_requests": 5,
+    "total_requests": 352
+  },
+  {
+    "elapsed": 1410.4143273830414,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
     "active_requests": 0,
-    "total_requests": 396
+    "total_requests": 401
   },
   {
-    "elapsed": 1690.3593335151672,
-    "phase": "ramp-down 2",
+    "elapsed": 1415.4204251766205,
+    "phase": "ramp-down 1",
     "config_id": "cpu_48",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.5,
     "active_requests": 0,
-    "total_requests": 402
+    "total_requests": 401
   },
   {
-    "elapsed": 1695.367075920105,
-    "phase": "ramp-down 2",
+    "elapsed": 1420.431143283844,
+    "phase": "ramp-down 1",
     "config_id": "cpu_16",
-    "demand_tps": 185.8958,
-    "throughput_tps": 185.8958,
+    "demand_tps": 185.813,
+    "throughput_tps": 185.813,
     "hourly_cost": 0.17,
     "active_requests": 6,
     "total_requests": 6
   },
   {
-    "elapsed": 1700.374447107315,
-    "phase": "ramp-down 2",
+    "elapsed": 1425.43834233284,
+    "phase": "ramp-down 1",
     "config_id": "cpu_16",
-    "demand_tps": 186.014,
-    "throughput_tps": 186.014,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 1705.385113477707,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 186.0051,
-    "throughput_tps": 186.0051,
+    "demand_tps": 161.8908,
+    "throughput_tps": 161.8908,
     "hourly_cost": 0.17,
     "active_requests": 6,
     "total_requests": 12
   },
   {
-    "elapsed": 1710.3920929431915,
-    "phase": "ramp-down 2",
+    "elapsed": 1430.4460237026215,
+    "phase": "ramp-down 1",
     "config_id": "cpu_16",
-    "demand_tps": 184.0383,
-    "throughput_tps": 184.0383,
+    "demand_tps": 184.9535,
+    "throughput_tps": 184.9535,
+    "hourly_cost": 0.17,
+    "active_requests": 6,
+    "total_requests": 14
+  },
+  {
+    "elapsed": 1435.453505039215,
+    "phase": "ramp-down 1",
+    "config_id": "cpu_16",
+    "demand_tps": 185.8688,
+    "throughput_tps": 185.8688,
     "hourly_cost": 0.17,
     "active_requests": 6,
     "total_requests": 18
   },
   {
-    "elapsed": 1715.3982195854187,
+    "elapsed": 1440.0364184379578,
     "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 183.0756,
-    "throughput_tps": 183.0756,
+    "demand_tps": 185.8311,
+    "throughput_tps": 185.8311,
     "hourly_cost": 0.17,
     "active_requests": 6,
-    "total_requests": 20
+    "total_requests": 22
   },
   {
-    "elapsed": 1720.4049730300903,
+    "elapsed": 1445.0469374656677,
     "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 176.9052,
-    "throughput_tps": 176.9052,
+    "demand_tps": 105.0013,
+    "throughput_tps": 105.0013,
     "hourly_cost": 0.17,
-    "active_requests": 6,
+    "active_requests": 5,
+    "total_requests": 23
+  },
+  {
+    "elapsed": 1450.0547964572906,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 61.9801,
+    "throughput_tps": 61.9801,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 23
+  },
+  {
+    "elapsed": 1455.061686038971,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 23
+  },
+  {
+    "elapsed": 1460.0716750621796,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 23
+  },
+  {
+    "elapsed": 1465.0774612426758,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 23
+  },
+  {
+    "elapsed": 1470.083684682846,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1475.0902125835419,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 61.9263,
+    "throughput_tps": 61.9263,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1480.0961627960205,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1485.1060910224915,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1490.1118195056915,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1495.121868133545,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 24
+  },
+  {
+    "elapsed": 1500.1281325817108,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
     "total_requests": 25
   },
   {
-    "elapsed": 1725.412316083908,
+    "elapsed": 1505.1344554424286,
     "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 186.0323,
-    "throughput_tps": 186.0323,
+    "demand_tps": 61.9842,
+    "throughput_tps": 61.9842,
     "hourly_cost": 0.17,
-    "active_requests": 6,
+    "active_requests": 0,
+    "total_requests": 25
+  },
+  {
+    "elapsed": 1510.1419551372528,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 25
+  },
+  {
+    "elapsed": 1515.1517071723938,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 25
+  },
+  {
+    "elapsed": 1520.1575841903687,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 25
+  },
+  {
+    "elapsed": 1525.1674628257751,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 25
+  },
+  {
+    "elapsed": 1530.1746954917908,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 2.9974,
+    "throughput_tps": 2.9974,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1535.1816577911377,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 6.998,
+    "throughput_tps": 6.998,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1540.1878917217255,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1545.1974625587463,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1550.2031450271606,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1555.2145781517029,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 26
+  },
+  {
+    "elapsed": 1560.220755815506,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 4.001,
+    "throughput_tps": 4.001,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1565.227566242218,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1570.2342562675476,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1575.2442798614502,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1580.2500476837158,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1585.2600090503693,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 27
+  },
+  {
+    "elapsed": 1590.268392086029,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 3.9988,
+    "throughput_tps": 3.9988,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
     "total_requests": 28
   },
   {
-    "elapsed": 1730.420639038086,
+    "elapsed": 1595.2746920585632,
     "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 176.9188,
-    "throughput_tps": 176.9188,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 32
-  },
-  {
-    "elapsed": 1735.4275233745575,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 182.0244,
-    "throughput_tps": 182.0244,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 36
-  },
-  {
-    "elapsed": 1740.434100151062,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 171.008,
-    "throughput_tps": 171.008,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 39
-  },
-  {
-    "elapsed": 1745.4397132396698,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 177.925,
-    "throughput_tps": 177.925,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 44
-  },
-  {
-    "elapsed": 1750.4481744766235,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 183.9633,
-    "throughput_tps": 183.9633,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 46
-  },
-  {
-    "elapsed": 1755.4546978473663,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 171.0004,
-    "throughput_tps": 171.0004,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 51
-  },
-  {
-    "elapsed": 1760.461752653122,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 176.9809,
-    "throughput_tps": 176.9809,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 53
-  },
-  {
-    "elapsed": 1765.4685332775116,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 178.932,
-    "throughput_tps": 178.932,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 58
-  },
-  {
-    "elapsed": 1770.475358247757,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 188.0706,
-    "throughput_tps": 188.0706,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 62
-  },
-  {
-    "elapsed": 1775.4824483394623,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 192.0248,
-    "throughput_tps": 192.0248,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 65
-  },
-  {
-    "elapsed": 1780.4897680282593,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 177.0458,
-    "throughput_tps": 177.0458,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 70
-  },
-  {
-    "elapsed": 1785.496060371399,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 170.9612,
-    "throughput_tps": 170.9612,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 72
-  },
-  {
-    "elapsed": 1790.5035841464996,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 191.9368,
-    "throughput_tps": 191.9368,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 76
-  },
-  {
-    "elapsed": 1795.5105347633362,
-    "phase": "ramp-down 2",
-    "config_id": "cpu_16",
-    "demand_tps": 187.9404,
-    "throughput_tps": 187.9404,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 80
-  },
-  {
-    "elapsed": 1800.070996761322,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 170.9455,
-    "throughput_tps": 170.9455,
-    "hourly_cost": 0.17,
-    "active_requests": 13,
-    "total_requests": 91
-  },
-  {
-    "elapsed": 1805.0774147510529,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 210.061,
-    "throughput_tps": 210.061,
-    "hourly_cost": 0.17,
-    "active_requests": 13,
-    "total_requests": 93
-  },
-  {
-    "elapsed": 1810.0840804576874,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 178.8766,
-    "throughput_tps": 178.8766,
-    "hourly_cost": 0.17,
-    "active_requests": 11,
-    "total_requests": 95
-  },
-  {
-    "elapsed": 1815.0947351455688,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 166.0572,
-    "throughput_tps": 166.0572,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 95
-  },
-  {
-    "elapsed": 1820.1009275913239,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 200.0257,
-    "throughput_tps": 200.0257,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 101
-  },
-  {
-    "elapsed": 1825.1104617118835,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 208.0847,
-    "throughput_tps": 208.0847,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 103
-  },
-  {
-    "elapsed": 1830.1205863952637,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 216.0529,
-    "throughput_tps": 216.0529,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 109
-  },
-  {
-    "elapsed": 1835.130322933197,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 200.072,
-    "throughput_tps": 200.072,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 112
-  },
-  {
-    "elapsed": 1840.1373529434204,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.8807,
-    "throughput_tps": 215.8807,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 119
-  },
-  {
-    "elapsed": 1845.1477811336517,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.7662,
-    "throughput_tps": 215.7662,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 124
-  },
-  {
-    "elapsed": 1850.1542727947235,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 213.0465,
-    "throughput_tps": 213.0465,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 127
-  },
-  {
-    "elapsed": 1855.1613674163818,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 188.9216,
-    "throughput_tps": 188.9216,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 133
-  },
-  {
-    "elapsed": 1860.1671640872955,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.7309,
-    "throughput_tps": 215.7309,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 135
-  },
-  {
-    "elapsed": 1865.1753582954407,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9114,
-    "throughput_tps": 215.9114,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 142
-  },
-  {
-    "elapsed": 1870.1837537288666,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.9839,
-    "throughput_tps": 196.9839,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 145
-  },
-  {
-    "elapsed": 1875.1917488574982,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.8769,
-    "throughput_tps": 207.8769,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 151
-  },
-  {
-    "elapsed": 1880.1999616622925,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 194.0195,
-    "throughput_tps": 194.0195,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 153
-  },
-  {
-    "elapsed": 1885.2059819698334,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.7729,
-    "throughput_tps": 215.7729,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 159
-  },
-  {
-    "elapsed": 1890.2132115364075,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 188.9687,
-    "throughput_tps": 188.9687,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 162
-  },
-  {
-    "elapsed": 1895.2210540771484,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9044,
-    "throughput_tps": 215.9044,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 168
-  },
-  {
-    "elapsed": 1900.228411436081,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.8826,
-    "throughput_tps": 196.8826,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 172
-  },
-  {
-    "elapsed": 1905.234704732895,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.7893,
-    "throughput_tps": 215.7893,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 176
-  },
-  {
-    "elapsed": 1910.2416982650757,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.876,
-    "throughput_tps": 204.876,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 182
-  },
-  {
-    "elapsed": 1915.2474911212921,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 208.0492,
-    "throughput_tps": 208.0492,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 184
-  },
-  {
-    "elapsed": 1920.2539718151093,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 197.7303,
-    "throughput_tps": 197.7303,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 190
-  },
-  {
-    "elapsed": 1925.262410402298,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9326,
-    "throughput_tps": 215.9326,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 193
-  },
-  {
-    "elapsed": 1930.2702872753143,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 198.0114,
-    "throughput_tps": 198.0114,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 198
-  },
-  {
-    "elapsed": 1935.278971672058,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9416,
-    "throughput_tps": 215.9416,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 201
-  },
-  {
-    "elapsed": 1940.2869863510132,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.9941,
-    "throughput_tps": 196.9941,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 206
-  },
-  {
-    "elapsed": 1945.2960176467896,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 216.0578,
-    "throughput_tps": 216.0578,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 209
-  },
-  {
-    "elapsed": 1950.3040630817413,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 205.0393,
-    "throughput_tps": 205.0393,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 215
-  },
-  {
-    "elapsed": 1955.3111832141876,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.9347,
-    "throughput_tps": 204.9347,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 219
-  },
-  {
-    "elapsed": 1960.318838596344,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.878,
-    "throughput_tps": 215.878,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 223
-  },
-  {
-    "elapsed": 1965.324984073639,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 188.8762,
-    "throughput_tps": 188.8762,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 227
-  },
-  {
-    "elapsed": 1970.3323299884796,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 212.9322,
-    "throughput_tps": 212.9322,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 232
-  },
-  {
-    "elapsed": 1975.33855342865,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.8951,
-    "throughput_tps": 196.8951,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 236
-  },
-  {
-    "elapsed": 1980.345546722412,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 212.8897,
-    "throughput_tps": 212.8897,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 241
-  },
-  {
-    "elapsed": 1985.3521211147308,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.8108,
-    "throughput_tps": 215.8108,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 246
-  },
-  {
-    "elapsed": 1990.361020565033,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9474,
-    "throughput_tps": 215.9474,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 249
-  },
-  {
-    "elapsed": 1995.3678200244904,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.8628,
-    "throughput_tps": 204.8628,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 255
-  },
-  {
-    "elapsed": 2000.3769445419312,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.8913,
-    "throughput_tps": 215.8913,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 258
-  },
-  {
-    "elapsed": 2005.3838443756104,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 197.9717,
-    "throughput_tps": 197.9717,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 264
-  },
-  {
-    "elapsed": 2010.3958775997162,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 209.9417,
-    "throughput_tps": 209.9417,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 266
-  },
-  {
-    "elapsed": 2015.4022631645203,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.8704,
-    "throughput_tps": 196.8704,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 272
-  },
-  {
-    "elapsed": 2020.409922361374,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 216.0575,
-    "throughput_tps": 216.0575,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 275
-  },
-  {
-    "elapsed": 2025.4174785614014,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.9693,
-    "throughput_tps": 215.9693,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 281
-  },
-  {
-    "elapsed": 2030.4265205860138,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.8837,
-    "throughput_tps": 207.8837,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 283
-  },
-  {
-    "elapsed": 2035.4340975284576,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 220.0006,
-    "throughput_tps": 220.0006,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 291
-  },
-  {
-    "elapsed": 2040.4421236515045,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.7778,
-    "throughput_tps": 215.7778,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 293
-  },
-  {
-    "elapsed": 2045.4491305351257,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 215.0979,
-    "throughput_tps": 215.0979,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 300
-  },
-  {
-    "elapsed": 2050.457313299179,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.8629,
-    "throughput_tps": 207.8629,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 302
-  },
-  {
-    "elapsed": 2055.4664165973663,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 216.1126,
-    "throughput_tps": 216.1126,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 308
-  },
-  {
-    "elapsed": 2060.473281145096,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.9334,
-    "throughput_tps": 207.9334,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 312
-  },
-  {
-    "elapsed": 2065.480666399002,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 217.8308,
-    "throughput_tps": 217.8308,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 318
-  },
-  {
-    "elapsed": 2070.4870014190674,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.9204,
-    "throughput_tps": 204.9204,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 320
-  },
-  {
-    "elapsed": 2075.494242668152,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 216.8868,
-    "throughput_tps": 216.8868,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 326
-  },
-  {
-    "elapsed": 2080.4998257160187,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.7489,
-    "throughput_tps": 204.7489,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 329
-  },
-  {
-    "elapsed": 2085.5057516098022,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 212.0318,
-    "throughput_tps": 212.0318,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 335
-  },
-  {
-    "elapsed": 2090.5121550559998,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.8804,
-    "throughput_tps": 207.8804,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 338
-  },
-  {
-    "elapsed": 2095.5185449123383,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 206.8409,
-    "throughput_tps": 206.8409,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 343
-  },
-  {
-    "elapsed": 2100.524786710739,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 207.9285,
-    "throughput_tps": 207.9285,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 348
-  },
-  {
-    "elapsed": 2105.531712293625,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 213.0208,
-    "throughput_tps": 213.0208,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 352
-  },
-  {
-    "elapsed": 2110.538868188858,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 188.9487,
-    "throughput_tps": 188.9487,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 356
-  },
-  {
-    "elapsed": 2115.5447537899017,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 202.9274,
-    "throughput_tps": 202.9274,
-    "hourly_cost": 0.17,
-    "active_requests": 7,
-    "total_requests": 361
-  },
-  {
-    "elapsed": 2120.551467180252,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 205.0033,
-    "throughput_tps": 205.0033,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 368
-  },
-  {
-    "elapsed": 2125.558839559555,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 196.9011,
-    "throughput_tps": 196.9011,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 370
-  },
-  {
-    "elapsed": 2130.5661985874176,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 193.9798,
-    "throughput_tps": 193.9798,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 377
-  },
-  {
-    "elapsed": 2135.5729722976685,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 197.1377,
-    "throughput_tps": 197.1377,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 380
-  },
-  {
-    "elapsed": 2140.579747438431,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.8087,
-    "throughput_tps": 204.8087,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 385
-  },
-  {
-    "elapsed": 2145.5856041908264,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 203.925,
-    "throughput_tps": 203.925,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 390
-  },
-  {
-    "elapsed": 2150.5921001434326,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 204.0079,
-    "throughput_tps": 204.0079,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 394
-  },
-  {
-    "elapsed": 2155.6008892059326,
-    "phase": "ramp-down 3",
-    "config_id": "cpu_16",
-    "demand_tps": 205.8238,
-    "throughput_tps": 205.8238,
-    "hourly_cost": 0.17,
-    "active_requests": 8,
-    "total_requests": 398
-  },
-  {
-    "elapsed": 2160.0614969730377,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_16",
-    "demand_tps": 216.1065,
-    "throughput_tps": 216.1065,
-    "hourly_cost": 0.17,
-    "active_requests": 6,
-    "total_requests": 401
-  },
-  {
-    "elapsed": 2165.072093963623,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_16",
-    "demand_tps": 137.9422,
-    "throughput_tps": 137.9422,
-    "hourly_cost": 0.17,
-    "active_requests": 5,
-    "total_requests": 402
-  },
-  {
-    "elapsed": 2170.0808460712433,
-    "phase": "ramp-down 4",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 402
+    "total_requests": 28
   },
   {
-    "elapsed": 2175.0892281532288,
-    "phase": "ramp-down 4",
+    "elapsed": 1600.282122373581,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 402
+    "total_requests": 28
   },
   {
-    "elapsed": 2180.0994374752045,
-    "phase": "ramp-down 4",
+    "elapsed": 1605.291957616806,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 402
+    "total_requests": 28
   },
   {
-    "elapsed": 2185.10808300972,
-    "phase": "ramp-down 4",
+    "elapsed": 1610.2976863384247,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 402
+    "total_requests": 28
   },
   {
-    "elapsed": 2190.1149456501007,
-    "phase": "ramp-down 4",
+    "elapsed": 1615.3076820373535,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 28
+  },
+  {
+    "elapsed": 1620.3140151500702,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 3.9979,
+    "throughput_tps": 3.9979,
     "hourly_cost": 0.17,
     "active_requests": 1,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2195.1261208057404,
-    "phase": "ramp-down 4",
+    "elapsed": 1625.3209626674652,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2200.1358499526978,
-    "phase": "ramp-down 4",
+    "elapsed": 1630.3277082443237,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2205.145437479019,
-    "phase": "ramp-down 4",
+    "elapsed": 1635.3374135494232,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2210.153346300125,
-    "phase": "ramp-down 4",
+    "elapsed": 1640.3434345722198,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2215.161393404007,
-    "phase": "ramp-down 4",
+    "elapsed": 1645.353313446045,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 29
   },
   {
-    "elapsed": 2220.1674058437347,
-    "phase": "ramp-down 4",
+    "elapsed": 1650.3594534397125,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 2.9976,
+    "throughput_tps": 2.9976,
+    "hourly_cost": 0.17,
+    "active_requests": 1,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1655.366719007492,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 2.9994,
+    "throughput_tps": 2.9994,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 30
   },
   {
-    "elapsed": 2225.1729979515076,
-    "phase": "ramp-down 4",
+    "elapsed": 1660.373803138733,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 30
   },
   {
-    "elapsed": 2230.184667825699,
-    "phase": "ramp-down 4",
+    "elapsed": 1665.3835124969482,
+    "phase": "ramp-down 2",
     "config_id": "cpu_16",
-    "demand_tps": 37.9725,
-    "throughput_tps": 37.9725,
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
     "hourly_cost": 0.17,
     "active_requests": 0,
-    "total_requests": 403
+    "total_requests": 30
   },
   {
-    "elapsed": 2235.195453643799,
-    "phase": "ramp-down 4",
+    "elapsed": 1670.3897235393524,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1675.3998453617096,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1680.4074926376343,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1685.413455247879,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1690.4236114025116,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1695.4337346553802,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1700.4441573619843,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1705.4542877674103,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1710.4603679180145,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_16",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.17,
+    "active_requests": 0,
+    "total_requests": 30
+  },
+  {
+    "elapsed": 1715.4667036533356,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4480,8 +3440,8 @@
     "total_requests": 0
   },
   {
-    "elapsed": 2240.2073273658752,
-    "phase": "ramp-down 4",
+    "elapsed": 1720.4778089523315,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4490,8 +3450,8 @@
     "total_requests": 0
   },
   {
-    "elapsed": 2245.217833518982,
-    "phase": "ramp-down 4",
+    "elapsed": 1725.488171339035,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4500,8 +3460,28 @@
     "total_requests": 0
   },
   {
-    "elapsed": 2250.225744485855,
-    "phase": "ramp-down 4",
+    "elapsed": 1730.4986600875854,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 0
+  },
+  {
+    "elapsed": 1735.509093284607,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_4",
+    "demand_tps": 0.0,
+    "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 0
+  },
+  {
+    "elapsed": 1740.515481710434,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4510,28 +3490,18 @@
     "total_requests": 1
   },
   {
-    "elapsed": 2255.2361102104187,
-    "phase": "ramp-down 4",
+    "elapsed": 1745.5259861946106,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
-    "demand_tps": 25.9813,
-    "throughput_tps": 25.9813,
+    "demand_tps": 27.9782,
+    "throughput_tps": 27.9782,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 1
   },
   {
-    "elapsed": 2260.2450563907623,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 1
-  },
-  {
-    "elapsed": 2265.253945827484,
-    "phase": "ramp-down 4",
+    "elapsed": 1750.5346174240112,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4540,8 +3510,8 @@
     "total_requests": 1
   },
   {
-    "elapsed": 2270.2641155719757,
-    "phase": "ramp-down 4",
+    "elapsed": 1755.5430986881256,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4550,8 +3520,8 @@
     "total_requests": 1
   },
   {
-    "elapsed": 2275.2724504470825,
-    "phase": "ramp-down 4",
+    "elapsed": 1760.5533072948456,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4560,58 +3530,48 @@
     "total_requests": 1
   },
   {
-    "elapsed": 2280.27849316597,
-    "phase": "ramp-down 4",
+    "elapsed": 1765.5606622695923,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
+    "hourly_cost": 0.04,
+    "active_requests": 0,
+    "total_requests": 1
+  },
+  {
+    "elapsed": 1770.567910194397,
+    "phase": "ramp-down 2",
+    "config_id": "cpu_4",
+    "demand_tps": 0.9997,
+    "throughput_tps": 0.9997,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 2
   },
   {
-    "elapsed": 2285.2889075279236,
-    "phase": "ramp-down 4",
+    "elapsed": 1775.578245639801,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
-    "demand_tps": 27.9853,
-    "throughput_tps": 27.9853,
+    "demand_tps": 26.9921,
+    "throughput_tps": 26.9921,
     "hourly_cost": 0.04,
     "active_requests": 1,
     "total_requests": 2
   },
   {
-    "elapsed": 2290.295385837555,
-    "phase": "ramp-down 4",
+    "elapsed": 1780.5853884220123,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
-    "demand_tps": 25.9894,
-    "throughput_tps": 25.9894,
+    "demand_tps": 6.996,
+    "throughput_tps": 6.996,
     "hourly_cost": 0.04,
     "active_requests": 0,
     "total_requests": 2
   },
   {
-    "elapsed": 2295.302982568741,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 2
-  },
-  {
-    "elapsed": 2300.313158273697,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 2
-  },
-  {
-    "elapsed": 2305.3204317092896,
-    "phase": "ramp-down 4",
+    "elapsed": 1785.5925517082214,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
@@ -4620,423 +3580,23 @@
     "total_requests": 2
   },
   {
-    "elapsed": 2310.3282375335693,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 2315.338620185852,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9776,
-    "throughput_tps": 27.9776,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 2320.345614671707,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.0023,
-    "throughput_tps": 27.0023,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 2325.351822376251,
-    "phase": "ramp-down 4",
+    "elapsed": 1790.6025857925415,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.04,
     "active_requests": 0,
-    "total_requests": 3
+    "total_requests": 2
   },
   {
-    "elapsed": 2330.3618381023407,
-    "phase": "ramp-down 4",
+    "elapsed": 1795.6088645458221,
+    "phase": "ramp-down 2",
     "config_id": "cpu_4",
     "demand_tps": 0.0,
     "throughput_tps": 0.0,
     "hourly_cost": 0.04,
     "active_requests": 0,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 2335.3680346012115,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 3
-  },
-  {
-    "elapsed": 2340.3741343021393,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2345.3845403194427,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9892,
-    "throughput_tps": 27.9892,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2350.3909838199615,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.0071,
-    "throughput_tps": 27.0071,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2355.3972368240356,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2360.4074642658234,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2365.415348291397,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 4
-  },
-  {
-    "elapsed": 2370.4214329719543,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 6.9999,
-    "throughput_tps": 6.9999,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2375.431668281555,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 26.9996,
-    "throughput_tps": 26.9996,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2380.438061237335,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 7.0007,
-    "throughput_tps": 7.0007,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2385.4445118904114,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2390.4546501636505,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2395.460904598236,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 5
-  },
-  {
-    "elapsed": 2400.4680049419403,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 6.997,
-    "throughput_tps": 6.997,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2405.4783976078033,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 28.0032,
-    "throughput_tps": 28.0032,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2410.4856321811676,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 5.0016,
-    "throughput_tps": 5.0016,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2415.495842218399,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2420.506940841675,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2425.5132598876953,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 6
-  },
-  {
-    "elapsed": 2430.5196526050568,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 7.0003,
-    "throughput_tps": 7.0003,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2435.5267498493195,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2440.533823490143,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2445.5439279079437,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2450.550351858139,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2455.5604763031006,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 7
-  },
-  {
-    "elapsed": 2460.566665649414,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 7.0002,
-    "throughput_tps": 7.0002,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2465.577070236206,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9794,
-    "throughput_tps": 27.9794,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2470.584225654602,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 4.995,
-    "throughput_tps": 4.995,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2475.5906252861023,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2480.6008512973785,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2485.6072130203247,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 8
-  },
-  {
-    "elapsed": 2490.616152524948,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 6.9994,
-    "throughput_tps": 6.9994,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 2495.625538110733,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 27.9961,
-    "throughput_tps": 27.9961,
-    "hourly_cost": 0.04,
-    "active_requests": 1,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 2500.63215136528,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 5.0007,
-    "throughput_tps": 5.0007,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 2505.640146970749,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 2510.6504294872284,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
-  },
-  {
-    "elapsed": 2515.6572020053864,
-    "phase": "ramp-down 4",
-    "config_id": "cpu_4",
-    "demand_tps": 0.0,
-    "throughput_tps": 0.0,
-    "hourly_cost": 0.04,
-    "active_requests": 0,
-    "total_requests": 9
+    "total_requests": 2
   }
 ]
