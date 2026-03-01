@@ -161,56 +161,50 @@ def fig_scaling_ladder():
 # Figure 5: Scaling demo workload profile
 # ---------------------------------------------------------------------------
 def fig_scaling_demo():
+    import matplotlib.patches as mpatches
+
     with open(ROOT / "benchmarks" / "thesis_figures" / "scaling_demo_data.json") as f:
         demo = json.load(f)
 
-    elapsed = [e["elapsed"] / 60.0 for e in demo]  # minutes
-    tps = [e["throughput_tps"] for e in demo]
-    active = [e["active_requests"] for e in demo]
+    t = np.array([e["elapsed"] / 60.0 for e in demo])  # minutes
+    demand = np.array([e["throughput_tps"] for e in demo])
+    configs = [e["config_id"] for e in demo]
+    config_idx = np.array([TIER_ORDER.index(c) if c in TIER_ORDER else -1
+                           for c in configs])
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
+
+    # Config step function with colored fill
+    for i in range(len(t) - 1):
+        c = configs[i]
+        ax.fill_between([t[i], t[i + 1]], [config_idx[i], config_idx[i + 1]],
+                        alpha=0.35, color=COLORS[c], step="post", zorder=2)
+    ax.step(t, config_idx, where="post", color="#333", linewidth=1.8, zorder=3)
+
+    # Demand on twin axis
     ax2 = ax.twinx()
+    ax2.plot(t, demand, color="#e15759", linewidth=1.2, alpha=0.85, zorder=4)
+    ax2.fill_between(t, demand, alpha=0.06, color="#e15759")
+    ax2.set_ylabel("Aggregate Throughput (tok/s)", color="#e15759")
+    ax2.tick_params(axis="y", labelcolor="#e15759")
 
-    # Draw background spans colored by active config
-    prev_cfg = demo[0]["config_id"]
-    span_start = elapsed[0]
-    # Track which configs we've already added to legend
-    legend_added: set[str] = set()
-    for i in range(1, len(demo)):
-        cur_cfg = demo[i]["config_id"]
-        if cur_cfg != prev_cfg or i == len(demo) - 1:
-            lbl = LABELS[prev_cfg] if prev_cfg not in legend_added else None
-            ax.axvspan(span_start, elapsed[i], alpha=0.25, color=COLORS[prev_cfg],
-                       label=lbl)
-            legend_added.add(prev_cfg)
-            span_start = elapsed[i]
-            prev_cfg = cur_cfg
-    # Final span
-    if prev_cfg not in legend_added:
-        lbl = LABELS[prev_cfg]
-    else:
-        lbl = None
-    ax.axvspan(span_start, elapsed[-1], alpha=0.25, color=COLORS[prev_cfg],
-               label=lbl)
-
-    # Plot aggregate throughput line
-    ax.plot(elapsed, tps, color="black", linewidth=0.8, alpha=0.9,
-            label="Aggregate tok/s")
-    # Plot active requests on secondary axis
-    ax2.plot(elapsed, active, color="gray", linewidth=0.6, alpha=0.5,
-             linestyle="--", label="Active requests")
-    ax2.set_ylabel("Active Requests", color="gray")
-    ax2.tick_params(axis="y", labelcolor="gray")
+    # Scaling event vertical lines
+    for i in range(1, len(configs)):
+        if configs[i] != configs[i - 1]:
+            ax.axvline(t[i], color="red", linestyle="--", alpha=0.3,
+                       linewidth=1, zorder=1)
 
     ax.set_xlabel("Elapsed Time (minutes)")
-    ax.set_ylabel("Aggregate Throughput (tok/s)")
-    ax.set_title("Scaling Demo: Throughput and Hardware Transitions")
-    ax.set_xlim(elapsed[0], elapsed[-1])
-    ax.set_ylim(bottom=0)
-    # Combined legend
-    lines1, labels1 = ax.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    ax.legend(lines1 + lines2, labels1 + labels2, loc="upper right", fontsize=7)
+    ax.set_ylabel("Hardware Configuration")
+    ax.set_yticks(range(len(TIER_ORDER)))
+    ax.set_yticklabels([LABELS[c] for c in TIER_ORDER], fontsize=8)
+    ax.set_ylim(-0.5, len(TIER_ORDER) - 0.5)
+    ax.set_xlim(t[0], t[-1])
+    ax.set_title("Scaling Demo: Hardware Transitions under Varying Load")
+
+    patches = [mpatches.Patch(color=COLORS[c], label=LABELS[c], alpha=0.5)
+               for c in TIER_ORDER]
+    ax.legend(handles=patches, loc="upper left", fontsize=7, ncol=2)
     ax.grid(True, alpha=0.3)
     _save(fig, "eval_scaling_demo")
 
