@@ -34,6 +34,15 @@
       "tier_order": 3
     },
     {
+      "config_id": "gpu_10",
+      "cpu_cores": 48,
+      "memory": "16g",
+      "gpu_percentage": 10,
+      "hourly_cost": 0.036,
+      "parallel_slots": 16,
+      "tier_order": 3
+    },
+    {
       "config_id": "gpu_100",
       "cpu_cores": 48,
       "memory": "16g",
