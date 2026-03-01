@@ -165,10 +165,7 @@ def fig_scaling_demo():
         demo = json.load(f)
 
     elapsed = [e["elapsed"] / 60.0 for e in demo]  # minutes
-    # Per-request TPS = aggregate / active_requests (what the autoscaler uses)
-    per_req_tps = [
-        e["throughput_tps"] / max(e["active_requests"], 1) for e in demo
-    ]
+    tps = [e["throughput_tps"] for e in demo]
     active = [e["active_requests"] for e in demo]
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
@@ -196,9 +193,9 @@ def fig_scaling_demo():
     ax.axvspan(span_start, elapsed[-1], alpha=0.25, color=COLORS[prev_cfg],
                label=lbl)
 
-    # Plot per-request throughput line
-    ax.plot(elapsed, per_req_tps, color="black", linewidth=0.8, alpha=0.9,
-            label="Per-request tok/s")
+    # Plot aggregate throughput line
+    ax.plot(elapsed, tps, color="black", linewidth=0.8, alpha=0.9,
+            label="Aggregate tok/s")
     # Plot active requests on secondary axis
     ax2.plot(elapsed, active, color="gray", linewidth=0.6, alpha=0.5,
              linestyle="--", label="Active requests")
@@ -206,8 +203,8 @@ def fig_scaling_demo():
     ax2.tick_params(axis="y", labelcolor="gray")
 
     ax.set_xlabel("Elapsed Time (minutes)")
-    ax.set_ylabel("Per-Request Throughput (tok/s)")
-    ax.set_title("Scaling Demo: Per-Request Throughput and Hardware Transitions")
+    ax.set_ylabel("Aggregate Throughput (tok/s)")
+    ax.set_title("Scaling Demo: Throughput and Hardware Transitions")
     ax.set_xlim(elapsed[0], elapsed[-1])
     ax.set_ylim(bottom=0)
     # Combined legend
