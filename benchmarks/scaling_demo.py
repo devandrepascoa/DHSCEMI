@@ -6,7 +6,7 @@ Starts the main cost-aware server and drives it through the full
 vertical scaling staircase:
   cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100 → gpu_25 → cpu_48 → cpu_16 → cpu_4
 
-Server config: cooldown=60s (up), cooldown_down=300s (down), EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
+Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
 
 Configs (measured throughput from benchmark):
   cpu_4:    92.2 tok/s  ($0.05/hr)  — peak at batch=32
@@ -112,12 +112,14 @@ PHASE_COLORS = {
 #
 # Scale-down triggers when per_request_tps >= 10.0
 #   AND lower config can serve current concurrency above threshold (1.5x margin)
-# For scale-down we use 6 workers (phases 5-7) and 4 workers (phase 8).
+# For scale-down we use 6 workers (phases 5-6), 8 workers (phase 7),
+# and 1 worker at 2 rpm (phase 8).
 #
 # Viability checks for each step down:
 #   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
 #   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓  (6 workers)
-#   gpu_25  → cpu_16: 291.2/6 = 48.5 >= 15 ✓  (6 workers)
+#   gpu_25  → cpu_16: 291.2/8 = 36.4 >= 15 ✓  (8 workers)
+#   cpu_16  → cpu_4:  92.2/8  = 11.5 <  15 ✗  (8 workers — blocked!)
 #   cpu_16  → cpu_4:  92.2/1  = 92.2 >= 15 ✓  (1 worker, rate-limited)
 #
 # For the scale-up phases, we use 4 min (240s) to allow time for:
@@ -128,7 +130,7 @@ PHASE_COLORS = {
 #   - Stabilization on target config
 #
 # For scale-down, we use 6 min (360s) to allow time for:
-#   - Cooldown (300s)
+#   - Cooldown (240s)
 #   - Container swap (~30-60s)
 #   - EMA convergence on new tier
 
@@ -164,17 +166,20 @@ PHASES = [
     ("ramp-down 2",    360,   6,   0),
 
     # Phase 7: Ramp-down — scale from gpu_25 to cpu_16
-    # 6 workers back-to-back → gpu_25: ~278 tok/s, per-req ~46 >> 10
-    # Viability: cpu_16 291.2/6 = 48.5 >= 15 → scale down
-    ("ramp-down 3",    360,   6,   0),
+    # 8 workers back-to-back → gpu_25: ~335 tok/s, per-req ~42 >> 10
+    # Viability: cpu_16 291.2/8 = 36.4 >= 15 → scale down ✓
+    # Viability: cpu_4  92.2/8  = 11.5 <  15 → blocked ✗ (prevents premature drop)
+    ("ramp-down 3",    360,   8,   0),
 
     # Phase 8: Ramp-down — scale from cpu_16 to cpu_4
-    # 1 worker at 3 rpm → cpu_16: per-req ~63 tok/s >> 10
+    # 1 worker at 2 rpm → cpu_16: per-req ~63 tok/s >> 10
     # Viability: cpu_4 92.2/1 = 92.2 >= 15 → scale down
     # NOTE: Using rate-limited requests (not back-to-back) to keep cpu_4 stable.
-    # Back-to-back workers (even 2) cause per-req EMA to dip near threshold
-    # during container swap, triggering a re-scale-up.
-    ("ramp-down 4",    360,   1,   3),
+    # Back-to-back workers cause per-req EMA to dip near threshold during
+    # container swap, triggering a re-scale-up.
+    # 2 rpm (30s interval) gives ~11s window where recently_active=false,
+    # enough for the 10s scaling check to trigger scale-down.
+    ("ramp-down 4",    360,   1,   2),
 ]
 
 EXPECTED_SEQUENCE = [
@@ -682,7 +687,7 @@ async def main() -> None:
     env["E2E_MODELS_DIR"] = str(Path("models").resolve())
     env["E2E_INITIAL_CONFIG"] = "cpu_4"
     env["E2E_COOLDOWN"] = "60"
-    env["E2E_COOLDOWN_DOWN"] = "300"
+    env["E2E_COOLDOWN_DOWN"] = "240"
     env["E2E_EMA_WINDOW"] = "30"
     env["E2E_MIN_TPS"] = "10.0"
     env["E2E_SCALE_DOWN_CONCURRENCY"] = "5.0"
@@ -705,7 +710,7 @@ async def main() -> None:
             for cid, t in MEASURED_THROUGHPUT.items()
         },
         "cooldown_s": 60,
-        "cooldown_down_s": 300,
+        "cooldown_down_s": 240,
         "ema_window_s": 30,
         "min_tps_threshold": 10.0,
         "scale_down_concurrency": 5.0,
