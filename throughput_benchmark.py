@@ -5,6 +5,7 @@ Tests CPU and GPU configs with varying batch sizes to measure aggregate tokens/s
 """
 from __future__ import annotations
 
+import argparse
 import asyncio
 import subprocess
 import time
@@ -281,6 +282,17 @@ def stop_container(container_name: str):
 
 
 async def main():
+    parser = argparse.ArgumentParser(description="Benchmark throughput for hardware configs")
+    parser.add_argument("--config", help="Run only this config_id (e.g. gpu_25)")
+    args = parser.parse_args()
+
+    configs_to_run = CONFIGS
+    if args.config:
+        configs_to_run = [c for c in CONFIGS if c.config_id == args.config]
+        if not configs_to_run:
+            print(f"Unknown config: {args.config}. Available: {[c.config_id for c in CONFIGS]}")
+            return
+
     print("=" * 70)
     print("Hardware Configuration Throughput Benchmark (Adaptive Batch Sizing)")
     print("=" * 70)
@@ -291,12 +303,14 @@ async def main():
     print(f"Max batch size: {MAX_BATCH_SIZE}")
     print(f"Rounds per batch: {NUM_REQUESTS} (+ {WARMUP_REQUESTS} warmup)")
     print(f"Timeout per batch: {BATCH_TIMEOUT}s")
+    if args.config:
+        print(f"Running only: {args.config}")
     print()
 
     # results[config_id][batch_size] = BenchmarkResult
     results = {}
 
-    for config in CONFIGS:
+    for config in configs_to_run:
         print(f"\n{'='*50}")
         print(f"Config: {config.config_id} (parallel_slots={config.parallel_slots})")
         print(f"{'='*50}")
@@ -370,7 +384,7 @@ async def main():
     print(header)
     print("-" * (12 + 18 * len(all_batch_sizes) + 10))
 
-    for config in CONFIGS:
+    for config in configs_to_run:
         line = f"{config.config_id:<12}"
         peak_tps = 0.0
         for bs in all_batch_sizes:
@@ -383,18 +397,23 @@ async def main():
         line += f"{peak_tps:>8.1f} t/s"
         print(line)
 
-    # Save to JSON
-    output = {
-        "model": MODEL_NAME,
-        "max_tokens": MAX_TOKENS,
-        "adaptive_batch_sizing": True,
-        "plateau_threshold": PLATEAU_THRESHOLD,
-        "max_batch_size": MAX_BATCH_SIZE,
-        "rounds_per_batch": NUM_REQUESTS,
-        "warmup_requests": WARMUP_REQUESTS,
-        "prompt": PROMPT,
-        "results": {}
-    }
+    # Save to JSON — merge with existing results if running a single config
+    output_path = Path("throughput_benchmark_results.json")
+    if args.config and output_path.exists():
+        with open(output_path) as f:
+            output = json.load(f)
+    else:
+        output = {
+            "model": MODEL_NAME,
+            "max_tokens": MAX_TOKENS,
+            "adaptive_batch_sizing": True,
+            "plateau_threshold": PLATEAU_THRESHOLD,
+            "max_batch_size": MAX_BATCH_SIZE,
+            "rounds_per_batch": NUM_REQUESTS,
+            "warmup_requests": WARMUP_REQUESTS,
+            "prompt": PROMPT,
+            "results": {}
+        }
     for cid, batch_results in results.items():
         output["results"][cid] = {}
         peak = 0.0
@@ -411,9 +430,9 @@ async def main():
             peak = max(peak, r.tokens_per_second)
         output["results"][cid]["peak_tokens_per_second"] = round(peak, 2)
 
-    with open("throughput_benchmark_results.json", "w") as f:
+    with open(output_path, "w") as f:
         json.dump(output, f, indent=2)
-    print(f"\nResults saved to throughput_benchmark_results.json")
+    print(f"\nResults saved to {output_path}")
 
 
 if __name__ == "__main__":
