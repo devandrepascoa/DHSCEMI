@@ -183,15 +183,15 @@ def fig_scaling_demo():
 
     # Demand on twin axis
     ax2 = ax.twinx()
-    ax2.plot(t, demand, color="#e15759", linewidth=1.2, alpha=0.85, zorder=4)
-    ax2.fill_between(t, demand, alpha=0.06, color="#e15759")
-    ax2.set_ylabel("Aggregate Throughput (tok/s)", color="#e15759")
-    ax2.tick_params(axis="y", labelcolor="#e15759")
+    ax2.plot(t, demand, color="#555555", linewidth=1.0, alpha=0.7, zorder=4)
+    ax2.fill_between(t, demand, alpha=0.05, color="#555555")
+    ax2.set_ylabel("Aggregate Throughput (tok/s)", color="#555555")
+    ax2.tick_params(axis="y", labelcolor="#555555")
 
     # Scaling event vertical lines
     for i in range(1, len(configs)):
         if configs[i] != configs[i - 1]:
-            ax.axvline(t[i], color="red", linestyle="--", alpha=0.3,
+            ax.axvline(t[i], color="#888888", linestyle="--", alpha=0.4,
                        linewidth=1, zorder=1)
 
     ax.set_xlabel("Elapsed Time (minutes)")
