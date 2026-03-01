@@ -31,14 +31,14 @@ TIER_ORDER = sorted(CONFIGS.keys(), key=lambda c: CONFIGS[c]["tier_order"])
 
 # Single blue gradient for all configs (tier-order: lightest = lowest tier)
 _cmap = plt.cm.Blues  # type: ignore[attr-defined]
-_gradient_vals = [0.3 + 0.55 * i / 4 for i in range(5)]
+_n = len(TIER_ORDER)
+_gradient_vals = [0.3 + 0.55 * i / max(_n - 1, 1) for i in range(_n)]
 COLORS = {c: _cmap(v) for c, v in zip(TIER_ORDER, _gradient_vals)}
 
 LABELS = {
     "cpu_4": "cpu_4 (4 cores)",
     "cpu_16": "cpu_16 (16 cores)",
     "cpu_48": "cpu_48 (48 cores)",
-    "gpu_25": "gpu_25 (25% GPU)",
     "gpu_100": "gpu_100 (100% GPU)",
 }
 
@@ -64,7 +64,7 @@ def _save(fig, name: str):
 # ---------------------------------------------------------------------------
 def fig_throughput_vs_batch():
     fig, ax = plt.subplots(figsize=(6, 3.5))
-    for cfg in ["cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100"]:
+    for cfg in TIER_ORDER:
         data = bench["results"][cfg]
         batches = sorted(int(k) for k in data if k != "peak_tokens_per_second")
         tps = [data[str(b)]["tokens_per_second"] for b in batches]
@@ -85,7 +85,7 @@ def fig_throughput_vs_batch():
 # ---------------------------------------------------------------------------
 def fig_peak_throughput():
     fig, ax = plt.subplots(figsize=(6, 3))
-    cfgs = ["cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100"]
+    cfgs = TIER_ORDER
     peaks = [MEASURED[c] for c in cfgs]
     bars = ax.bar(range(len(cfgs)), peaks,
                   color=[COLORS[c] for c in cfgs], edgecolor="white", width=0.6)
@@ -106,7 +106,7 @@ def fig_peak_throughput():
 def fig_cost_per_token_vs_demand():
     fig, ax = plt.subplots(figsize=(6, 3.5))
     demand_range = np.linspace(1, 1600, 500)
-    for cfg in ["cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100"]:
+    for cfg in TIER_ORDER:
         cost_h = CONFIGS[cfg]["hourly_cost"]
         peak = MEASURED[cfg]
         # Cost per token only valid up to peak throughput
