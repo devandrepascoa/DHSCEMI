@@ -6,18 +6,18 @@ Starts the main cost-aware server and drives it through the full
 vertical scaling staircase:
   cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100 → gpu_25 → cpu_48 → cpu_16 → cpu_4
 
-Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
+Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=15.0, SCALE_DOWN_CONCURRENCY=5.0
 
 Configs (measured throughput from benchmark):
-  cpu_4:    92.2 tok/s  ($0.05/hr)  — peak at batch=32
-  cpu_16:  291.2 tok/s  ($0.15/hr)  — peak at batch=32
-  cpu_48:  446.2 tok/s  ($0.45/hr)  — peak at batch=64
-  gpu_25:  335.8 tok/s  ($0.50/hr)  — peak at batch=16
-  gpu_100: 1573.9 tok/s ($4.00/hr)  — peak at batch=64
+  cpu_4:    92.2 tok/s  ($0.04/hr)  — peak at batch=32
+  cpu_16:  291.2 tok/s  ($0.17/hr)  — peak at batch=32
+  cpu_48:  446.2 tok/s  ($0.50/hr)  — peak at batch=64
+  gpu_25:  392.4 tok/s  ($0.09/hr)  — peak at batch=16
+  gpu_100: 1573.9 tok/s ($0.36/hr)  — peak at batch=64
 
 Scaling signal: per-request tok/s EMA.
-  Scale UP:   per_request_tps_ema < MIN_TPS (10.0)
-  Scale DOWN: per_request_tps_ema >= MIN_TPS AND active_requests_ema <= 5.0
+  Scale UP:   per_request_tps_ema < MIN_TPS (15.0)
+  Scale DOWN: per_request_tps_ema >= MIN_TPS AND viability check passes
 
 Per-request tok/s ≈ capacity / concurrency.
   To overwhelm config X: need concurrency > capacity_X / MIN_TPS
