@@ -184,13 +184,19 @@ async def main():
     env["E2E_SCALE_DOWN_CONCURRENCY"] = "5.0"
     env["E2E_RECENT_ACTIVITY_WINDOW"] = "15.0"
 
+    log_dir = Path(__file__).parent / "scaling_demo_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    server_log_path = log_dir / f"test_rampdown3_4_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    server_log_file = open(server_log_path, "w")
+
     log(f"Starting server on port {port} with INITIAL_CONFIG=gpu_25")
+    log(f"Server log → {server_log_path}")
 
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn",
          "main_cost_aware:app",
          "--host", "0.0.0.0", "--port", str(port)],
-        env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        env=env, stdout=server_log_file, stderr=subprocess.STDOUT,
     )
 
     # Wait for healthy
@@ -263,6 +269,7 @@ async def main():
         log(f"FAIL — expected {expected}, got {actual}")
 
     # Cleanup
+    server_log_file.close()
     proc.send_signal(signal.SIGINT)
     try:
         proc.wait(timeout=15)
