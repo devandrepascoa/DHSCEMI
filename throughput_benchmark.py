@@ -284,6 +284,8 @@ def stop_container(container_name: str):
 async def main():
     parser = argparse.ArgumentParser(description="Benchmark throughput for hardware configs")
     parser.add_argument("--config", help="Run only this config_id (e.g. gpu_25)")
+    parser.add_argument("--no-plateau", action="store_true", help="Disable plateau detection, test all batch sizes up to max")
+    parser.add_argument("--max-batch", type=int, default=MAX_BATCH_SIZE, help="Maximum batch size to test")
     args = parser.parse_args()
 
     configs_to_run = CONFIGS
@@ -333,7 +335,7 @@ async def main():
                 print(f"  ERROR: Container failed to start")
                 continue
 
-            while batch_size <= MAX_BATCH_SIZE:
+            while batch_size <= args.max_batch:
                 print(f"\n  --- {config.config_id} | batch_size={batch_size} (parallel={config.parallel_slots}) ---")
                 result = await benchmark_batch(port, batch_size)
                 result.config_id = config.config_id
@@ -346,7 +348,7 @@ async def main():
                     improvement = (curr_tps - prev_tps) / prev_tps
                     print(f"  Throughput: {curr_tps:.1f} tok/s "
                           f"(+{improvement*100:.1f}% vs batch={batch_size // 2 if batch_size > 1 else 1})")
-                    if improvement < PLATEAU_THRESHOLD:
+                    if not args.no_plateau and improvement < PLATEAU_THRESHOLD:
                         print(f"  PLATEAU reached at batch_size={batch_size} "
                               f"({improvement*100:.1f}% < {PLATEAU_THRESHOLD*100:.0f}% threshold)")
                         break
