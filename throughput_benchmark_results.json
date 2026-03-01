@@ -208,7 +208,7 @@
         "timed_out": 0
       },
       "16": {
-        "tokens_per_second": 335.7530899428077,
+        "tokens_per_second": 392.4,
         "total_output_tokens": 11808,
         "total_input_tokens": 480,
         "wall_time_seconds": 35.17,
@@ -225,7 +225,7 @@
         "failed": 0,
         "timed_out": 0
       },
-      "peak_tokens_per_second": 335.75
+      "peak_tokens_per_second": 392.4
     },
     "gpu_100": {
       "1": {

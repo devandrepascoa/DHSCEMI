@@ -29,11 +29,11 @@ from main_cost_aware import (
 # Helpers
 # ---------------------------------------------------------------------------
 
-CPU_4 = HardwareConfig(cpu_cores=4, memory="200g", hourly_cost=0.05, parallel_slots=4)
-CPU_16 = HardwareConfig(cpu_cores=16, memory="200g", hourly_cost=0.15, parallel_slots=8)
-CPU_48 = HardwareConfig(cpu_cores=48, memory="200g", hourly_cost=0.45, parallel_slots=16)
-GPU_25 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=25, hourly_cost=0.50, parallel_slots=4)
-GPU_100 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32)
+CPU_4 = HardwareConfig(cpu_cores=4, memory="200g", hourly_cost=0.05, parallel_slots=4, tier_order=0)
+CPU_16 = HardwareConfig(cpu_cores=16, memory="200g", hourly_cost=0.15, parallel_slots=8, tier_order=1)
+CPU_48 = HardwareConfig(cpu_cores=48, memory="200g", hourly_cost=0.45, parallel_slots=16, tier_order=2)
+GPU_25 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=25, hourly_cost=0.50, parallel_slots=4, tier_order=3)
+GPU_100 = HardwareConfig(cpu_cores=48, memory="200g", gpu_percentage=100, hourly_cost=4.00, parallel_slots=32, tier_order=4)
 
 ALL_CONFIGS = [CPU_4, CPU_16, CPU_48, GPU_25, GPU_100]
 
@@ -48,7 +48,7 @@ _TEST_THROUGHPUT = {
     "gpu_100": 1064.0,
 }
 
-CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: _TEST_THROUGHPUT.get(c.config_id(), 0))
+CONFIGS_BY_COST = sorted(ALL_CONFIGS, key=lambda c: c.tier_order)
 
 
 @pytest.fixture(autouse=True)

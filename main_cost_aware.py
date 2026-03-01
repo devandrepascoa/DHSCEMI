@@ -49,6 +49,7 @@ class HardwareConfig:
     gpu_percentage: Optional[int] = None
     hourly_cost: float = 0.0
     parallel_slots: Optional[int] = None
+    tier_order: int = 0
 
     def config_id(self) -> str:
         if self.gpu_percentage:
@@ -81,8 +82,9 @@ def _load_hardware_configs() -> tuple[List[HardwareConfig], Dict[str, float]]:
             gpu_percentage=c.get("gpu_percentage"),
             hourly_cost=c.get("hourly_cost", 0.0),
             parallel_slots=c.get("parallel_slots"),
+            tier_order=c.get("tier_order", i),
         )
-        for c in data["configs"]
+        for i, c in enumerate(data["configs"])
     ]
     throughput = data.get("measured_throughput", {})
     return configs, throughput
@@ -358,7 +360,7 @@ def select_config_per_request(
     measured throughput.
     """
     if configs_by_cost is None:
-        configs_by_cost = sorted(HARDWARE_CONFIGS, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
+        configs_by_cost = sorted(HARDWARE_CONFIGS, key=lambda c: c.tier_order)
 
     current_id = current_config.config_id()
     current_idx = next(
@@ -402,7 +404,7 @@ class CostAwareAutoscaler:
         headroom: float = 0.0,
     ):
         self.configs = configs
-        self.configs_by_cost = sorted(configs, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
+        self.configs_by_cost = sorted(configs, key=lambda c: c.tier_order)
         self.cooldown_seconds = cooldown_seconds
         self.cooldown_down_seconds = cooldown_down_seconds if cooldown_down_seconds is not None else cooldown_seconds
         self.clock = clock or time.time
@@ -570,7 +572,7 @@ class CostAwareAutoscaler:
 # ===========================================================================
 
 CONFIGS: List[HardwareConfig] = HARDWARE_CONFIGS
-CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: MEASURED_THROUGHPUT.get(c.config_id(), 0))
+CONFIGS_BY_COST = sorted(CONFIGS, key=lambda c: c.tier_order)
 
 COOLDOWN = int(os.environ.get("E2E_COOLDOWN", "300"))
 COOLDOWN_DOWN = int(os.environ.get("E2E_COOLDOWN_DOWN", os.environ.get("E2E_COOLDOWN", "300")))
