@@ -25,38 +25,19 @@
       "tier_order": 2
     },
     {
-      "config_id": "gpu_25",
-      "cpu_cores": 48,
-      "memory": "16g",
-      "gpu_percentage": 25,
-      "hourly_cost": 0.09,
-      "parallel_slots": 16,
-      "tier_order": 3
-    },
-    {
-      "config_id": "gpu_10",
-      "cpu_cores": 48,
-      "memory": "16g",
-      "gpu_percentage": 10,
-      "hourly_cost": 0.036,
-      "parallel_slots": 16,
-      "tier_order": 3
-    },
-    {
       "config_id": "gpu_100",
       "cpu_cores": 48,
       "memory": "16g",
       "gpu_percentage": 100,
       "hourly_cost": 0.36,
       "parallel_slots": 64,
-      "tier_order": 4
+      "tier_order": 3
     }
   ],
   "measured_throughput": {
     "cpu_4": 92.2,
     "cpu_16": 291.2,
     "cpu_48": 446.2,
-    "gpu_25": 392.4,
     "gpu_100": 1573.9
   }
 }
