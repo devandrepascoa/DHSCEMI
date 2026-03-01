@@ -6,7 +6,7 @@ Starts the main cost-aware server and drives it through the full
 vertical scaling staircase:
   cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100 → gpu_25 → cpu_48 → cpu_16 → cpu_4
 
-Server config: cooldown=60s (up), cooldown_down=240s (down), EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
+Server config: cooldown=60s (up), cooldown_down=300s (down), EMA ~30s window, MIN_TPS=10.0, SCALE_DOWN_CONCURRENCY=5.0
 
 Configs (measured throughput from benchmark):
   cpu_4:    92.2 tok/s  ($0.05/hr)  — peak at batch=32
@@ -128,7 +128,7 @@ PHASE_COLORS = {
 #   - Stabilization on target config
 #
 # For scale-down, we use 6 min (360s) to allow time for:
-#   - Cooldown (240s)
+#   - Cooldown (300s)
 #   - Container swap (~30-60s)
 #   - EMA convergence on new tier
 
@@ -682,7 +682,7 @@ async def main() -> None:
     env["E2E_MODELS_DIR"] = str(Path("models").resolve())
     env["E2E_INITIAL_CONFIG"] = "cpu_4"
     env["E2E_COOLDOWN"] = "60"
-    env["E2E_COOLDOWN_DOWN"] = "240"
+    env["E2E_COOLDOWN_DOWN"] = "300"
     env["E2E_EMA_WINDOW"] = "30"
     env["E2E_MIN_TPS"] = "10.0"
     env["E2E_SCALE_DOWN_CONCURRENCY"] = "5.0"
@@ -705,7 +705,7 @@ async def main() -> None:
             for cid, t in MEASURED_THROUGHPUT.items()
         },
         "cooldown_s": 60,
-        "cooldown_down_s": 240,
+        "cooldown_down_s": 300,
         "ema_window_s": 30,
         "min_tps_threshold": 10.0,
         "scale_down_concurrency": 5.0,
