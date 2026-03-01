@@ -104,11 +104,14 @@ PHASE_COLORS = {
 # Concurrency to overwhelm each config:
 #   cpu_4  (92.2):  >9.2  → use 12 workers
 #   cpu_16 (291.2): >29.1 → use 35 workers
-#   gpu_25 (335.8): >33.6 → use 35 workers (already >33.6 from prev phase)
 #   cpu_48 (446.2): >44.6 → use 50 workers
+#   gpu_25 (392.4): >39.2 → already overwhelmed by 50 workers from prev phase
 #   gpu_100 (1573.9): not overwhelmed
 #
-# Throughput-sorted order: cpu_4 → cpu_16 → gpu_25 → cpu_48 → gpu_100
+# Tier order: cpu_4 → cpu_16 → cpu_48 → gpu_25 → gpu_100
+#
+# Note: gpu_25 (392.4) < cpu_48 (446.2), so any load that overwhelms cpu_48
+# also overwhelms gpu_25. The system scales through gpu_25 quickly to gpu_100.
 #
 # Scale-down triggers when per_request_tps >= 10.0
 #   AND lower config can serve current concurrency above threshold (1.5x margin)
@@ -116,9 +119,9 @@ PHASE_COLORS = {
 # and 1 worker at 2 rpm (phase 8).
 #
 # Viability checks for each step down:
-#   gpu_100 → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
-#   cpu_48  → gpu_25: 335.8/6 = 56.0 >= 15 ✓  (6 workers)
-#   gpu_25  → cpu_16: 291.2/8 = 36.4 >= 15 ✓  (8 workers)
+#   gpu_100 → gpu_25: 392.4/6 = 65.4 >= 15 ✓  (6 workers)
+#   gpu_25  → cpu_48: 446.2/6 = 74.4 >= 15 ✓  (6 workers)
+#   cpu_48  → cpu_16: 291.2/8 = 36.4 >= 15 ✓  (8 workers)
 #   cpu_16  → cpu_4:  92.2/8  = 11.5 <  15 ✗  (8 workers — blocked!)
 #   cpu_16  → cpu_4:  92.2/1  = 92.2 >= 15 ✓  (1 worker, rate-limited)
 #
@@ -144,29 +147,32 @@ PHASES = [
     # cpu_16: 291.2/12 ≈ 24.3 tok/s > 10 → stable
     ("medium load",    240,  12,   0),
 
-    # Phase 3: High load — overwhelm cpu_16 and gpu_25, scale to cpu_48
+    # Phase 3: High load — overwhelm cpu_16, scale to cpu_48
     # 35 workers back-to-back → cpu_16: 291.2/35 ≈ 8.3 tok/s < 10 → scale up
-    # gpu_25: 335.8/35 ≈ 9.6 tok/s < 10 → after cooldown, scale up again
     # cpu_48: 446.2/35 ≈ 12.7 tok/s > 10 → stable
     ("high load",      300,  35,   0),
 
-    # Phase 4: Very high load — overwhelm cpu_48, scale to gpu_100
+    # Phase 4: Very high load — overwhelm cpu_48 (and gpu_25), scale to gpu_100
     # 55 workers back-to-back → cpu_48: 446.2/55 ≈ 8.1 tok/s < 10 → scale up
+    # gpu_25: 392.4/55 ≈ 7.1 tok/s < 10 → after cooldown, scale up again
     # gpu_100: 1573.9/55 ≈ 28.6 tok/s > 10 → stable
     ("peak load",      300,  55,   0),
 
-    # Phase 5: Ramp-down — scale from gpu_100 to cpu_48
-    # 6 workers back-to-back → gpu_100: ~1201 tok/s, per-req ~200 >> 10
-    # Viability: cpu_48 446.2/6 = 74.4 >= 15 → scale down
+    # Phase 5: Ramp-down — scale from gpu_100 to gpu_25
+    # 6 workers back-to-back → gpu_100: per-req ~262 >> 10
+    # Viability: gpu_25 392.4/6 = 65.4 >= 15 → scale down
+    # NOTE: ramp-down 1 may do two transitions (gpu_100→gpu_25→cpu_48)
+    # within 360s since cooldown_down=240s allows both.
     ("ramp-down 1",    360,   6,   0),
 
-    # Phase 6: Ramp-down — scale from cpu_48 to gpu_25
-    # 6 workers back-to-back → cpu_48: ~303 tok/s, per-req ~50 >> 10
-    # Viability: gpu_25 335.8/6 = 56.0 >= 15 → scale down
+    # Phase 6: Ramp-down — continue down (gpu_25→cpu_48 or cpu_48→cpu_16)
+    # 6 workers back-to-back
+    # Viability: cpu_48 446.2/6 = 74.4 >= 15 → scale down ✓
+    # Viability: cpu_16 291.2/6 = 48.5 >= 15 → could scale down again
     ("ramp-down 2",    360,   6,   0),
 
-    # Phase 7: Ramp-down — scale from gpu_25 to cpu_16
-    # 8 workers back-to-back → gpu_25: ~335 tok/s, per-req ~42 >> 10
+    # Phase 7: Ramp-down — scale to cpu_16 (if not already there)
+    # 8 workers back-to-back
     # Viability: cpu_16 291.2/8 = 36.4 >= 15 → scale down ✓
     # Viability: cpu_4  92.2/8  = 11.5 <  15 → blocked ✗ (prevents premature drop)
     ("ramp-down 3",    360,   8,   0),
@@ -175,16 +181,14 @@ PHASES = [
     # 1 worker at 2 rpm → cpu_16: per-req ~63 tok/s >> 10
     # Viability: cpu_4 92.2/1 = 92.2 >= 15 → scale down
     # NOTE: Using rate-limited requests (not back-to-back) to keep cpu_4 stable.
-    # Back-to-back workers cause per-req EMA to dip near threshold during
-    # container swap, triggering a re-scale-up.
     # 2 rpm (30s interval) gives ~11s window where recently_active=false,
     # enough for the 10s scaling check to trigger scale-down.
     ("ramp-down 4",    360,   1,   2),
 ]
 
 EXPECTED_SEQUENCE = [
-    "cpu_4", "cpu_16", "gpu_25", "cpu_48", "gpu_100",
-    "cpu_48", "gpu_25", "cpu_16", "cpu_4",
+    "cpu_4", "cpu_16", "cpu_48", "gpu_25", "gpu_100",
+    "gpu_25", "cpu_48", "cpu_16", "cpu_4",
 ]
 
 
