@@ -776,6 +776,7 @@ MODEL_NAME = os.environ.get("E2E_MODEL_NAME", "")
 # Disaggregated prefill mode
 DISAGGREGATED = os.environ.get("E2E_DISAGGREGATED", "").lower() in ("1", "true", "yes")
 SLOT_SAVE_DIR = os.environ.get("E2E_SLOT_SAVE_DIR", "/tmp/llama_slots")
+DISAGG_CTX_PER_SLOT = int(os.environ.get("E2E_DISAGG_CTX_PER_SLOT", "2048"))
 
 autoscaler: Optional[CostAwareAutoscaler] = None
 prefill_manager: Optional[DisaggregatedPrefillManager] = None
@@ -875,6 +876,9 @@ async def _async_container_start(container: Container) -> bool:
         docker_cmd.extend(["--n-gpu-layers", "99"])
     if DISAGGREGATED:
         docker_cmd.extend(["--slot-save-path", "/tmp/slots"])
+        # Set explicit ctx-size so per-slot context matches across GPU and CPU
+        total_ctx = DISAGG_CTX_PER_SLOT * parallel
+        docker_cmd.extend(["--ctx-size", str(total_ctx)])
 
     _log_json("CONTAINER_START_CMD", {
         "container": container.container_name,
