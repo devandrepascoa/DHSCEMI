@@ -619,6 +619,8 @@ class CostAwareAutoscaler:
             return port
 
     def get_model_path(self, model_name: str) -> Optional[Path]:
+        if not model_name:
+            return None
         for ext in ['', '.gguf', '.bin']:
             path = self.models_dir / ("%s%s" % (model_name, ext))
             if path.is_file():
