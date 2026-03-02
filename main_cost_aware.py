@@ -272,6 +272,10 @@ class Container:
             args.extend(['--gpus', 'all', '--privileged'])
             if self.config.gpu_percentage < 100:
                 args.extend(['-e', f'CUDA_MPS_ACTIVE_THREAD_PERCENTAGE={self.config.gpu_percentage}'])
+        # Shared slot save directory for disaggregated prefill
+        if DISAGGREGATED:
+            os.makedirs(SLOT_SAVE_DIR, exist_ok=True)
+            args.extend(['-v', '%s:/tmp/slots' % SLOT_SAVE_DIR])
         return args
 
     async def start(self) -> bool:
@@ -337,6 +341,190 @@ class Container:
 
     def get_endpoint(self) -> str:
         return "http://localhost:%d" % self.port
+
+
+# ---------------------------------------------------------------------------
+# Disaggregated Prefill Manager
+# ---------------------------------------------------------------------------
+
+class DisaggregatedPrefillManager:
+    """Manages a persistent GPU container for prefill (prompt processing).
+
+    In disaggregated mode, the GPU container handles prefill only:
+    1. Receive prompt → process on GPU (fast prefill)
+    2. Save KV cache slot to shared volume
+    3. Restore KV cache on CPU container
+    4. Decode (token generation) on CPU container
+
+    The CPU container is managed by the existing autoscaler.
+    """
+
+    def __init__(self, model_name: str, model_path: Path, gpu_config: HardwareConfig):
+        self.model_name = model_name
+        self.model_path = model_path
+        self.gpu_config = gpu_config
+        self.container: Optional[Container] = None
+        self.lock = asyncio.Lock()
+        self._slot_counter = 0
+
+    async def start(self, port: int) -> bool:
+        """Start the GPU prefill container."""
+        self.container = Container(
+            self.model_name, self.model_path, self.gpu_config, port,
+        )
+        success = await _async_container_start(self.container)
+        if success:
+            _log_json("DISAGG_GPU_STARTED", {
+                "container": self.container.container_name,
+                "config_id": self.gpu_config.config_id(),
+                "port": port,
+            })
+        return success
+
+    async def stop(self) -> None:
+        if self.container:
+            await _async_container_stop(self.container)
+            self.container = None
+
+    def _next_slot_filename(self) -> str:
+        self._slot_counter += 1
+        return "disagg_%d" % self._slot_counter
+
+    async def prefill_and_save(
+        self, messages: List[Dict[str, str]], temperature: float = 0.7,
+    ) -> Optional[Dict]:
+        """Run prefill on GPU, save KV cache, return slot info.
+
+        Sends the prompt to the GPU container with max_tokens=1 to trigger
+        prefill, then saves the slot. Returns dict with slot filename and
+        timing info, or None on failure.
+        """
+        if not self.container or not self.container.is_ready:
+            return None
+
+        endpoint = self.container.get_endpoint()
+        slot_filename = self._next_slot_filename()
+
+        # Build prompt text (same format as main handler)
+        prompt_parts = []
+        for m in messages:
+            prompt_parts.append("%s: %s" % (m.get("role", ""), m.get("content", "")))
+        prompt_text = "\n".join(prompt_parts)
+
+        # Send to GPU with max_tokens=1 to do prefill only
+        payload = {
+            "prompt": prompt_text,
+            "n_predict": 1,
+            "temperature": temperature,
+            "stream": False,
+            "id_slot": 0,
+        }
+
+        try:
+            prefill_start = time.time()
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=120)
+            ) as session:
+                async with session.post(
+                    "%s/completion" % endpoint, json=payload,
+                ) as resp:
+                    if resp.status != 200:
+                        body = await resp.text()
+                        _log_json("DISAGG_PREFILL_ERR", {
+                            "status": resp.status, "body": body[:300],
+                        })
+                        return None
+                    result = await resp.json()
+            prefill_ms = (time.time() - prefill_start) * 1000
+
+            # Save the slot
+            save_start = time.time()
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=30)
+            ) as session:
+                async with session.post(
+                    "%s/slots/0?action=save" % endpoint,
+                    json={"filename": slot_filename},
+                ) as resp:
+                    if resp.status != 200:
+                        body = await resp.text()
+                        _log_json("DISAGG_SAVE_ERR", {
+                            "status": resp.status, "body": body[:300],
+                        })
+                        return None
+                    save_result = await resp.json()
+            save_ms = (time.time() - save_start) * 1000
+
+            timings = result.get("timings", {})
+            _log_json("DISAGG_PREFILL_OK", {
+                "slot_filename": slot_filename,
+                "prefill_ms": round(prefill_ms, 1),
+                "save_ms": round(save_ms, 1),
+                "n_saved": save_result.get("n_saved", 0),
+                "n_written_bytes": save_result.get("n_written", 0),
+                "prompt_tokens": timings.get("prompt_n", 0),
+                "prompt_ms": round(timings.get("prompt_ms", 0), 1),
+            })
+
+            return {
+                "slot_filename": slot_filename,
+                "prefill_ms": prefill_ms,
+                "save_ms": save_ms,
+                "prompt_tokens": timings.get("prompt_n", 0),
+                "timings": timings,
+            }
+
+        except Exception as e:
+            _log_json("DISAGG_PREFILL_EXCEPTION", {"error": str(e)[:300]})
+            return None
+
+    async def restore_on_cpu(
+        self, cpu_container: Container, slot_filename: str,
+    ) -> Optional[Dict]:
+        """Restore a saved KV cache slot on the CPU container."""
+        endpoint = cpu_container.get_endpoint()
+        try:
+            restore_start = time.time()
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=30)
+            ) as session:
+                async with session.post(
+                    "%s/slots/0?action=restore" % endpoint,
+                    json={"filename": slot_filename},
+                ) as resp:
+                    if resp.status != 200:
+                        body = await resp.text()
+                        _log_json("DISAGG_RESTORE_ERR", {
+                            "status": resp.status, "body": body[:300],
+                        })
+                        return None
+                    restore_result = await resp.json()
+            restore_ms = (time.time() - restore_start) * 1000
+
+            _log_json("DISAGG_RESTORE_OK", {
+                "slot_filename": slot_filename,
+                "restore_ms": round(restore_ms, 1),
+                "n_restored": restore_result.get("n_restored", 0),
+                "cpu_container": cpu_container.container_name,
+            })
+
+            return {
+                "restore_ms": restore_ms,
+                "n_restored": restore_result.get("n_restored", 0),
+            }
+
+        except Exception as e:
+            _log_json("DISAGG_RESTORE_EXCEPTION", {"error": str(e)[:300]})
+            return None
+
+    def cleanup_slot_file(self, slot_filename: str) -> None:
+        """Remove the slot file from shared storage."""
+        try:
+            slot_path = Path(SLOT_SAVE_DIR) / slot_filename
+            if slot_path.exists():
+                slot_path.unlink()
+        except Exception:
+            pass
 
 
 # ---------------------------------------------------------------------------
@@ -583,7 +771,12 @@ DEMAND_WINDOW = 180
 MODELS_DIR = os.environ.get("E2E_MODELS_DIR", "./models")
 MODEL_NAME = os.environ.get("E2E_MODEL_NAME", "")
 
+# Disaggregated prefill mode
+DISAGGREGATED = os.environ.get("E2E_DISAGGREGATED", "").lower() in ("1", "true", "yes")
+SLOT_SAVE_DIR = os.environ.get("E2E_SLOT_SAVE_DIR", "/tmp/llama_slots")
+
 autoscaler: Optional[CostAwareAutoscaler] = None
+prefill_manager: Optional[DisaggregatedPrefillManager] = None
 server_start_time: float = 0.0
 scaling_in_progress: bool = False
 
@@ -678,6 +871,8 @@ async def _async_container_start(container: Container) -> bool:
     ]
     if container.config.gpu_percentage:
         docker_cmd.extend(["--n-gpu-layers", "99"])
+    if DISAGGREGATED:
+        docker_cmd.extend(["--slot-save-path", "/tmp/slots"])
 
     _log_json("CONTAINER_START_CMD", {
         "container": container.container_name,
@@ -1117,14 +1312,25 @@ async def _background_scaling_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global autoscaler, server_start_time
+    global autoscaler, prefill_manager, server_start_time
     server_start_time = time.time()
 
     model_name = MODEL_NAME
     models_dir = MODELS_DIR
 
+    # In disaggregated mode, filter out GPU configs from the autoscaler
+    # (GPU is used exclusively for prefill, CPU tiers for decode)
+    if DISAGGREGATED:
+        cpu_configs = [c for c in CONFIGS if not c.gpu_percentage]
+        if not cpu_configs:
+            logger.error("Disaggregated mode requires at least one CPU config")
+            yield
+            return
+    else:
+        cpu_configs = CONFIGS
+
     autoscaler = CostAwareAutoscaler(
-        configs=CONFIGS,
+        configs=cpu_configs if DISAGGREGATED else CONFIGS,
         cooldown_seconds=COOLDOWN,
         cooldown_down_seconds=COOLDOWN_DOWN,
         models_dir=models_dir,
@@ -1168,6 +1374,7 @@ async def lifespan(app: FastAPI):
         "ema_alpha": round(EMA_ALPHA, 6),
         "cooldown_s": COOLDOWN,
         "measured_throughput": MEASURED_THROUGHPUT,
+        "disaggregated": DISAGGREGATED,
     })
 
     if await _async_container_start(container):
@@ -1184,6 +1391,30 @@ async def lifespan(app: FastAPI):
         logger.error("Failed to start initial container")
         yield
         return
+
+    # Start GPU prefill container in disaggregated mode
+    if DISAGGREGATED:
+        gpu_config = next(
+            (c for c in CONFIGS if c.gpu_percentage), None,
+        )
+        if gpu_config is None:
+            logger.error("Disaggregated mode requires a GPU config in hardware_configs.json")
+            yield
+            return
+        gpu_port = autoscaler._get_port()
+        prefill_manager = DisaggregatedPrefillManager(
+            model_name, model_path, gpu_config,
+        )
+        if await prefill_manager.start(gpu_port):
+            _log_json("DISAGG_INIT_OK", {
+                "model": model_name,
+                "gpu_config": gpu_config.config_id(),
+                "gpu_port": gpu_port,
+                "cpu_config": initial_config.config_id(),
+            })
+        else:
+            logger.error("Failed to start GPU prefill container")
+            prefill_manager = None
 
     metrics_task = asyncio.create_task(_metrics_polling_loop())
     streaming_task = asyncio.create_task(_streaming_counter_loop())
@@ -1207,6 +1438,8 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass
 
+    if prefill_manager:
+        await prefill_manager.stop()
     for c in autoscaler.containers.values():
         await _async_container_stop(c)
     _log_json("SHUTDOWN", {"message": "all containers stopped"})
@@ -1220,11 +1453,15 @@ async def health():
     if autoscaler is None:
         return {"status": "starting"}
     ready = sum(1 for c in autoscaler.containers.values() if c.is_ready)
-    return {
+    result = {
         "status": "healthy" if ready > 0 else "down",
         "ready_containers": ready,
         "models": list(autoscaler.containers.keys()),
+        "disaggregated": DISAGGREGATED,
     }
+    if DISAGGREGATED and prefill_manager and prefill_manager.container:
+        result["gpu_prefill_ready"] = prefill_manager.container.is_ready
+    return result
 
 
 @app.get("/status")
@@ -1284,12 +1521,39 @@ async def chat_completions(request: ChatCompletionRequest):
             prompt_parts.append("%s: %s" % (m.role, m.content))
         prompt_text = "\n".join(prompt_parts)
 
+        # --- Disaggregated prefill path ---
+        disagg_info = None
+        if DISAGGREGATED and prefill_manager is not None:
+            messages_dicts = [{"role": m.role, "content": m.content} for m in request.messages]
+            disagg_info = await prefill_manager.prefill_and_save(
+                messages_dicts, temperature=request.temperature or 0.7,
+            )
+            if disagg_info:
+                # Restore KV cache on CPU container
+                restore_result = await prefill_manager.restore_on_cpu(
+                    container, disagg_info["slot_filename"],
+                )
+                if restore_result is None:
+                    _log_json("DISAGG_RESTORE_FAILED", {
+                        "req_id": req_id,
+                        "slot_filename": disagg_info["slot_filename"],
+                    })
+                    # Fall through to normal path (CPU will do its own prefill)
+                    disagg_info = None
+                else:
+                    disagg_info["restore_ms"] = restore_result["restore_ms"]
+                # Clean up slot file
+                prefill_manager.cleanup_slot_file(disagg_info["slot_filename"] if disagg_info else "")
+
         payload = {
             "prompt": prompt_text,
             "n_predict": request.max_tokens or 256,
             "temperature": request.temperature or 0.7,
             "stream": True,
         }
+        # If we restored the KV cache, pin to slot 0 so llama.cpp finds it
+        if disagg_info is not None:
+            payload["id_slot"] = 0
 
         endpoint = container.get_endpoint()
         url = "%s/completion" % endpoint
@@ -1406,6 +1670,10 @@ async def chat_completions(request: ChatCompletionRequest):
             "container": container.container_name,
             "port": container.port,
             "raw_timings": timings,
+            "disaggregated": disagg_info is not None,
+            "disagg_prefill_ms": round(disagg_info["prefill_ms"], 1) if disagg_info else None,
+            "disagg_save_ms": round(disagg_info["save_ms"], 1) if disagg_info else None,
+            "disagg_restore_ms": round(disagg_info.get("restore_ms", 0), 1) if disagg_info else None,
         })
 
         response = {
