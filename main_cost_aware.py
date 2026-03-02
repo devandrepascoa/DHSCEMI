@@ -1411,10 +1411,12 @@ async def lifespan(app: FastAPI):
             yield
             return
         gpu_port = autoscaler._get_port()
-        # Force parallel=1 so all prefill requests land on slot 0
-        gpu_config_single = replace(gpu_config, parallel_slots=1)
+        # Match GPU parallel_slots to CPU config so KV cache structure is identical
+        # (save file format depends on full cache layout, not just per-slot size).
+        # We still pin prefill requests to id_slot=0.
+        gpu_config_matched = replace(gpu_config, parallel_slots=initial_config.parallel_slots or initial_config.cpu_cores or 1)
         prefill_manager = DisaggregatedPrefillManager(
-            model_name, model_path, gpu_config_single,
+            model_name, model_path, gpu_config_matched,
         )
         if await prefill_manager.start(gpu_port):
             _log_json("DISAGG_INIT_OK", {
