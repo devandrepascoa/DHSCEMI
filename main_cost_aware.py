@@ -879,6 +879,9 @@ async def _async_container_start(container: Container) -> bool:
         # Set explicit ctx-size so per-slot context matches across GPU and CPU
         total_ctx = DISAGG_CTX_PER_SLOT * parallel
         docker_cmd.extend(["--ctx-size", str(total_ctx)])
+        # Disable flash attention: CUDA FA uses transposed V cache layout,
+        # making save files incompatible with CPU FA layout.
+        docker_cmd.extend(["--flash-attn", "off"])
 
     _log_json("CONTAINER_START_CMD", {
         "container": container.container_name,
