@@ -25,7 +25,7 @@ import uuid
 import logging
 from typing import Callable, Dict, List, Optional
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from collections import deque
 from pathlib import Path
 
@@ -1404,8 +1404,10 @@ async def lifespan(app: FastAPI):
             yield
             return
         gpu_port = autoscaler._get_port()
+        # Force parallel=1 so all prefill requests land on slot 0
+        gpu_config_single = replace(gpu_config, parallel_slots=1)
         prefill_manager = DisaggregatedPrefillManager(
-            model_name, model_path, gpu_config,
+            model_name, model_path, gpu_config_single,
         )
         if await prefill_manager.start(gpu_port):
             _log_json("DISAGG_INIT_OK", {
