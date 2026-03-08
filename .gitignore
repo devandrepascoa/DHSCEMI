@@ -18,3 +18,6 @@ _models/
 
 # Thesis (separate repo)
 Thesis/
+
+# AI agent config
+AGENTS.md
