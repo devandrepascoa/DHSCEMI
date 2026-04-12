@@ -101,29 +101,70 @@ def fig_peak_throughput():
 
 
 # ---------------------------------------------------------------------------
-# Figure 3: Cost per token vs demand level
+# Figure 3: Cost savings from dynamic scaling vs always-on GPU
 # ---------------------------------------------------------------------------
-def fig_cost_per_token_vs_demand():
+def fig_cost_savings_vs_demand():
+    max_demand = MEASURED["gpu_100"]
+    demand = np.linspace(1, max_demand, 2000)
+
+    static_cpt = CONFIGS["gpu_100"]["hourly_cost"] / (demand * 3600)
+
+    dynamic_cpt = []
+    for d in demand:
+        viable = [(cid, CONFIGS[cid]["hourly_cost"] / (d * 3600))
+                  for cid in TIER_ORDER if MEASURED[cid] >= d]
+        if viable:
+            dynamic_cpt.append(min(viable, key=lambda x: x[1])[1])
+        else:
+            dynamic_cpt.append(CONFIGS["gpu_100"]["hourly_cost"] / (d * 3600))
+    dynamic_cpt = np.array(dynamic_cpt)
+
+    savings = (1 - dynamic_cpt / static_cpt) * 100
+
     fig, ax = plt.subplots(figsize=(6, 3.5))
-    demand_range = np.linspace(1, 1600, 500)
-    for cfg in TIER_ORDER:
-        cost_h = CONFIGS[cfg]["hourly_cost"]
-        peak = MEASURED[cfg]
-        # Cost per token only valid up to peak throughput
-        valid = demand_range <= peak
-        cpt = np.where(valid, cost_h / (demand_range * 3600) * 1e6, np.nan)
-        ax.plot(demand_range, cpt, color=COLORS[cfg], label=LABELS[cfg], linewidth=1.5)
-        # Mark peak with a dot
-        ax.plot(peak, cost_h / (peak * 3600) * 1e6, "o",
-                color=COLORS[cfg], markersize=5)
+
+    # Build segments per config for colored fills
+    segments = []
+    prev_best = None
+    seg_start = 0
+    for i, d in enumerate(demand):
+        viable = [(cid, CONFIGS[cid]["hourly_cost"])
+                  for cid in TIER_ORDER if MEASURED[cid] >= d]
+        if viable:
+            best = min(viable, key=lambda x: x[1])[0]
+        else:
+            best = "gpu_100"
+        if best != prev_best:
+            if prev_best is not None:
+                segments.append((seg_start, i, prev_best))
+            seg_start = i
+            prev_best = best
+    segments.append((seg_start, len(demand) - 1, prev_best))
+
+    for s_start, s_end, cfg in segments:
+        ax.fill_between(demand[s_start:s_end+1], savings[s_start:s_end+1],
+                        alpha=0.25, color=COLORS[cfg])
+        ax.plot(demand[s_start:s_end+1], savings[s_start:s_end+1],
+                color=COLORS[cfg], linewidth=2)
+        mid_idx = (s_start + s_end) // 2
+        mid_y = savings[mid_idx]
+        if mid_y > 5:
+            label_x = max(demand[mid_idx], 120)
+            ax.annotate(LABELS[cfg], xy=(label_x, mid_y),
+                        ha="center", va="bottom", fontsize=8, fontweight="bold",
+                        color=COLORS[cfg])
+
+    for s_start, s_end, cfg in segments[1:]:
+        ax.axvline(demand[s_start], color="#888", linestyle=":", alpha=0.5)
+
+    ax.axhline(0, color="gray", linewidth=0.8)
     ax.set_xlabel("Demand (tok/s)")
-    ax.set_ylabel("Cost per Token (μ\$)")
-    ax.set_title("Cost per Token vs. Demand Level")
-    ax.set_xlim(0, 1650)
-    ax.set_ylim(0, 3.0)
-    ax.legend(loc="upper right", fontsize=7)
+    ax.set_ylabel("Cost Savings vs. Static GPU (%)")
+    ax.set_title("Cost Savings from Dynamic Scaling vs. Always-On GPU")
+    ax.set_xlim(0, max_demand)
+    ax.set_ylim(0, 100)
     ax.grid(True, alpha=0.3)
-    _save(fig, "eval_cost_per_token_vs_demand")
+    _save(fig, "eval_cost_savings_vs_demand")
 
 
 # ---------------------------------------------------------------------------
@@ -216,7 +257,7 @@ if __name__ == "__main__":
     print("Generating evaluation figures...")
     fig_throughput_vs_batch()
     fig_peak_throughput()
-    fig_cost_per_token_vs_demand()
+    fig_cost_savings_vs_demand()
     fig_scaling_ladder()
     fig_scaling_demo()
     print(f"Done. Figures saved to {OUT}")
