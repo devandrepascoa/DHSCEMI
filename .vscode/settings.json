@@ -1,7 +1,6 @@
 {
-    "kiroAgent.configureMCP": "Enabled",
+    "kiroAgent.configureMCP": "Disabled",
     "latex-workshop.latex.autoBuild.run": "onSave",
-    "latex-workshop.latex.outDir": "%DIR%/build",
     "latex-workshop.latex.search.rootFiles.include": [
         "Thesis/main.tex"
     ],
