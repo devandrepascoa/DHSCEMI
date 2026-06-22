@@ -208,26 +208,27 @@ def fig_scaling_demo():
         demo = json.load(f)
 
     t = np.array([e["elapsed"] / 60.0 for e in demo])  # minutes
-    demand = np.array([e["throughput_tps"] for e in demo])
+    active = np.array([e.get("active_requests", 0) for e in demo], dtype=float)
     configs = [e["config_id"] for e in demo]
     config_idx = np.array([TIER_ORDER.index(c) if c in TIER_ORDER else -1
                            for c in configs])
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
 
-    # Config step function with colored fill
+    # Config step function with colored fill (left axis)
     for i in range(len(t) - 1):
         c = configs[i]
         ax.fill_between([t[i], t[i + 1]], [config_idx[i], config_idx[i + 1]],
                         alpha=0.35, color=COLORS[c], step="post", zorder=2)
     ax.step(t, config_idx, where="post", color="#333", linewidth=1.8, zorder=3)
 
-    # Demand on twin axis
+    # Active requests (concurrency) on twin axis -- the scaling trigger
     ax2 = ax.twinx()
-    ax2.plot(t, demand, color="#555555", linewidth=1.0, alpha=0.7, zorder=4)
-    ax2.fill_between(t, demand, alpha=0.05, color="#555555")
-    ax2.set_ylabel("Aggregate Throughput (tok/s)", color="#555555")
-    ax2.tick_params(axis="y", labelcolor="#555555")
+    ax2.plot(t, active, color="#B85450", linewidth=1.3, alpha=0.9, zorder=4,
+             label="Active requests")
+    ax2.fill_between(t, active, alpha=0.08, color="#B85450")
+    ax2.set_ylabel("Active Requests (concurrency)", color="#B85450")
+    ax2.tick_params(axis="y", labelcolor="#B85450")
 
     # Scaling event vertical lines
     for i in range(1, len(configs)):
@@ -241,11 +242,7 @@ def fig_scaling_demo():
     ax.set_yticklabels([LABELS[c] for c in TIER_ORDER], fontsize=8)
     ax.set_ylim(-0.5, len(TIER_ORDER) - 0.5)
     ax.set_xlim(t[0], t[-1])
-    ax.set_title("Scaling Demo: Hardware Transitions under Varying Load")
-
-    patches = [mpatches.Patch(color=COLORS[c], label=LABELS[c], alpha=0.5)
-               for c in TIER_ORDER]
-    ax.legend(handles=patches, loc="upper left", fontsize=7, ncol=2)
+    ax.set_title("Scaling Experiment: Hardware Transitions vs.\\ Concurrency")
     ax.grid(True, alpha=0.3)
     _save(fig, "eval_scaling_demo")
 
