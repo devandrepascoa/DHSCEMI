@@ -199,6 +199,74 @@ def fig_scaling_ladder():
 
 
 # ---------------------------------------------------------------------------
+# Real autoscaler path: steps through tiers by tier_order (incl. cpu_48)
+# ---------------------------------------------------------------------------
+def fig_savings_real_path():
+    max_demand = MEASURED["gpu_100"]
+    demand = np.linspace(1, max_demand, 2000)
+    gpu_hourly = CONFIGS["gpu_100"]["hourly_cost"]
+
+    def savings(cfg):
+        return (1 - CONFIGS[cfg]["hourly_cost"] / gpu_hourly) * 100
+
+    # Autoscaler path: climbs the tier_order ladder, stops at the lowest tier
+    # whose peak throughput can serve the demand.
+    path_cfg = [None] * len(demand)
+    for i, d in enumerate(demand):
+        viable = [c for c in TIER_ORDER if MEASURED[c] >= d]
+        if viable:
+            path_cfg[i] = viable[0]
+
+    # Collapse into contiguous segments
+    segs = []
+    start = 0
+    for i in range(1, len(demand)):
+        if path_cfg[i] != path_cfg[i - 1]:
+            segs.append((start, i - 1, path_cfg[i - 1]))
+            start = i
+    segs.append((start, len(demand) - 1, path_cfg[-1]))
+    segs = [(a, b, c) for a, b, c in segs if c is not None]
+
+    fig, ax = plt.subplots(figsize=(7, 3.6))
+
+    # Crop the view: gpu_100 is flat at 0 % out to its 1574 tok/s peak, so the
+    # far-right band is dead space. Show just past cpu_48's peak.
+    non_gpu_peak = max(MEASURED[c] for c in TIER_ORDER if c != "gpu_100")
+    x_view_max = non_gpu_peak * 1.4
+
+    prev = None
+    for a, b, cfg in segs:
+        x0, x1, y = demand[a], demand[b], savings(cfg)
+        # save/loss shading under the step (green = saves, red = loses vs GPU)
+        ax.fill_between([x0, x1], 0, y,
+                        color=("#82B366" if y >= 0 else "#B85450"), alpha=0.18)
+        # single neutral step line for the autoscaler path
+        ax.plot([x0, x1], [y, y], color="#2b2b2b", linewidth=2.4, solid_capstyle="butt")
+        if prev is not None:
+            ax.plot([x0, x0], [prev, y], color="#2b2b2b", linewidth=1.2)
+        # label centered within the *visible* portion of the step
+        vx1 = min(x1, x_view_max)
+        ax.annotate(f"{cfg}  {y:+.0f}%", xy=((x0 + vx1) / 2, y),
+                    xytext=(0, -11 if y >= 0 else 11), textcoords="offset points",
+                    ha="center", va="center", fontsize=8, fontweight="bold",
+                    color="#2b2b2b",
+                    bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.7))
+        prev = y
+
+    ax.axhline(0, color="#555555", linewidth=1.0)
+    ax.text(x_view_max, 3, "always-on GPU", ha="right", va="bottom",
+            fontsize=7, color="#555555")
+
+    ax.set_xlabel("Demand (tok/s)")
+    ax.set_ylabel("Cost Savings vs. GPU (%)")
+    ax.set_title("Autoscaler Cost Savings vs. Demand")
+    ax.set_xlim(0, x_view_max)
+    ax.set_ylim(-55, 100)
+    ax.grid(True, axis="y", alpha=0.3)
+    _save(fig, "eval_savings_real_path")
+
+
+# ---------------------------------------------------------------------------
 # Figure 5: Scaling demo workload profile
 # ---------------------------------------------------------------------------
 def fig_scaling_demo():
@@ -242,7 +310,7 @@ def fig_scaling_demo():
     ax.set_yticklabels([LABELS[c] for c in TIER_ORDER], fontsize=8)
     ax.set_ylim(-0.5, len(TIER_ORDER) - 0.5)
     ax.set_xlim(t[0], t[-1])
-    ax.set_title("Scaling Experiment: Hardware Transitions vs.\\ Concurrency")
+    ax.set_title("Scaling Experiment: Hardware Transitions vs. Concurrency")
     ax.grid(True, alpha=0.3)
     _save(fig, "eval_scaling_demo")
 
@@ -255,6 +323,7 @@ if __name__ == "__main__":
     fig_throughput_vs_batch()
     fig_peak_throughput()
     fig_cost_savings_vs_demand()
+    fig_savings_real_path()
     fig_scaling_ladder()
     fig_scaling_demo()
     print(f"Done. Figures saved to {OUT}")
