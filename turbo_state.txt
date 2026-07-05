@@ -1,0 +1,5 @@
+driver: intel_pstate
+intel_pstate/no_turbo exists: yes
+no_turbo value: 0
+cpufreq/boost exists: no
+boost value: 
