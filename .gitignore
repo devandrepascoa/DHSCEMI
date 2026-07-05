@@ -11,6 +11,12 @@ wheels/
 
 # Model files (large binaries)
 *.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+models/
 _models/
 
 # IDE
