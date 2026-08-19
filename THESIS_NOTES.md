@@ -28,7 +28,7 @@ Context file for AI-assisted sessions on this thesis. Everything below was estab
 - Costs: $0.04 / $0.17 / $0.50 / $0.36 per hr (Hetzner CCX23/43/63; RunPod A4000, Feb 2026). Cost/token: 0.121 / 0.162 / 0.311 / 0.064 $/Mtok — all recomputed and correct.
 - Ratios in prose all check: 9× (0.36/0.04), +89% / +53% / −39% savings, 3.2× and 1.5× CPU scaling, 5.2× GPU batch gain, 3.5× GPU jump over cpu_48.
 - Scaling demo timeline (matches `benchmarks/thesis_figures/scaling_demo_data.json`): up at 265/525/810 s, down at 1125/1395/1655 s; measured in-flight peaks ≈ 90 (> 55 workers, queueing).
-- MPS study: single-request 230.1 (no MPS) → 216.6 (100%) → 103.3 (25%, =45%) → 39.4 (10%) → 20.3 (5%); aggregate at 64 slots: ~1200 / ~1205 (25%!) / ~688 / ~416. Bottleneck = unpartitioned memory bandwidth.
+- MPS study (**measured but NOT in the thesis — see §5 below**): single-request 230.1 (no MPS) → 216.6 (100%) → 103.3 (25%, =45%) → 39.4 (10%) → 20.3 (5%); aggregate at 64 slots: ~1200 / ~1205 (25%!) / ~688 / ~416. Bottleneck = unpartitioned memory bandwidth.
 - **Computed but NOT in the thesis (user declined)**: integrated cost of the demo run = $0.138 vs $0.180 static GPU = 23.3% saving; tier time share cpu_4 23% / cpu_16 29% / cpu_48 31% / gpu_100 18%.
 - Benchmark quirk (now honestly described in §5.2/§5.3.4): reported throughput is the **mean of per-round values over completed rounds under a 120 s per-batch budget**, not total-tokens/total-wall-time. cpu_4's peak (92.2 @ batch 32) comes from a budget-truncated batch whose raw totals equal batch 16's.
 - Reproducibility gaps (unfixed): the raw server log for the final 4-tier 6-event run is NOT in `benchmarks/scaling_demo_logs/` (committed logs are earlier 5-tier gpu_25 runs); MPS raw data is not committed anywhere. `scaling_demo_data.json` has git provenance ("remove gpu_25, use 4-tier run", "200g re-run").
@@ -43,7 +43,7 @@ Conventions: double-braced titles `{{...}}`, IEEEtran style, `@misc` URLs carry 
 - `kim2025infersave`: real authors Kim, Kim, Chung, Cha, Kim, Kim (3 of 4 were wrong).
 - `zheng2024sglang`: Kozyrakis fixed (was "Kober"), 3 phantom authors removed; now NeurIPS 2024 (@inproceedings, vol 37).
 - `park2025engines`: Lee Jemin, Jeon Seokhun fixed.
-- `razavi2024themis` → **renamed `razavi2024twoscales`** (paper is "A Tale of Two Scales…"; nothing in it is called Themis — prose in §3.2.2 and Table 3.1 now says "Razavi et al."); Koldehofe restored, phantom "Chen, Lin" removed.
+- `razavi2024themis` → **renamed `razavi2024twoscales`** (the paper's title is "A Tale of Two Scales…"); Koldehofe restored, phantom "Chen, Lin" removed. **CORRECTION (verified 2026-08-19): the system in that paper IS named Themis** — the abstract reads "This paper introduces Themis, a system designed to leverage the benefits of both horizontal and vertical scaling in inference serving systems." The earlier note claiming "nothing in it is called Themis" was wrong. The bib key is fine as-is, but §3.2.2 and Table 3.1 should name Themis.
 - Venue upgrades: Jiang→ICML 2025 (pp. 27534–27552), SageServe→POMACS/SIGMETRICS 2025, DeepSeek-R1→Nature 645:633–638 (Guo et al.), GPTQ→ICLR'23, k-bit→ICML'23, QLoRA title fixed ("Quantized LLMs"); `qwen2025qwen25` → renamed `qwen2024qwen25`; llamacpp URL → ggml-org.
 - Access dates ("Accessed July 2026") added to llamacpp, tensorrtllm, kserve, kubeflow, nvidia_mps, nvidia_mig — **user should confirm the pages are live**.
 
@@ -61,9 +61,9 @@ Conventions: double-braced titles `{{...}}`, IEEEtran style, `@misc` URLs carry 
 - **Ring composition**: §1.1 opens "Not every inference request needs a GPU…"; Ch6's identical opener is now a callback. Appears exactly twice.
 - **Running scenario**: small always-available endpoint (few req/min overnight, dozens concurrent at peak) in §1.1; echoed in Ch4's first sentence; §5.6.1 maps the six phases onto it.
 - **"Why this signal" paragraph** in §4.3 (per-request tok/s vs CPU util / queue depth / aggregate throughput); one-sentence preview in §1.2.
-- **Verdicts**: §5.4, §5.5, §5.6 each end by answering their Goals question; "Cost Savings Potential" replaced by a "Summary" subsection (recaps the three answers + the MPS study + 9×, hands off to Ch6). No new numbers.
+- **Verdicts**: §5.4, §5.5, §5.6 each end by answering their Goals question; "Cost Savings Potential" replaced by a §5.7 "Summary" section (recaps the three answers + 9×, hands off to Ch6). No new numbers.
 - **Chapter hand-offs** at ends of Ch2, Ch3 §3.6, Ch4.
-- **MPS surfacing = "Suggestion 1" only** (user's explicit choice): §1.2 second results highlight (negative result), a dedicated contribution (item 4 of 5, evaluation stays last), §5.7.1 retitled "Why MPS Cannot Provide a Fractional GPU Tier". **A bar-chart figure was built and then REMOVED at the user's request — do not re-add an MPS plot.** No Ch4 "missing rung" paragraph, no 4th Goals question, no abstract change.
+- **MPS was FULLY REVERTED — verified 2026-08-19 by grepping all chapters.** The MPS study appears nowhere in the thesis body. Chapters 1 and 5 contain zero occurrences of "MPS". `§5.7.1 "Why MPS Cannot Provide a Fractional GPU Tier"` **does not exist**; §5.7 is "Summary". §1.2 has no MPS results highlight, Ch1 has **three** contributions (proxy design, scaling mechanism, evaluation) and no MPS one. The only surviving MPS text is background: Ch2 §2.3 "Fractional GPU Sharing: MPS and MIG", which describes MPS/MIG from the NVIDIA docs and notes that memory bandwidth is not partitioned — that is a documentation claim, **not** the user's measurement. **Do not re-add the MPS study, an MPS figure, or an MPS finding anywhere, and do not attribute the bandwidth-bottleneck result to this thesis.**
 - **Prose register**: user is a student and wants plain, non-flashy text. Four "too writerly" phrases were deliberately flattened ("moves in the informative direction" → "degrades when the hardware is overloaded…", "of independent interest" → "worth reporting on its own", "compress the daily rhythm" → "reproduce, over half an hour, the daily load pattern", "distills" → "summarizes"). Match this plain register in any new prose.
 - **P0 correctness fixes** (earlier): §4.1 step ④ rewritten to stop-then-start (with the single-host contention rationale); client-streaming claims corrected in §4.1/§4.6 + future-work line in Ch6; softened "does not interrupt the client-facing API" to acknowledge in-flight failures; Appendix A listing reframed (production memory values, `config_id` fields, cross-ref to §5.3.5); Appendix B cleaned (inert knob removed, activity window 30→15 s, phase-6 rpm 3→2); §5.2/§5.3.4 throughput-metric definition corrected; recent-activity wording fixed ("inflated so that the viability check fails").
 
@@ -72,7 +72,7 @@ Conventions: double-braced titles `{{...}}`, IEEEtran style, `@misc` URLs carry 
 1. **No INFaaS / MArk / classical pre-LLM serving comparisons** — user feels they devalue the work. (Keep for defense prep only: "INFaaS selects among pre-provisioned variants per query; this system vertically switches one always-on backend." / "MArk exploits AWS instance diversity at provisioning; this switches hardware class at runtime.")
 2. **Burstiness/unpredictability angle is PAUSED** — no Shahrad, no BurstGPT, no rewording of §1.1's "unpredictable" claim. User's framing: the motivation is *rarely used models with usage spikes* (Hugging Face long tail), not big diurnal-pattern services. Note (unresolved, raised by user): the supervisor-paper Fig. 1 traces look predictable at the weekly scale; the honest defense is variability + per-model sporadicity, but do not touch this without the user asking.
 3. **9× is the only headline number** — the computed 23.3% integrated saving stays out of the thesis.
-4. **No MPS figure** (was added, then removed).
+4. **No MPS anywhere in the body** — the figure was added then removed, and the whole study was later reverted. MPS survives only as Ch2 background. Do not resurrect it.
 5. **No AWQ citation** (user doesn't know it), **no A4000 datasheet citation**.
 6. **Keep 200g benchmark memory low-profile** in the narrative.
 7. Evaluation-variance sentences (§5.4 round-to-round spread, single-run acknowledgment): **declined**.
@@ -81,13 +81,47 @@ Conventions: double-braced titles `{{...}}`, IEEEtran style, `@misc` URLs carry 
 
 ## 7. Supervisor comment scorecard (from the annotated PDF, 42 annotations)
 
-**Addressed and verified**: title split; single-paragraph abstract; 17 acronyms; small-model motivation; results highlights in §1.2 (now incl. MPS); inference-pipeline diagram + prefill/decode; MIG beside MPS; Kubeflow/KServe + engines sections; RW opener; ≥2 examples per category (completed this session via Autopilot + SkyServe); orchestrators-on-K8s; CPU–GPU section discusses real prior work; fractional sharing positioned; Ch4 overview + numbered architecture diagram (①–④); generic N-tier presentation; tok/s measurement methodology; pricing citations (Hetzner/RunPod); EMA-window justification (half-life ≈ 80 s); 10 tok/s justification; max(â,1) explanation; SSE acronym; hostname removed; Xeon 26 cores/52 threads per socket; missing period; cost plot redesigned (step plot with labels); scaling trigger = concurrency (plotted + dedicated paragraph); SM reminder + bandwidth-bottleneck answer; gpu_25 Docker-complexity argument dropped; Limitations merged into Ch6 "Limitations and Future Work"; "live demo" → "realistic workload experiment".
+**Addressed and verified**: title split; single-paragraph abstract; 17 acronyms; small-model motivation; results highlights in §1.2; inference-pipeline diagram + prefill/decode; MIG beside MPS (Ch2 background); Kubeflow/KServe + engines sections; RW opener; ≥2 examples per category (completed this session via Autopilot + SkyServe); orchestrators-on-K8s; CPU–GPU section discusses real prior work; fractional sharing positioned (Ch2 only); Ch4 overview + numbered architecture diagram (①–④); generic N-tier presentation; tok/s measurement methodology; pricing citations (Hetzner/RunPod); EMA-window justification (half-life ≈ 80 s); 10 tok/s justification; max(â,1) explanation; SSE acronym; hostname removed; Xeon 26 cores/52 threads per socket; missing period; cost plot redesigned (step plot with labels); scaling trigger = concurrency (plotted + dedicated paragraph); SM reminder; gpu_25 Docker-complexity argument dropped; Limitations merged into Ch6 "Limitations and Future Work"; "live demo" → "realistic workload experiment".
 
 **Still open**:
 - Acknowledgments (`Chapters/Acknowledgments.tex` is a TODO; section still renders in main.tex).
 - One nested-colon caption: `fig:scaling_demo` renders "Figure 5.x: Scaling experiment: …".
 - "One worker = one request" never stated explicitly in §5.6.1.
 - 10 tok/s justification sentence in §4.4.1 is still slightly garbled and arithmetically loose (10 tok/s ≈ 7.5 words/s vs 4–5 words/s reading speed — floor is *above* reading speed with headroom).
+
+## 7b. Related-work audit (2026-08-19) — every Table 3.1 row checked against the primary source
+
+All 12 cited works exist, are correctly identified, and the one verbatim quotation (SLINFER) is genuine. **No fabricated sources, quotations, experiments, or results.** The problems are misclassification, mechanism drift, and numbers attached to the wrong condition.
+
+**FIXED (2026-08-19):**
+- **SpotServe (§3.2.3):** the clause "speculative token generation to mask migration latency" was a **hallucinated mechanism** — SpotServe has no speculative decoding. Its third technique is *stateful inference recovery* (token-level progress commit + JIT arrangement inside the cloud grace period). Likely conflation with SpecInfer (same first author, ASPLOS'24). Now reads: "SpotServe handles preemptions through reparallelisation across the remaining instances and migration of model weights and key-value cache, which lets interrupted requests resume instead of being recomputed from the beginning."
+- **SLINFER scaling direction:** row was `Horizontal`, but the paper prioritises vertical scaling ("Rather than blindly following serverless-style horizontal scaling… identifying or even actively seeking opportunities for vertical scaling"; "prioritizing vertical scaling through proactive preemption"). Now `Both`.
+- **SLINFER sharing description:** "fine-grained spatial sharing" and "SLINFER-style spatial sharing" were wrong — its compute sharing is token-level *time*-multiplexing ("it selects one instance at a time to compute one iteration"; its own time-sharing baseline is `sllm+c+s`). §3.4.2 paragraph 2 rewritten in plain language, now also states SLINFER's CPU-first/GPU-fallback placement and that it has **no pricing model** (the decisive difference: SLINFER packs models into a fixed cluster, this system shrinks the bill for one model). The speculative "could use SLINFER-style sharing inside each tier" sentence was removed.
+- **SLINFER numbers:** 86–154% was credited to CPU use alone. It is CPU **plus** elastic sharing vs. `sllm`; sharing alone is 47–62% (vs. `sllm+c`), and the metric is SLO-met requests.
+- **Table: `Runtime` column deleted.** Its header did not name what it measured, its values conflated adaptation policy with planning time, and six of thirteen rows were wrong. §3.6 intro now says "four dimensions".
+- **Table: `Signal` → `Decision signal`,** holding only measured or predicted inputs. Objectives, solvers, mechanisms and granularities moved out: DynamoLLM `Predicted load`, SpotServe `Preemption notice`, Splitwise `Queue length`, DistServe/Mélange/InferSave `Workload profile`, SageServe `Traffic forecast`, Razavi `Arrival rate`, HeteroScale `Decode tok/s`, SLINFER `SLO headroom`, KServe `Concurrency`, HPA `CPU utilisation`, Ours `Per-request tok/s`. Naming HeteroScale's metric is a *gain*: their production study rejects GPU utilisation and latency in favour of a token-throughput metric, which independently corroborates §4.3.
+- **Table: `Scaling` column.** Splitwise, DistServe and Mélange now `—` (they perform no runtime scaling); DynamoLLM and SpotServe now `Both`; **Ours now `Vertical (HW class)`** — the only row that changes hardware class, a uniqueness claim no reader can contest. §3.6 observation 1 rewritten accordingly ("no existing system changes hardware class at runtime").
+- **Table: `Hardware` column.** Splitwise reclassified to `Several GPU types` (Splitwise-HA is H100 prompt + A100 token; Insight VII: "Token generation can be run on less compute-capable hardware"). `Homogeneous` for KServe/HPA → `CPU or GPU (fixed)`, so every value answers one question. Splitwise added to the GPU-diversity citation in §3.6 observation 2.
+- **Term "SKU" removed** — it appeared 9 times across Ch1/Ch3/Ch4, was never defined and is not in the acronym list. Now "GPU type"; table values are `One GPU type` / `Several GPU types`.
+
+Committed as `0d76eaf` in the `Thesis/` repo (plus `4d850c7` for earlier-session work). Builds verified clean after every edit (exit 0, zero `^!`, 74 pages).
+
+**OPEN — 13 items, highest priority first** (severity in brackets):
+1. [High] InferSave "73.7%" credited to KV-cache offloading. Paper: 73.7% is instance selection **without** offloading on **online** workloads; offloading gives 20.19% on offline workloads.
+2. [High] "M\'elange computes a static allocation **periodically**" — the paper disclaims it: "does not address… auto-scaling for dynamic request rates". It solves once for a fixed workload profile.
+3. [High] DistServe "scaling each resource pool independently" — DistServe has **no autoscaler**; placement is an offline co-optimisation. Now also contradicts its `—` in the table. Goodput is **per-GPU**.
+4. [Medium] HPA/VPA behavioural claims cited to `burns2016kubernetes` ("Borg, Omega, and Kubernetes", CACM 2016), which documents neither; VPA postdates it. Add `@misc` doc citations with access dates.
+5. [Medium] §3.2.4 "The VPA… requires pod restarts" is out of date **and contradicts §3.2.2**, where Themis uses Kubernetes in-place vertical scaling with <100 ms latency and no restart.
+6. [Medium] System name **Themis** still omitted from §3.2.2 and the table row (it is in the paper's abstract).
+7. [Medium] §3.3.1 "the price-performance spread between GPU types is **modest**" contradicts §3.3.3 ("substantial") and both sources (Mélange up to 77%; Jiang et al. "substantially optimized").
+8. [Low] Mélange "subject to throughput requirements" → the binding constraint is the TPOT SLO.
+9. [Low] KServe scale-to-zero is unqualified; it holds in the Knative mode only, not the HPA raw-deployment mode.
+10. [Low] Splitwise "1.4×" drops its conditions: the paper says 1.4× **at 20% lower cost**, or 2.35× at equal cost and power.
+11. [Low] DistServe "time-between-token" → TPOT.
+12. [Low] Jiang et al. "assigning each request to the most cost-effective device" → the paper assigns **workload portions** via MILP.
+13. [Low] The SLINFER quotation silently anglicises the source: it reads "remain **underutilized**" inside the quotation marks.
+
+Batching: items 2+8 are the same Mélange paragraph, 3+11 the same DistServe sentence, 4+5 the same §3.2.4 paragraph. The rest are singles.
 
 ## 8. Remaining polish backlog (P2, not yet done)
 
@@ -109,4 +143,5 @@ André Jesus dissertation: ~61 pages of prose, 85 bib entries (≈45% top venues
 - After any edit: `cd Thesis && make all`, then check exit code, `^!` count, and third-pass "undefined".
 - Any new bib entry: **web-verify authors/venue/year first** (subagent with WebSearch works well). The bibliography previously contained fabricated author lists — examiners read those as LLM-generated.
 - When adding prose: plain student register, no single-sentence paragraphs, no nested colons, captions end with a period, impersonal voice.
-- The user prefers direct suggestions over question menus ("give me suggestions, don't ask me"), wants trade-offs explained, and pushes back — expect and welcome it (two of their pushbacks caught real issues: the predictable-traces observation and the Parcae near-miss was caught by the verify-first rule they endorsed).
+- The user prefers direct suggestions over question menus ("give me suggestions, don't ask me"), wants trade-offs explained, and pushes back — expect and welcome it (three of their pushbacks caught real issues: the predictable-traces observation, the Parcae near-miss caught by the verify-first rule they endorsed, and the stale MPS claims in these notes).
+- **Response style**: `~/.kiro/steering/response-style.md` (global, loads every session) requires ASD-STE100 plain language, RFC-2119 keywords where requirement strength matters, and concise responses with no narration. The user asked for this explicitly because earlier answers were too verbose. Keep answers short; show the work instead of describing it.
