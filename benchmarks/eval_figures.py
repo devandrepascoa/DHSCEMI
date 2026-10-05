@@ -76,7 +76,6 @@ def fig_throughput_vs_batch():
     ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
     ax.legend(loc="upper left")
     ax.grid(True, alpha=0.3)
-    ax.set_title("Throughput Scaling with Batch Size")
     _save(fig, "eval_throughput_vs_batch")
 
 
@@ -92,7 +91,6 @@ def fig_peak_throughput():
     ax.set_xticks(range(len(cfgs)))
     ax.set_xticklabels([LABELS[c] for c in cfgs], rotation=15, ha="right", fontsize=8)
     ax.set_ylabel("Peak Throughput (tok/s)")
-    ax.set_title("Peak Aggregate Throughput by Configuration")
     for bar, val in zip(bars, peaks):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 20,
                 f"{val:.1f}", ha="center", va="bottom", fontsize=8)
@@ -160,7 +158,6 @@ def fig_cost_savings_vs_demand():
     ax.axhline(0, color="gray", linewidth=0.8)
     ax.set_xlabel("Demand (tok/s)")
     ax.set_ylabel("Cost Savings vs. Static GPU (%)")
-    ax.set_title("Cost Savings from Dynamic Scaling vs. Always-On GPU")
     ax.set_xlim(0, max_demand)
     ax.set_ylim(0, 100)
     ax.grid(True, alpha=0.3)
@@ -188,7 +185,6 @@ def fig_scaling_ladder():
     ax.set_xticklabels(labels, rotation=15, ha="right", fontsize=8)
     ax.set_ylabel("Hourly Cost (\\$)")
     ax2.set_ylabel("Peak Throughput (tok/s)")
-    ax.set_title("Scaling Ladder (by tier order)")
 
     # Combined legend
     lines1, labels1 = ax.get_legend_handles_labels()
@@ -259,7 +255,6 @@ def fig_savings_real_path():
 
     ax.set_xlabel("Demand (tok/s)")
     ax.set_ylabel("Cost Savings vs. GPU (%)")
-    ax.set_title("Autoscaler Cost Savings vs. Demand")
     ax.set_xlim(0, x_view_max)
     ax.set_ylim(-55, 100)
     ax.grid(True, axis="y", alpha=0.3)
@@ -310,7 +305,6 @@ def fig_scaling_demo():
     ax.set_yticklabels([LABELS[c] for c in TIER_ORDER], fontsize=8)
     ax.set_ylim(-0.5, len(TIER_ORDER) - 0.5)
     ax.set_xlim(t[0], t[-1])
-    ax.set_title("Scaling Experiment: Hardware Transitions vs. Concurrency")
     ax.grid(True, alpha=0.3)
     _save(fig, "eval_scaling_demo")
 
